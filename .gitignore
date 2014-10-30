@@ -26,7 +26,6 @@ todo
 unixtime2tm.o
 zones/.cvsignore
 zones/code/
-zones/old-tzcode-32-bit-output.tar.gz
 zones/oldtz/
 zones/timezonedb.dta
 zones/timezonedb.idx
