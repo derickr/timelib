@@ -1,0 +1,4 @@
+Expected:                                                          | Timestamp: | Timezone:
+TYPE: 0 TS: 1112427000 | 2005-04-02 02:30:00 EST America/New_York  | 1112427000 | America/New_York
+TYPE: 0 TS: 1112418000 | 2005-04-02 00:00:00 EST America/New_York  | 1112418000 | America/New_York
+TYPE: 0 TS: 1112504400 | 2005-04-03 00:00:00 EST America/New_York  | 1112504400 | America/New_York

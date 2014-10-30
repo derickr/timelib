@@ -1,0 +1,32 @@
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S / 1.2 | this week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 1.2 | this week monday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 2.2 | this week tuesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 3.2 | this week wednesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 4.2 | thursday this week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 5.2 | friday this week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 6.2 | saturday this week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 0.2 | sunday this week
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M  -7D /   0H   0M   0S / 1.2 | last week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 1.2 | last week monday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 2.2 | last week tuesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 3.2 | last week wednesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 4.2 | thursday last week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 5.2 | friday last week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.2 | saturday last week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 0.2 | sunday last week
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M  -7D /   0H   0M   0S / 1.2 | previous week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 1.2 | previous week monday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 2.2 | previous week tuesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 3.2 | previous week wednesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 4.2 | thursday previous week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 5.2 | friday previous week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.2 | saturday previous week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 0.2 | sunday previous week
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   7D /   0H   0M   0S / 1.2 | next week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 1.2 | next week monday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 2.2 | next week tuesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 3.2 | next week wednesday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 4.2 | thursday next week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 5.2 | friday next week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 6.2 | saturday next week
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / 0.2 | sunday next week

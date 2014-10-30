@@ -1,0 +1,7 @@
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   1D /   0H   0M   0S | first day
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M  -1D /   0H   0M   0S | last day
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   1M   0D /   0H   0M   0S | next month
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   1M   1D /   0H   0M   0S | first day next month
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   1M   0D /   0H   0M   0S / first day of | first day of next month
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   1M  -1D /   0H   0M   0S | last day next month
+TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   1M   0D /   0H   0M   0S / last day of | last day of next month

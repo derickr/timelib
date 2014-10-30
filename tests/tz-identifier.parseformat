@@ -1,0 +1,4 @@
+TS: 0 | -99999--99999--99999 01:00:03 0.12345 Europe/Amsterdam | H:i:s.u e | 01:00:03.12345 Europe/Amsterdam
+TS: 0 | -99999--99999--99999 01:00:03 0.12345 America/Indiana/Knox | H:i:s.u e | 01:00:03.12345 America/Indiana/Knox 
+TS: 0 | 2005-07-14 22:30:41 America/Los_Angeles | Y-m-d H:i:s e | 2005-07-14 22:30:41 America/Los_Angeles
+TS: 0 | 2005-07-14 22:30:41 America/Los_Angeles | Y-m-d?H:i:s?e | 2005-07-14	22:30:41	America/Los_Angeles

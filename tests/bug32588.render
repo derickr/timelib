@@ -1,0 +1,4 @@
+Expected:                                                          | Timestamp: | Timezone:
+TYPE: 0 TS: 1112400000 | 2005-04-02 00:00:00 GMT GMT               | 1112400000 | GMT
+TYPE: 0 TS: 1112486400 | 2005-04-03 00:00:00 GMT GMT               | 1112486400 | GMT
+TYPE: 0 TS: 1112572800 | 2005-04-04 00:00:00 GMT GMT               | 1112572800 | GMT

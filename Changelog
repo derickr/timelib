@@ -1,0 +1,1054 @@
+Wed Nov 25 13:46:51 CET 2009 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h
+timelib/zones/makearchive.sh:
+- Sync
+
+Tue Jul 28 17:34:57 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+zones/makearchive.sh:
+- Fixed paths again.
+
+Tue Jul 28 17:13:50 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+zones/makearchive.sh:
+- Adjust for new paths.
+
+Tue Jul 28 17:13:38 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+zones/create-entry.php:
+- Fixed issue with negative long / lat.
+
+Sat Jul 25 17:55:08 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+zones/makearchive.sh:
+- Update script to work with SVN layout.
+
+Thu May 21 00:38:38 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+timelib.c
+timelib/tests/american.parse
+timelib/tests/bug41523.parse
+timelib/tests/bug41842.parse
+timelib/tests/bug44426.parse
+timelib/tests/bugs.parse
+timelib/tests/combined.parse
+timelib/tests/common.parse
+timelib/tests/date.parse
+timelib/tests/datefull.parse
+timelib/tests/datenocolon.parse
+timelib/tests/datenoday.parse
+timelib/tests/dateroman.parse
+timelib/tests/dateslash.parse
+timelib/tests/datetextual.parse
+timelib/tests/iso8601date.parse
+timelib/tests/iso8601long.parse
+timelib/tests/iso8601nocolon.parse
+timelib/tests/last-day-of.parse
+timelib/tests/mysql.parse
+timelib/tests/pgsql.parse
+timelib/tests/pointeddate.parse
+timelib/tests/relative.parse
+timelib/tests/special.parse
+timelib/tests/timelong12.parse
+timelib/tests/timelong24.parse
+timelib/tests/timeshort12.parse
+timelib/tests/timeshort24.parse
+timelib/tests/timetiny12.parse
+timelib/tests/week.parse
+timelib/tests/weeknr.parse:
+- Fixed test generator (and tests) to make things easier to distinguish. Mostly
+  to remove hte standard "GMT 00000" from test output.
+
+Sun May 03 18:31:04 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+html/docs/include/basic.php
+timelib/parse_iso_intervals.c
+timelib/timelib_structs.h
+timelib/timezonemap.h
+timelib/tm2unixtime.c:
+- Added Mike's quickness patches.
+
+Sun May 03 18:19:20 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/gettzmapping.php
+timelib/parse_date.re
+timelib/parse_iso_intervals.c
+timelib/parse_iso_intervals.re
+timelib/parse_tz.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonedb.h
+timelib/timezonemap.h
+timelib/tm2unixtime.c
+timelib/tests/last-day-of.parse
+timelib/tests/last-day-of.ts:
+- Added Scottish times
+- Fixed last day of.
+
+Tue Mar 31 16:45:53 CEST 2009 Derick Rethans <derick@derickrethans.nl>
+zones/create-entry.php:
+- Fixed for ereg deprecation.
+
+Wed Jul 23 19:57:30 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/relative-weekday-1.ts
+timelib/tests/relative-weekday-2.ts
+timelib/tests/relative-weekday-first.ts
+timelib/tests/relative-weekday-second.ts
+timelib/tests/relative-weekday-week1.ts
+timelib/tests/relative-weekday.ts
+timelib/tests/week.parse
+timelib/tests/week.ts:
+- Fixed behavior of weekdays, and added tests for this.
+
+Sun Jul 20 23:29:26 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+zones/create-entry.php
+timelib/zones/makearchive.sh:
+- Create alternative version of file, including country code, BC and location
+  information.
+- Support version suffixes in build script.
+
+Thu Jul 17 19:35:37 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+dow.c
+timelib/parse_date.re
+timelib/timelib.h:
+- Merge changes back from PHP.
+
+Tue Jul 08 22:30:46 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Allow more format specifiers, to allow re-using the same formatting
+  specifiers from PHP.
+
+Tue Jul 08 20:14:16 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/parse_iso_intervals.c
+timelib/tm2unixtime.c:
+- Fixed comment style.
+- Fixed ambiguities in the date parsing.
+
+Sun May 04 22:42:02 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib.c
+timelib/timelib.h
+timelib/tm2unixtime.c
+timelib/tests/last-day-of.parse
+timelib/tests/last-day-of.ts:
+- Added support for "last <weekday> of" and "<x> <weekday> of" phrases in the
+  date string parser.
+
+Sun May 04 12:15:17 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+parse_iso_intervals.c
+timelib/parse_iso_intervals.re:
+- Initialize the start/end date properly.
+
+Sat May 03 13:24:51 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+tm2unixtime.c:
+- Fixed "Weekday" algorithm.
+
+Thu May 01 18:10:48 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib.c
+timelib/timelib_structs.h
+timelib/tm2unixtime.c:
+- Shuffle around some structures so that it logically makes more sense.
+
+Thu May 01 02:14:36 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+timelib.c
+timelib/timelib.h:
+- Added timelib_rel_time_clone().
+
+Sun Apr 27 21:28:59 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+interval.c
+timelib/parse_date.re
+timelib/tester-diff.c
+timelib/timelib.c
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- MFPHP: Fixed "this week", "previous week"/"last week" and "next week" phrases
+  by actually meaning the week.
+- MFPHP: Fixed diffing by correcting for DST changeovers.
+- MFPHP: Changed timelib_tz_lookup_table.gmtoffset to a float to support 
+  sub-hour offsets.
+- MFPHP: Optimize timestamp generation for very early dates.
+
+Sat Apr 19 04:55:50 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h:
+- Update to latest version.
+
+Mon Apr 07 17:35:39 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+tester-diff.c
+timelib/interval.c
+timelib/parse_iso_intervals.re
+timelib/parse_iso_intervals.c
+timelib/tester-parse-interval.c
+timelib/tm2unixtime.c
+timelib/timelib.h
+timelib/timelib.c
+timelib/parse_tz.c
+timelib/Makefile:
+- Added diffing
+- Added parsing the ISO 8601 intervals.
+- Fixed issue in returning UTC offset - might affect sunrise things.
+
+Mon Apr 07 17:18:45 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+tests/transition.ts
+timelib/tests/transition.render:
+- Added tests for transitions to DST.
+
+Mon Apr 07 17:18:22 CEST 2008 Derick Rethans <derick@derickrethans.nl>
+zones/makearchive.sh:
+- Make sure to update all files.
+
+Sun Mar 16 08:15:58 CET 2008 Derick Rethans <derick@derickrethans.nl>
+tests/bug44426.parse:
+- Add missing test file.
+
+Thu Mar 13 16:48:42 CET 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Implement MS SQL time formats.
+
+Thu Mar 13 15:34:28 CET 2008 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/dow.c
+timelib/parse_date.re
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonemap.h
+timelib/tm2unixtime.c:
+- Merge back from PHP.
+
+Sat Feb 02 16:01:06 CET 2008 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tm2unixtime.c
+timelib/tests/strange.ts
+timelib/tests/timelong24.parse:
+- Bring up to date with PHP.
+
+Sun Jan 13 16:32:49 CET 2008 Derick Rethans <derick@derickrethans.nl>
+usefulstuff.c
+xdebug/usefulstuff.h
+xdebug/xdebug.c
+xdebug/xdebug_profiler.c
+xdebug/contrib/online_profiling_prepend.php
+timelib/tester-parse-string-by-format.c:
+- Added tester file.
+
+Sun Jan 13 16:23:50 CET 2008 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/astro.c
+timelib/dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonedb.h
+timelib/timezonemap.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/zones/makearchive.sh:
+- Added the timelib_parse_from_format function.
+- Synched with PHP.
+
+Sat Jul 21 10:02:18 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+timelib.c
+timelib/timelib.h:
+- Merge changes back from PHP.
+
+Fri Jul 13 19:50:35 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+timelib.c:
+- Let's use a macro here, as llabs() requires c99.
+
+Thu Jul 12 21:14:13 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/parse_date.re
+timelib/timelib.c
+timelib/unixtime2tm.c
+timelib/tests/bug41523.parse
+timelib/tests/bug41709.ts
+timelib/tests/bug41842.parse
+timelib/tests/bug41964.parse
+timelib/tests/american.parse
+timelib/tests/bug30190.ts
+timelib/tests/bugs.parse
+timelib/tests/combined.parse
+timelib/tests/common.parse
+timelib/tests/date.parse
+timelib/tests/datefull.parse
+timelib/tests/datenocolon.parse
+timelib/tests/datenoday.parse
+timelib/tests/dateroman.parse
+timelib/tests/dateslash.parse
+timelib/tests/datetextual.parse
+timelib/tests/iso8601date.parse
+timelib/tests/iso8601long.parse
+timelib/tests/iso8601longtz.parse
+timelib/tests/iso8601nocolon.parse
+timelib/tests/iso8601normtz.parse
+timelib/tests/iso8601shorttz.parse
+timelib/tests/pgsql.parse
+timelib/tests/pointeddate.parse
+timelib/tests/relative.parse
+timelib/tests/timelong12.parse
+timelib/tests/timelong24.parse
+timelib/tests/timeshort12.parse
+timelib/tests/timeshort24.parse
+timelib/tests/timetiny12.parse
+timelib/tests/tz-identifier.parse
+timelib/tests/tzcorrection.parse
+timelib/tests/weeknr.parse:
+- Fixes for PHP bugs:
+  - Fixed bug #41964 (strtotime returns a timestamp for non-time string of
+    pattern '(A|a) .+').
+  - Fixed bug #41844 (Format returns incorrect number of digits for negative
+    years -0001 to -0999).
+  - Fixed bug #41842 (Cannot create years < 0100 & negative years with
+    date_create or new DateTime).
+  - Fixed bug #41709 (strtotime() does not handle 00.00.0000).
+  - Fixed bug #41523 (strtotime('0000-00-00 00:00:00') is parsed as
+    1999-11-30).
+
+Thu Jul 12 21:12:10 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+tests/bug40290.ts:
+- Added a test file from a previous bug.
+
+Wed Jul 11 20:55:24 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+tests/relative.parse:
+- More tests for relative units.
+
+Wed Jul 11 20:54:50 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+Makefile:
+- Yay, debian finally has re2c back in a usable version.
+
+Wed Jul 11 20:50:02 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+timezonemap.h
+timelib/timezonedb.h:
+- Update timezone databsae to 2007.6.
+
+Wed Jul 11 20:43:37 CEST 2007 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Merge back changes from PHP.
+
+Tue Feb 13 03:28:44 CET 2007 Derick Rethans <derick@derickrethans.nl>
+astro.c
+timelib/dow.c
+timelib/parse_date.re
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- Happy New Year.
+
+Tue Feb 13 03:27:39 CET 2007 Derick Rethans <derick@derickrethans.nl>
+timezonemap.h
+timelib/timezonedb.h:
+- Update to 2007.2.
+
+Tue Feb 13 03:26:28 CET 2007 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c:
+- Merge back from PHP.
+
+Tue Oct 17 19:11:10 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h:
+- Update to new timezone database (2006n)
+
+Sat Sep 09 14:28:19 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Fixed invalid read (PHP bug #38721)
+
+Wed Sep 06 09:27:42 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/weeknr.parse:
+- Added support for the full ISO week number format. (2006-W52-7)
+
+Tue Aug 29 22:21:54 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/gettzmapping.php:
+- Update support scripts.
+
+Tue Aug 29 22:21:34 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Merge new format from PHP
+Tue Aug 29 22:21:10 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+timezonemap.h:
+- Upgrade the database to 2006.11 (k).
+
+Tue Aug 29 21:42:46 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h:
+- Upgrade to 2006k.
+
+Tue Jul 04 19:30:10 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h
+timelib/zones/makearchive.sh:
+- Update timezonedb to 2006.7.
+
+Thu Jun 08 18:33:11 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/bugs.parse:
+- Fixed a crash that happened when there was no space between a textual
+  relative unit and relative text. (Like in "nextyear")
+
+Fri May 19 17:03:40 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonedb.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/tests/combined.parse
+timelib/tests/relative.parse
+timelib/tests/relative.ts
+timelib/tests/render.render
+timelib/zones/create_dot_h_file.php
+timelib/zones/makearchive.sh:
+- Added const where appropriated
+- Fixed several bugs filed in the PHP bug system
+- Fixed build issues on Windows
+- Implemented support for "weekday"
+
+Wed May 03 20:13:07 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+tests/month.ts:
+- Added test case for lone month names.
+
+Wed May 03 17:30:38 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/tests/relative.parse
+timelib/tests/relative.ts:
+- Added support for "this weekday", "next weekday" and the like.
+- Added support for lone month names like "march".
+
+Wed May 03 14:06:31 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+test_create.php
+timelib/test_render.php:
+- Fixed testing scripts.
+
+Sun Apr 09 17:07:23 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+tests/bug37017.parse:
+- Added a test case for PHP bug #37017.
+
+Sun Apr 09 17:03:02 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/parse_date.re
+timelib/tester-parse-string.c
+timelib/timelib.c
+timelib/timelib_structs.h
+timelib/tests/bug37017.ts
+timelib/tests/bugs.parse:
+- Implemented error recording and fixed some bugs.
+
+Fri Apr 07 10:48:44 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile:
+- Disable optimizations
+
+Thu Apr 06 22:12:24 CEST 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/test-astro.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/tests/date.parse
+timelib/tests/strange.ts:
+- Enhanced parser so that it can return meaningful parse error messages.
+- Fixed a small buglet in timezone abbr parsing; even if it wasn't found
+  the abbreviation would be recorded and updated the test case for this.
+- Updated test programs with new timelib_strtotime signature.
+- Fixed a bug where 5 and 6 letter timezones were not detected.
+- Fixed a bug that disallowed "@0" and added a testcase for this.
+
+Mon Feb 27 20:32:24 CET 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/combined.parse
+timelib/tests/common.parse
+timelib/tests/datefull.parse
+timelib/tests/datenoday.parse
+timelib/tests/dateroman.parse
+timelib/tests/datetextual.parse
+timelib/tests/iso8601longtz.parse
+timelib/tests/iso8601nocolon.parse
+timelib/tests/iso8601normtz.parse
+timelib/tests/pgsql.parse
+timelib/tests/relative.parse
+timelib/tests/timelong12.parse
+timelib/tests/timeshort12.parse
+timelib/tests/timetiny12.parse
+timelib/tests/tz-identifier.parse:
+- Implemented support for tabs as spacing just like normal spaces.
+
+Fri Feb 24 10:38:41 CET 2006 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/date.parse:
+- Added support for dd-mm-yyyy format.
+
+Fri Feb 24 10:38:09 CET 2006 Derick Rethans <derick@derickrethans.nl>
+test_parser.php
+timelib/tester-parse-string.c:
+- Fixed tester code, and also show "error count".
+
+Tue Jan 31 20:34:22 CET 2006 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h
+timelib/timezonemap.h:
+- Upgraded to TZ database 2006a
+
+Mon Jan 23 23:29:41 CET 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile:
+- Remove path from Makefile
+
+Mon Jan 23 23:07:42 CET 2006 Derick Rethans <derick@derickrethans.nl>
+test_all.php
+timelib/tests/special.parse:
+- Added test_all script and another bunch of tests.
+
+Mon Jan 23 22:19:48 CET 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile:
+- Fixed Makefile too.
+
+Mon Jan 23 22:17:56 CET 2006 Derick Rethans <derick@derickrethans.nl>
+test_create.php
+timelib/test_parser.php
+timelib/test_render.php
+timelib/tests/weird-timezone.render:
+- New test scripts by Marcus, that report the number of tests, failures and
+  successes at the end.
+
+Mon Jan 23 00:05:45 CET 2006 Derick Rethans <derick@derickrethans.nl>
+Makefile
+timelib/astro.c
+timelib/dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/test-astro.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonemap.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/tests/tzcorrection.parse
+timelib/tests/bugs.parse
+timelib/tests/combined.parse
+timelib/tests/common.parse:
+- Sync from PHP.
+
+Tue Dec 27 17:38:40 CET 2005 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h:
+- Upgraded to 2005.18 - Changes for the Canadians.
+
+Tue Dec 20 20:49:16 CET 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c
+timelib/timelib.h:
+- Added timelib_timezone_id_is_valid() function.
+
+Tue Dec 20 16:51:07 CET 2005 Derick Rethans <derick@derickrethans.nl>
+unixtime2tm.c
+timelib/tests/past-leap.render:
+- Fixed correct rendering of dates in leap year situations before 1970. (PHP
+  bug #35699)
+
+Tue Dec 20 16:50:02 CET 2005 Derick Rethans <derick@derickrethans.nl>
+timezonemap.h
+timelib/Makefile
+timelib/timezonedb.h:
+- Upgraded to tz database 2005q (17)
+
+Tue Dec 20 16:49:23 CET 2005 Derick Rethans <derick@derickrethans.nl>
+test-astro.c
+timelib/.cvsignore:
+- Added astro testing code.
+
+Mon Dec 19 14:14:01 CET 2005 Derick Rethans <derick@derickrethans.nl>
+astro.c
+timelib/astro.h
+timelib/Makefile
+timelib/gettzmapping.php
+timelib/parse_date.re
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/tester-render-ts.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/unixtime2tm.c
+timelib/tests/combined.parse
+timelib/tests/iso8601longtz.parse
+timelib/tests/relative.parse:
+- Added astro code.
+- Update timelib_unixtime2local to not accept a 3rd parameter anymore.
+- Properly support UTC in parsed strings.
+
+Sun Dec 18 14:47:52 CET 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- The tzcorrection is optional for SOAP, backport from PHP.
+
+Sun Dec 18 14:30:07 CET 2005 Derick Rethans <derick@derickrethans.nl>
+timelib.h:
+- Merged Windows fix from PHP's copy.
+
+Thu Oct 20 09:49:09 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/tests/bug34874.ts
+timelib/tests/bugs.parse
+timelib/tests/relative.parse:
+- Added better support for "friday" and "this friday", so that they don't
+  skip to the friday of the next week if the current day is a friday.
+
+Sat Oct 15 21:16:22 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+fallbackmap.h
+timelib/timezonedb.h:
+- Update timezone database to 2005.14.
+
+Sat Oct 08 16:32:45 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/timetiny12.parse
+timelib/tests/common.parse
+timelib/tests/thisweek.ts
+timelib/tests/timelong12.parse
+timelib/tests/timelong24.parse
+timelib/tests/timeshort12.parse
+timelib/tests/timeshort24.parse:
+- Added support for "noon", "midnight" and times with only an hour (+meridian).
+
+Fri Oct 07 09:53:22 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib_structs.h:
+- Merged back from PHP, correct include of generated header.
+
+Mon Oct 03 13:19:51 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+fallbackmap.h
+timelib/gettzmapping.php
+timelib/test-abbr-to-id.c
+timelib/timezonemap.h
+timelib/.cvsignore
+timelib/Makefile
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/tester-render-ts.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonedb.h
+timelib/zones/create_dot_h_file.php
+timelib/zones/makearchive.sh:
+- Added backported changes to allow an external timezone database and fallback
+  mappings.
+
+Fri Sep 02 14:30:40 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h:
+- Updated timezone DB to 2005m.
+
+Fri Sep 02 14:19:32 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h
+timelib/zones/create_dot_h_file.php:
+- The old format was broken, here a new one.
+
+Fri Sep 02 13:38:24 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h:
+- Added the comments, as generated by the new code.
+
+Fri Sep 02 13:33:05 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+zones/create_dot_h_file.php
+timelib/zones/makearchive.sh:
+- Create the index with PHP 5.1, and make sure the .h file gets layouted
+  properly, so that we can more easily spot changes and it reduces diffs.
+
+Fri Sep 02 11:46:32 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+dow.c
+timelib/timelib.h:
+- MFPHP: Function to retrieve the ISO weekday.
+
+Thu Sep 01 14:45:28 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c
+timelib/tests/weird-timezone.render:
+- Backport of PHP bug #33414.
+
+Wed Aug 31 16:33:29 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/tests/dateslash.parse:
+- Added support for Y/m/d dates.
+- Backported DOW/ISO Week fix.
+- Backported other small fixes from PHP.
+
+Wed Aug 24 15:14:10 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/mysql.parse
+timelib/tests/pointeddate.parse:
+- Back out shortmysql format, as it broke others.
+
+Wed Aug 24 14:58:19 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+php_xdebug.h
+xdebug/xdebug.c
+xdebug/xdebug_private.h
+timelib/parse_date.re
+timelib/tests/mysql.parse:
+- Added support for MySQL short format
+- Fixed PHP bug #34087.
+
+Wed Aug 24 13:16:02 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tester-iso-week.c
+timelib/.cvsignore
+timelib/Makefile:
+- Added an iso-week function tester.
+
+Mon Jul 18 22:39:26 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib.h
+timelib/unixtime2tm.c:
+- Added timelib_update_from_sse().
+
+Mon Jul 18 14:50:18 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib_structs.h
+timelib/tests/combined.parse
+timelib/tests/tz-identifier.parse:
+- Added support for "lone" years.
+- Fixed parsing of timezone identifier.
+- Windows compile fixes.
+
+Tue Jul 12 00:29:05 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib_structs.h:
+- Whitespace issues.
+
+Tue Jul 12 00:28:51 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tests/bugs.parse
+timelib/parse_date.re:
+- Readded support for 17Oct and Oct17.
+
+Sun Jul 10 16:10:57 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Backport fix to PHP's bundled lib.
+
+Sun Jul 10 00:08:09 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonedb.h
+timelib/zones/create_dot_h_file.php
+timelib/zones/makearchive.sh:
+- Export identifier list.
+- Properly namespace protect data.
+
+Sat Jul 09 22:57:26 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Backport added timezones.
+
+Sat Jul 09 22:50:26 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+dow.c
+timelib/parse_tz.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib.m4
+timelib/timelib_config.h
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- Backport missing changes from PHP's bundled lib.
+
+Sat Jul 09 22:41:06 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib.h
+timelib/timelib_structs.h:
+- Export timelib_tz_lookup_table.
+
+Tue Jul 05 23:29:23 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/tests/bugs.parse:
+- Added support for the format "11 Oct".
+
+Tue Jul 05 20:32:22 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib.c:
+- Backport of memory management change so that tzinfo structures can live
+  outside time structures too.
+
+Tue Jul 05 20:31:48 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Backport of memory problem in timelib_timezone_id_from_abbr().
+
+Sun Jul 03 23:35:12 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/timelib.h:
+- Added a mechanism to allow strtotime to return errors.
+
+Sun Jul 03 20:48:44 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+html/month-2004-01.php
+www.derickrethans.nl/html/rss.xml
+www.derickrethans.nl/html/text/blurps.xml
+timelib/parse_tz.c:
+- Fixed uninitialized variable problem.
+
+Sun Jul 03 17:00:34 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib.h:
+- Added timelib_timezone_id_from_abbr() function.
+
+Fri Jul 01 09:19:11 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib.h:
+- Backport Windows fixes from PHP.
+
+Thu Jun 30 23:56:58 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+dow.c
+timelib/parse_tz.c
+timelib/test-tz-parser.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/timezonedb.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- Backported a couple of additions to dow.c from PHP.
+
+Thu Jun 30 23:55:56 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+xdebug_var.c
+xdebug/tests/bug00089.phpt
+timelib/zones/sort-index.php
+timelib/zones/makearchive.sh:
+- Make sure the timezonedb is correctly sorted.
+
+Wed Jun 29 21:04:27 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tests/strange.ts
+timelib/parse_date.re:
+- Added support for negative timestamps with the @<number> format.
+#- Patch by Nuno Lopes.
+
+Tue Jun 28 23:38:25 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c:
+- Backport for PHP bug #33415.
+
+Tue Jun 28 20:08:16 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/timelib_config.h:
+- Backport of PHP bugfix #33433.
+
+Tue Jun 28 19:56:38 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re
+timelib/parse_tz.c
+timelib/timezonedb.h
+timelib/zones/makearchive.sh:
+- Implemented binary search for timezone abbreviations and timezone identifier
+  lookups.
+#- Based on a patch by Nuno Lopes
+
+Tue Jun 28 19:51:31 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+test-tz-parser.c:
+- Updated test file.
+
+Tue Jun 21 19:44:28 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tests/bugs.parse
+timelib/parse_date.re:
+- Added support for the format "Jan.14, 2004".
+
+Mon Jun 20 10:38:22 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tests/weeknr.parse
+timelib/parse_date.re:
+- Added support for iso week numbers without day number (2004W30).
+
+Sat Jun 18 21:23:31 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/tests/bug32086.ts:
+- Fixed bug in tm2unixtime where the wanted date was in the transition time
+  between two zones - in this case the wanted date actually didn't exist.
+
+Sat Jun 18 13:58:22 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c:
+- If the ts is smaller than the first transition time, use the last one
+  in the list. This seems consistent with how "zdump" works, although I'm
+  not 100% sure if it's correct.
+
+Sat Jun 18 13:15:29 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c:
+- Fixed a problem where the timestamp we are looking up a TZ info structure for
+  was in the last record in the tz database.
+
+Fri Jun 17 16:09:19 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+.cvsignore:
+- Added .swp files to .cvsignore
+
+Fri Jun 17 16:08:48 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/tests/bug32086.render
+timelib/tests/bug32086.ts:
+- Fixed testcases
+- Simplified code
+
+Fri Jun 17 14:15:38 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib.m4:
+- Added timelib.m4 file.
+
+Fri Jun 17 14:15:20 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib_config.h
+timelib/Makefile
+timelib/dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/tester-render-ts.c
+timelib/timelib.c
+timelib/timelib.h
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/tests/bug32086.ts:
+- Backport more compability fixes.
+
+Thu Jun 16 20:35:44 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_tz.c
+timelib/test-tz-parser.c
+timelib/timelib.h
+timelib/timelib_structs.h:
+- Fixed headers for FreeBSD
+- Moved from ntohl to own macro
+- Export timelib_dump_tzinfo
+
+Thu Jun 16 19:30:50 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib.c
+timelib/timelib.h
+timelib/datetime.c
+timelib/datetime.h
+timelib/Makefile
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/tester-render-ts.c
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- %s/datetime/timelib
+
+Thu Jun 16 15:24:19 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+parse_date.re:
+- Fixed regression with "last saturday" and the like.
+
+Thu Jun 16 13:21:46 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+datetime.c
+timelib/datetime.h
+timelib/dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- Fixed type issues for Windows
+- Fixed memory allocation/freeing issues
+
+Tue Jun 14 23:41:35 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+zones/tzcode2005h.tar.gz
+timelib/zones/tzdata2005i.tar.gz:
+- Remove .tar.gzs from CVS.
+
+Tue Jun 14 23:36:03 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+datetime.c
+timelib/datetime.h
+timelib/dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/timelib_structs.h
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- Added license headers
+- Use platform agnostic long long
+- Fix up commenting style
+
+Tue Jun 14 20:47:21 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+datetime.h
+timelib/parse_tz.c
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c:
+- Prefix get_time_zone_info.
+
+Tue Jun 14 20:02:37 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+datetime.c
+timelib/datetime.h
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/tester-render-ts.c
+timelib/timezonedb.h
+timelib/zones/create_dot_h_file.php
+timelib/zones/makearchive.sh:
+- Change to an in-memory timezone database. Much faster and less hassle.
+
+Tue Jun 14 19:58:35 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tests/weeknr.parse:
+- Fixed testcase.
+
+Tue Jun 14 16:02:04 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timezonedb.h
+timelib/zones/create_dot_h_file.php
+timelib/zones/makearchive.sh:
+- Change the timezone database format, we now generate a .h file that we can
+link in.
+
+Mon Jun 13 10:35:40 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+.cvsignore
+timelib/zones/.cvsignore:
+- Maintain .cvsignore files.
+
+Mon Jun 13 10:33:57 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+.cvsignore:
+- This is a dir, not a file.
+
+Mon Jun 13 10:33:32 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+srm.c
+sapi_srm/srm.h
+timelib/.cvsignore:
+- Added .cvsignore file.
+
+Mon Jun 13 10:32:23 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+tests/weeknr.parse:
+- Added test cases for the "yyyyWwwdd" format.
+
+Mon Jun 13 10:31:41 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+timelib_structs.h
+timelib/pd_structs.h
+timelib/datetime.c
+timelib/datetime.h
+timelib/dow.c
+timelib/parse_date.re
+timelib/parse_tz.c
+timelib/test-tz-parser.c
+timelib/tester-create-ts.c
+timelib/tester-parse-string.c
+timelib/tester-render-ts.c
+timelib/tm2unixtime.c
+timelib/unixtime2tm.c
+timelib/tests/pgsql.parse:
+- Changed prefix from pd_ to timelib_.
+- Fixed segfault in pd_date_to_int().
+- Added the timelib_daynr_from_weeknr() function to convert ISO week + day 
+  into a date.
+- Added support for the "yyyyWwwdd" ISO format.
+- Added support for the "yyyy mmm" format.
+- Added support for the "yyyyddd" format.
+- Added support for lone daynames as modifier.
+- Added an option to timelib_fill_holes() to override time with 00:00:00.
+- Renamed pd_structs.h to timelib_structs.h.
+
+Mon Jun 13 10:26:24 CEST 2005 Derick Rethans <derick@derickrethans.nl>
+:
+- Add changelog
+
