@@ -93,7 +93,7 @@ mv /tmp/php_timezonedb.h php_timezonedb.h
 
 pecl convert
 
-svn commit -m "- Updated to version $version ($tzversion)" timezonedb.c timezonedb.h package.xml package2.xml
+svn commit -m "- Updated to version $version ($tzversion)" timezonedb.c timezonedb.h package.xml package2.xml php_timezonedb.h
 
 pecl package
 
