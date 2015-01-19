@@ -765,6 +765,9 @@
 			$transistions = array();
 		}
 		foreach ($transistions as $trans) {
+			if ($trans['abbr'] == 'LMT') {
+				continue;
+			}
 			$key = $trans['abbr'] . '|' . $trans['offset']. '|' . ($trans['isdst'] ? '1' : '0');
 
 			if (isset($mapping[$key])) {
