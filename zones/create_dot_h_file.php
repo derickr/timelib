@@ -11,7 +11,10 @@
 			echo "\n\n/* $key */\n";
 			$j = 0;
 		}
-		printf("0x%02X, ", ord($dta[$i]));
+		if ($j % 16 != 0) {
+			echo " ";
+		}
+		printf("0x%02X,", ord($dta[$i]));
 		if ($j % 16 == 15) {
 			echo "\n";
 		}

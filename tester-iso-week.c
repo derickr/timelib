@@ -1,6 +1,4 @@
-#include <timelib_config.h>
 #include "timelib.h"
-
 
 int main(int argc, char *argv[])
 {

@@ -9,8 +9,8 @@ echo "Unpacking and compiling conversion tool:"
 rm -rf code
 mkdir code
 cd code
-tar -xzf ../old*tar.gz
 tar -xzf ../tzdata*tar.gz
+tar -xzf ../tzcode*tar.gz
 
 make
 
@@ -67,18 +67,29 @@ echo " "
 echo "Done"
 
 cd /tmp/tz-tmp
-git checkout PHP-5.5
+git checkout PHP-5.5 | exit 8
 cd -
 
 cp ../timezonedb.h /tmp/tz-tmp/ext/date/lib
-
 cd /tmp/tz-tmp
 git commit -m "- Updated to version $version ($tzversion)" \
-	ext/date/lib/timezonedb.h || exit 5
+	ext/date/lib/timezonedb.h # || exit 5
 git checkout PHP-5.6 || exit 5
-git merge PHP-5.5 || exit 5
+git merge PHP-5.5 --strategy=ours -m "Empty merge" #|| exit 5
+cd -
+
+cp ../timezonedb.h /tmp/tz-tmp/ext/date/lib
+cd /tmp/tz-tmp
+git commit -m "- Updated to version $version ($tzversion)" \
+	ext/date/lib/timezonedb.h #|| exit 5
 git checkout master || exit 5
-git merge PHP-5.6 || exit 5
+git merge PHP-5.6 --strategy=ours -m "Empty merge" #|| exit 5
+cd -
+
+cp ../timezonedb.h /tmp/tz-tmp/ext/date/lib
+cd /tmp/tz-tmp
+git commit -m "- Updated to version $version ($tzversion)" \
+	ext/date/lib/timezonedb.h #|| exit 5
 cd -
 
 cp ../timezonedb.h ~/dev/php/pecl/timezonedb/trunk
@@ -96,6 +107,8 @@ pecl convert
 svn commit -m "- Updated to version $version ($tzversion)" timezonedb.c timezonedb.h package.xml package2.xml php_timezonedb.h
 
 pecl package
+
+exit
 
 tag=`echo $version | tr "." "_"`
 tag="RELEASE_$tag"

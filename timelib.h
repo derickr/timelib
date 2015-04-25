@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2013 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -16,7 +16,7 @@
    +----------------------------------------------------------------------+
  */
 
-/* $Id: timelib.h,v 1.30 2009-05-03 16:19:18 derick Exp $ */
+/* $Id$ */
 
 #ifndef __TIMELIB_H__
 #define __TIMELIB_H__
@@ -37,6 +37,9 @@
 #define TIMELIB_SPECIAL_WEEKDAY                   0x01
 #define TIMELIB_SPECIAL_DAY_OF_WEEK_IN_MONTH      0x02
 #define TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH 0x03
+
+#define TIMELIB_SPECIAL_FIRST_DAY_OF_MONTH        0x01
+#define TIMELIB_SPECIAL_LAST_DAY_OF_MONTH         0x02
 
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L
@@ -68,16 +71,17 @@ int timelib_valid_time(timelib_sll h, timelib_sll i, timelib_sll s);
 int timelib_valid_date(timelib_sll y, timelib_sll m, timelib_sll d);
 
 /* From parse_date.re */
-timelib_time *timelib_strtotime(char *s, int len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper);
-timelib_time *timelib_parse_from_format(char *format, char *s, int len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper);
+timelib_time *timelib_strtotime(char *s, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper);
+timelib_time *timelib_parse_from_format(char *format, char *s, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper);
 void timelib_fill_holes(timelib_time *parsed, timelib_time *now, int options);
-char *timelib_timezone_id_from_abbr(const char *abbr, long gmtoffset, int isdst);
+char *timelib_timezone_id_from_abbr(const char *abbr, timelib_long gmtoffset, int isdst);
 const timelib_tz_lookup_table *timelib_timezone_abbreviations_list(void);
+timelib_long timelib_parse_tz_cor(char**);
 
 /* From parse_iso_intervals.re */
-void timelib_strtointerval(char *s, int len, 
-                           timelib_time **begin, timelib_time **end, 
-						   timelib_rel_time **period, int *recurrences, 
+void timelib_strtointerval(char *s, size_t len,
+                           timelib_time **begin, timelib_time **end,
+						   timelib_rel_time **period, int *recurrences,
 						   struct timelib_error_container **errors);
 
 
@@ -91,6 +95,8 @@ int timelib_apply_localtime(timelib_time *t, unsigned int localtime);
 void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts);
 void timelib_unixtime2local(timelib_time *tm, timelib_sll ts);
 void timelib_update_from_sse(timelib_time *tm);
+void timelib_set_timezone_from_offset(timelib_time *t, timelib_sll utc_offset);
+void timelib_set_timezone_from_abbr(timelib_time *t, timelib_abbr_info abbr_info);
 void timelib_set_timezone(timelib_time *t, timelib_tzinfo *tz);
 
 /* From parse_tz.c */
@@ -102,6 +108,7 @@ timelib_sll timelib_get_current_offset(timelib_time *t);
 void timelib_dump_tzinfo(timelib_tzinfo *tz);
 const timelib_tzdb *timelib_builtin_db(void);
 const timelib_tzdb_index_entry *timelib_timezone_builtin_identifiers_list(int *count);
+timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper);
 
 /* From timelib.c */
 timelib_tzinfo* timelib_tzinfo_ctor(char *name);
@@ -124,11 +131,12 @@ void timelib_time_offset_dtor(timelib_time_offset* t);
 
 void timelib_error_container_dtor(timelib_error_container *errors);
 
-signed long timelib_date_to_int(timelib_time *d, int *error);
+timelib_long timelib_date_to_int(timelib_time *d, int *error);
 void timelib_dump_date(timelib_time *d, int options);
 void timelib_dump_rel_time(timelib_rel_time *d);
 
 void timelib_decimal_hour_to_hms(double h, int *hour, int *min, int *sec);
+timelib_long timelib_parse_tz_cor(char **ptr);
 
 /* from astro.c */
 double timelib_ts_to_juliandate(timelib_sll ts);
@@ -136,5 +144,7 @@ int timelib_astro_rise_set_altitude(timelib_time *time, double lon, double lat, 
 
 /* from interval.c */
 timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two);
+timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
+timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
 
 #endif

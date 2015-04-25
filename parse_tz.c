@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2013 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -16,7 +16,7 @@
    +----------------------------------------------------------------------+
  */
 
-/* $Id: parse_tz.c,v 1.28 2009-05-03 16:19:18 derick Exp $ */
+/* $Id$ */
 
 #include "timelib.h"
 
@@ -36,7 +36,7 @@
 #if (defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__BIG_ENDIAN__) || defined(__LITTLE_ENDIAN__))
 # if defined(__LITTLE_ENDIAN__)
 #  undef WORDS_BIGENDIAN
-# else 
+# else
 #  if defined(__BIG_ENDIAN__)
 #   define WORDS_BIGENDIAN
 #  endif
@@ -49,11 +49,14 @@
 #define timelib_conv_int(l) ((l & 0x000000ff) << 24) + ((l & 0x0000ff00) << 8) + ((l & 0x00ff0000) >> 8) + ((l & 0xff000000) >> 24)
 #endif
 
-static void read_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
+static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 {
-	/* skip ID */
+	uint32_t version;
+
+	/* read ID */
+	version = (*tzf)[3] - '0';
 	*tzf += 4;
-	
+
 	/* read BC flag */
 	tz->bc = (**tzf == '\1');
 	*tzf += 1;
@@ -63,8 +66,10 @@ static void read_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 	tz->location.country_code[2] = '\0';
 	*tzf += 2;
 
-	/* skip read of preamble */
+	/* skip rest of preamble */
 	*tzf += 13;
+
+	return version;
 }
 
 static void read_header(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -79,6 +84,14 @@ static void read_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	tz->typecnt    = timelib_conv_int(buffer[4]);
 	tz->charcnt    = timelib_conv_int(buffer[5]);
 	*tzf += sizeof(buffer);
+}
+
+static void skip_transistions_64bit(const unsigned char **tzf, timelib_tzinfo *tz)
+{
+	if (tz->timecnt) {
+		*tzf += (sizeof(int64_t) * (tz->timecnt + 1));
+		*tzf += (sizeof(unsigned char) * (tz->timecnt + 1));
+	}
 }
 
 static void read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -106,9 +119,24 @@ static void read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
 		memcpy(cbuffer, *tzf, sizeof(unsigned char) * tz->timecnt);
 		*tzf += sizeof(unsigned char) * tz->timecnt;
 	}
-	
+
 	tz->trans = buffer;
 	tz->trans_idx = cbuffer;
+}
+
+static void skip_types_64bit(const unsigned char **tzf, timelib_tzinfo *tz)
+{
+	*tzf += sizeof(unsigned char) * 6 * tz->typecnt;
+	*tzf += sizeof(char) * tz->charcnt;
+	if (tz->leapcnt) {
+		*tzf += sizeof(int64_t) * tz->leapcnt * 2;
+	}
+	if (tz->ttisstdcnt) {
+		*tzf += sizeof(unsigned char) * tz->ttisstdcnt;
+	}
+	if (tz->ttisgmtcnt) {
+		*tzf += sizeof(unsigned char) * tz->ttisgmtcnt;
+	}
 }
 
 static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -194,6 +222,18 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	}
 }
 
+static void skip_posix_string(const unsigned char **tzf, timelib_tzinfo *tz)
+{
+	int n_count = 0;
+
+	do {
+		if (*tzf[0] == '\n') {
+			n_count++;
+		}
+		(*tzf)++;
+	} while (n_count < 2);
+}
+
 static void read_location(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	uint32_t buffer[3];
@@ -221,12 +261,12 @@ void timelib_dump_tzinfo(timelib_tzinfo *tz)
 	printf("Geo Location:      %f,%f\n", tz->location.latitude, tz->location.longitude);
 	printf("Comments:\n%s\n",          tz->location.comments);
 	printf("BC:                %s\n",  tz->bc ? "" : "yes");
-	printf("UTC/Local count:   %lu\n", (unsigned long) tz->ttisgmtcnt);
-	printf("Std/Wall count:    %lu\n", (unsigned long) tz->ttisstdcnt);
-	printf("Leap.sec. count:   %lu\n", (unsigned long) tz->leapcnt);
-	printf("Trans. count:      %lu\n", (unsigned long) tz->timecnt);
-	printf("Local types count: %lu\n", (unsigned long) tz->typecnt);
-	printf("Zone Abbr. count:  %lu\n", (unsigned long) tz->charcnt);
+	printf("UTC/Local count:   " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->ttisgmtcnt);
+	printf("Std/Wall count:    " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->ttisstdcnt);
+	printf("Leap.sec. count:   " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->leapcnt);
+	printf("Trans. count:      " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->timecnt);
+	printf("Local types count: " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->typecnt);
+	printf("Zone Abbr. count:  " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->charcnt);
 
 	printf ("%8s (%12s) = %3d [%5ld %1d %3d '%s' (%d,%d)]\n",
 		"", "", 0,
@@ -267,7 +307,7 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 		cur_locale = strdup(tmp);
 	}
 	setlocale(LC_CTYPE, "C");
-#endif	
+#endif
 
 	do {
 		int mid = ((unsigned)left + right) >> 1;
@@ -282,7 +322,7 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 #ifdef HAVE_SETLOCALE
 			setlocale(LC_CTYPE, cur_locale);
 			if (cur_locale) free(cur_locale);
-#endif	
+#endif
 			return 1;
 		}
 
@@ -291,7 +331,7 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 #ifdef HAVE_SETLOCALE
 	setlocale(LC_CTYPE, cur_locale);
 	if (cur_locale) free(cur_locale);
-#endif	
+#endif
 	return 0;
 }
 
@@ -312,18 +352,31 @@ int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
 	return (seek_to_tz_position(&tzf, timezone, tzdb));
 }
 
+static void skip_2nd_header_and_data(const unsigned char **tzf, timelib_tzinfo *tz)
+{
+	*tzf += 20; /* skip 2nd header (preamble) */
+	*tzf += sizeof(int32_t) * 6; /* Counts */
+}
+
 timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb)
 {
 	const unsigned char *tzf;
 	timelib_tzinfo *tmp;
+	int version;
 
 	if (seek_to_tz_position(&tzf, timezone, tzdb)) {
 		tmp = timelib_tzinfo_ctor(timezone);
 
-		read_preamble(&tzf, tmp);
+		version = read_preamble(&tzf, tmp);
 		read_header(&tzf, tmp);
 		read_transistions(&tzf, tmp);
 		read_types(&tzf, tmp);
+		if (version == 2) {
+			skip_2nd_header_and_data(&tzf, tmp);
+			skip_transistions_64bit(&tzf, tmp);
+			skip_types_64bit(&tzf, tmp);
+			skip_posix_string(&tzf, tmp);
+		}
 		read_location(&tzf, tmp);
 	} else {
 		tmp = NULL;
@@ -336,7 +389,7 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 {
 	uint32_t i;
 
-	/* If there is no transistion time, we pick the first one, if that doesn't
+	/* If there is no transition time, we pick the first one, if that doesn't
 	 * exist we return NULL */
 	if (!tz->timecnt || !tz->trans) {
 		*transition_time = 0;
@@ -346,8 +399,8 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 		return NULL;
 	}
 
-	/* If the TS is lower than the first transistion time, then we scan over
-	 * all the transistion times to find the first non-DST one, or the first
+	/* If the TS is lower than the first transition time, then we scan over
+	 * all the transition times to find the first non-DST one, or the first
 	 * one in case there are only DST entries. Not sure which smartass came up
 	 * with this idea in the first though :) */
 	if (ts < tz->trans[0]) {
@@ -396,7 +449,7 @@ int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz)
 {
 	ttinfo *to;
 	timelib_sll dummy;
-	
+
 	if ((to = fetch_timezone_offset(tz, ts, &dummy))) {
 		return to->isdst;
 	}
@@ -439,12 +492,12 @@ timelib_sll timelib_get_current_offset(timelib_time *t)
 {
 	timelib_time_offset *gmt_offset;
 	timelib_sll retval;
-			
+
 	switch (t->zone_type) {
 		case TIMELIB_ZONETYPE_ABBR:
 		case TIMELIB_ZONETYPE_OFFSET:
 			return (t->z + t->dst) * -60;
-			
+
 		case TIMELIB_ZONETYPE_ID:
 			gmt_offset = timelib_get_time_zone_info(t->sse, t->tz_info);
 			retval = gmt_offset->offset;

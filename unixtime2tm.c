@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2013 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -16,7 +16,7 @@
    +----------------------------------------------------------------------+
  */
 
-/* $Id: unixtime2tm.c,v 1.20 2008-04-27 19:28:59 derick Exp $ */
+/* $Id$ */
 
 #include "timelib.h"
 
@@ -137,29 +137,26 @@ void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
 void timelib_update_from_sse(timelib_time *tm)
 {
 	timelib_sll sse;
+	int z = tm->z;
+	signed int dst = tm->dst;
 
 	sse = tm->sse;
-	
+
 	switch (tm->zone_type) {
 		case TIMELIB_ZONETYPE_ABBR:
 		case TIMELIB_ZONETYPE_OFFSET: {
-			int z = tm->z;
-			signed int dst = tm->dst;
-			
 			timelib_unixtime2gmt(tm, tm->sse - (tm->z * 60) + (tm->dst * 3600));
 
-			tm->z = z;
-			tm->dst = dst;
 			goto cleanup;
 		}
 
 		case TIMELIB_ZONETYPE_ID: {
 			timelib_time_offset *gmt_offset;
-			
+
 			gmt_offset = timelib_get_time_zone_info(tm->sse, tm->tz_info);
 			timelib_unixtime2gmt(tm, tm->sse + gmt_offset->offset);
 			timelib_time_offset_dtor(gmt_offset);
-			
+
 			goto cleanup;
 		}
 
@@ -171,6 +168,8 @@ cleanup:
 	tm->sse = sse;
 	tm->is_localtime = 1;
 	tm->have_zone = 1;
+	tm->z = z;
+	tm->dst = dst;
 }
 
 void timelib_unixtime2local(timelib_time *tm, timelib_sll ts)
@@ -183,7 +182,7 @@ void timelib_unixtime2local(timelib_time *tm, timelib_sll ts)
 		case TIMELIB_ZONETYPE_OFFSET: {
 			int z = tm->z;
 			signed int dst = tm->dst;
-			
+
 			timelib_unixtime2gmt(tm, ts - (tm->z * 60) + (tm->dst * 3600));
 
 			tm->z = z;
@@ -196,7 +195,7 @@ void timelib_unixtime2local(timelib_time *tm, timelib_sll ts)
 			timelib_unixtime2gmt(tm, ts + gmt_offset->offset);
 
 			/* we need to reset the sse here as unixtime2gmt modifies it */
-			tm->sse = ts; 
+			tm->sse = ts;
 			tm->dst = gmt_offset->is_dst;
 			tm->z = gmt_offset->offset;
 			tm->tz_info = tz;
@@ -213,6 +212,34 @@ void timelib_unixtime2local(timelib_time *tm, timelib_sll ts)
 
 	tm->is_localtime = 1;
 	tm->have_zone = 1;
+}
+
+void timelib_set_timezone_from_offset(timelib_time *t, timelib_sll utc_offset)
+{
+	if (t->tz_abbr) {
+		free(t->tz_abbr);
+	}
+	t->tz_abbr = NULL;
+
+	t->z = utc_offset;
+	t->have_zone = 1;
+	t->zone_type = TIMELIB_ZONETYPE_OFFSET;
+	t->dst = 0;
+	t->tz_info = NULL;
+}
+
+void timelib_set_timezone_from_abbr(timelib_time *t, timelib_abbr_info abbr_info)
+{
+	if (t->tz_abbr) {
+		free(t->tz_abbr);
+	}
+	t->tz_abbr = strdup(abbr_info.abbr);
+
+	t->z = abbr_info.utc_offset;
+	t->have_zone = 1;
+	t->zone_type = TIMELIB_ZONETYPE_ABBR;
+	t->dst = abbr_info.dst;
+	t->tz_info = NULL;
 }
 
 void timelib_set_timezone(timelib_time *t, timelib_tzinfo *tz)

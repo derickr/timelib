@@ -46,5 +46,5 @@ foreach ( $f as $line )
 }
 //printf( '{ "%2s", %d, %d, "%s" },' . "\n",
 //	$cc, $lat * 100000, $long * 100000, addslashes( $desc ) );
-echo pack( 'a4ca2a13a*NNNa*', "PHP1", $cc != '??' || $zone == 'UTC', $cc, '', $fdata, ($lat + 90) * 100000, ($long + 180) * 100000, strlen( $desc ), $desc );
+echo pack( 'a4ca2a13a*NNNa*', "PHP2", $cc != '??' || $zone == 'UTC', $cc, '', $fdata, ($lat + 90) * 100000, ($long + 180) * 100000, strlen( $desc ), $desc );
 ?>
