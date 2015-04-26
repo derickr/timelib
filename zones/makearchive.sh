@@ -102,13 +102,9 @@ mv /tmp/package.xml package.xml
 cat php_timezonedb.h | sed "s/\"20[0-1][0-9].*\"/\"${version}\"/" > /tmp/php_timezonedb.h
 mv /tmp/php_timezonedb.h php_timezonedb.h
 
-pecl convert
-
 svn commit -m "- Updated to version $version ($tzversion)" timezonedb.c timezonedb.h package.xml package2.xml php_timezonedb.h
 
 pecl package
-
-exit
 
 tag=`echo $version | tr "." "_"`
 tag="RELEASE_$tag"
