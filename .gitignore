@@ -1,6 +1,5 @@
 .cvsignore
 .svn/
-astro.h
 astro.o
 dow.o
 interval.o
