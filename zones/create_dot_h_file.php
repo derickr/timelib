@@ -1,24 +1,90 @@
-/* This is a generated file, do not modify */
 <?php
-	$index = include 'timezonedb.idx.php';
-	$dta = file_get_contents('timezonedb.dta');
-	$dta_l = strlen($dta);
-	$j = 0;
+$index_data = "/* This is a generated file, do not modify */\n";
+$header_data = '';
+$data = '';
 
-	echo "const unsigned char timelib_timezone_db_data_builtin[$dta_l] = {\n";
-	for ($i = 0; $i < $dta_l; $i++) {
-		if (($key = array_search($i, $index)) !== false) {
-			echo "\n\n/* $key */\n";
-			$j = 0;
+/* Grab version info */
+$version_info = file( 'version-info.txt' );
+$version = trim( $version_info[1] );
+
+$idx_entries = count( file( 'timezonedb.idx' ) );
+$index_data .= "const timelib_tzdb_index_entry timezonedb_idx_builtin[{$idx_entries}] = {\n";
+$index_data .= file_get_contents( 'timezonedb.idx' );
+$index_data .= "};\n";
+
+$index = include 'timezonedb.idx.php';
+$dta = file_get_contents('timezonedb.dta');
+$dta_l = strlen($dta);
+$legacy_dta_l = $dta_l;
+
+$j = 0;
+$ascii = '';
+
+for ($i = 0; $i < $dta_l; $i++)
+{
+	if ( array_key_exists( $i, $index ) )
+	{
+		/* Find marker for V2 fields */
+		$v2 = strpos( $dta, "TZif2", $i );
+		/* Find end of data */
+		$endOfData = $i + $index[$i]['v2end'];
+
+		$legacy_dta_l -= ( $endOfData - $v2 );
+
+		if ( $i != 0 && strlen( $ascii ) > 0)
+		{
+			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
+			$data .= " /* {$ascii} */\n";
 		}
-		if ($j % 16 != 0) {
-			echo " ";
-		}
-		printf("0x%02X,", ord($dta[$i]));
-		if ($j % 16 == 15) {
-			echo "\n";
-		}
-		$j++;
+		$data .= "\n\n/* {$index[$i]['key']} */\n";
+		$j = 0; $ascii = '';
+		echo ".";
 	}
-	echo "};\n";
+	if ($j % 16 != 0) {
+		$data .= " ";
+	}
+	$char = ord( $dta[$i] );
+	$data .= sprintf( "0x%02X,", $char );
+	$ascii .= ($char >= 32 && $char != 47 && $char < 127) ? sprintf( "%c", $char ) : '.';
+
+	if ($j % 16 == 15) {
+		$data .= " /* {$ascii} */\n";
+		$ascii = '';
+	}
+	$j++;
+
+	if ( $i + 1 == $v2 )
+	{
+		if ( $ascii !== '' )
+		{
+			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
+			$data .= " /* {$ascii} */\n";
+		}
+		$ascii = '';
+		$data .= "#if PHP_VERSION_ID >= 70000\n";
+		$j = 0;
+	}
+	if ( $i + 1 == $endOfData )
+	{
+		$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
+		$data .= " /* {$ascii} */\n";
+		$ascii = '';
+		$data .= "#endif\n";
+		$j = 0;
+	}
+}
+$data .= "};\n";
+echo "\n";
+
+$data .= "\n";
+
+$header_data .= "#if PHP_VERSION_ID >= 70000\n" .
+	"const unsigned char timelib_timezone_db_data_builtin[$dta_l] = {\n" .
+	"#else\n" .
+	"const unsigned char timelib_timezone_db_data_builtin[$legacy_dta_l] = {\n" .
+	"#endif\n";
+
+$footer_data .= "const timelib_tzdb timezonedb_builtin = { \"{$version}\", {$idx_entries}, timezonedb_idx_builtin, timelib_timezone_db_data_builtin };\n";
+
+file_put_contents( 'timezonedb.h', $index_data . $header_data . $data . $footer_data );
 ?>

@@ -31,3 +31,7 @@ zones/timezonedb.idx
 zones/timezonedb.idx.php
 zones/tzcode*.tar.gz
 zones/tzdata*.tar.gz
+zones/timezonedb.h
+zones/version-info.txt
+*.sw?
+.idea
