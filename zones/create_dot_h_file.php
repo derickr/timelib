@@ -25,7 +25,7 @@ for ($i = 0; $i < $dta_l; $i++)
 	if ( array_key_exists( $i, $index ) )
 	{
 		/* Find marker for V2 fields */
-		$v2 = strpos( $dta, "TZif2", $i );
+		$v2 = strpos( $dta, "TZif", $i );
 		/* Find end of data */
 		$endOfData = $i + $index[$i]['v2end'];
 

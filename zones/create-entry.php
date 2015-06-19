@@ -6,7 +6,7 @@ $dataf = 'code/data/'. $zone;
 // obtain data from tz file
 $fdata = file_get_contents( $dataf, false, NULL, 20 );
 
-$v2 = strpos( $fdata, "TZif2" );
+$v2 = strpos( $fdata, "TZif" );
 
 // process extra info
 $f = file( 'code/zone.tab' );
