@@ -1,10 +1,12 @@
 <?php
 $zone = $argv[1];
+$addToFile = $argv[2];
 $dataf = 'code/data/'. $zone;
 
 // obtain data from tz file
 $fdata = file_get_contents( $dataf, false, NULL, 20 );
 
+$v2 = strpos( $fdata, "TZif" );
 
 // process extra info
 $f = file( 'code/zone.tab' );
@@ -46,5 +48,13 @@ foreach ( $f as $line )
 }
 //printf( '{ "%2s", %d, %d, "%s" },' . "\n",
 //	$cc, $lat * 100000, $long * 100000, addslashes( $desc ) );
-echo pack( 'a4ca2a13a*NNNa*', "PHP2", $cc != '??' || $zone == 'UTC', $cc, '', $fdata, ($lat + 90) * 100000, ($long + 180) * 100000, strlen( $desc ), $desc );
+$dataFile = fopen( $addToFile, "a" );
+$data = pack( 'a4ca2a13a*NNNa*', "PHP2", $cc != '??' || $zone == 'UTC', $cc, '', $fdata, ($lat + 90) * 100000, ($long + 180) * 100000, strlen( $desc ), $desc );
+fwrite( $dataFile, $data );
+fclose( $dataFile );
+echo strlen( $data );
+echo ";";
+echo $v2 + 20;
+echo ";";
+echo strlen( $fdata ) - $v2;
 ?>
