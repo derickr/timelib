@@ -31,7 +31,7 @@ for ($i = 0; $i < $dta_l; $i++)
 
 		$legacy_dta_l -= ( $endOfData - $v2 );
 
-		if ( $i != 0 && strlen( $ascii ) > 0)
+		if ( $i != 0 && $ascii !== '' )
 		{
 			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
 			$data .= " /* {$ascii} */\n";
@@ -47,8 +47,16 @@ for ($i = 0; $i < $dta_l; $i++)
 	$data .= sprintf( "0x%02X,", $char );
 	$ascii .= ($char >= 32 && $char != 47 && $char < 127) ? sprintf( "%c", $char ) : '.';
 
-	if ($j % 16 == 15) {
-		$data .= " /* {$ascii} */\n";
+	if ( $j % 16 == 15 )
+	{
+		if ( $ascii !== '' )
+		{
+			$data .= " /* {$ascii} */\n";
+		}
+		else
+		{
+			$data .= "\n";
+		}
 		$ascii = '';
 	}
 	$j++;
@@ -60,14 +68,25 @@ for ($i = 0; $i < $dta_l; $i++)
 			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
 			$data .= " /* {$ascii} */\n";
 		}
+		else if ( $j % 16 != 15 )
+		{
+			$data .= "\n";
+		}
 		$ascii = '';
 		$data .= "#if PHP_VERSION_ID >= 70000\n";
 		$j = 0;
 	}
 	if ( $i + 1 == $endOfData )
 	{
-		$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
-		$data .= " /* {$ascii} */\n";
+		if ( $ascii !== '' )
+		{
+			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
+			$data .= " /* {$ascii} */\n";
+		}
+		else if ( $j % 16 != 15 )
+		{
+			$data .= "\n";
+		}
 		$ascii = '';
 		$data .= "#endif\n";
 		$j = 0;
