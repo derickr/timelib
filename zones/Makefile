@@ -3,8 +3,7 @@ all: index
 clean:
 	rm -rf code
 	rm timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt
-
-checkoutphp:
+	rm timezonedb-201*.tgz timezonedb.tgz
 
 tzdb:
 	rm -rf code
@@ -31,11 +30,19 @@ version-info.txt:
 	find . -name tzdata*.tar.gz | sed 's/.*20/20/' | sed 's/\.tar.*//' > version-info.txt
 	find . -name tzdata*.tar.gz | php -r "preg_match('@([0-9]{4})([a-z])@', file_get_contents('php://stdin'), \$$a); echo \$$a[1], '.', ord(\$$a[2]) - ord('a') + 1;" >> version-info.txt
 
-timezonedb.h: timezonedb.idx version-info.txt
+timezonedb.h: timezonedb.idx version-info.txt create_dot_h_file.php
 	php create_dot_h_file.php
 
 index: timezonedb.h
 
-createpeclfile: index
+timezonedb.tgz: index
+	cp timezonedb.h ~/dev/php/pecl/timezonedb/trunk
+	php update-package-xml.php ~/dev/php/pecl/timezonedb/trunk
+	php update-package-version.php ~/dev/php/pecl/timezonedb/trunk
+	pecl package ~/dev/php/pecl/timezonedb/trunk/package.xml
+	cp timezonedb-`cat version-info.txt | tail -n 1`.tgz timezonedb.tgz
 
-
+release-pecl: timezonedb.tgz
+	cd ~/dev/php/pecl/timezonedb/trunk
+	svn commit -m "- Updated to version "`cat version-info.txt | tail -n 1`" ("cat version-info.txt | head -n 1`")" timezonedb.c timezonedb.h package.xml package2.xml
+	cd -
