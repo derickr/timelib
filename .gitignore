@@ -35,3 +35,5 @@ zones/timezonedb.h
 zones/version-info.txt
 *.sw?
 .idea
+zones/timezonedb-2015.5.tgz
+zones/timezonedb.tgz
