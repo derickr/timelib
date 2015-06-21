@@ -45,7 +45,11 @@ for ($i = 0; $i < $dta_l; $i++)
 	}
 	$char = ord( $dta[$i] );
 	$data .= sprintf( "0x%02X,", $char );
-	//$ascii .= ($char >= 32 && $char != 47 && $char < 127) ? sprintf( "%c", $char ) : '.';
+
+	if ( $argv[1] == 'debug' )
+	{
+		$ascii .= ($char >= 32 && $char != 47 && $char < 127) ? sprintf( "%c", $char ) : '.';
+	}
 
 	if ( $j % 16 == 15 )
 	{
