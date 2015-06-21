@@ -72,7 +72,7 @@ for ($i = 0; $i < $dta_l; $i++)
 			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
 			$data .= " /* {$ascii} */\n";
 		}
-		else if ( $j % 16 != 15 )
+		else if ( $j % 16 != 0 )
 		{
 			$data .= "\n";
 		}
@@ -87,7 +87,7 @@ for ($i = 0; $i < $dta_l; $i++)
 			$data .= str_repeat( ' ', 6 * ( 16 - ( $j % 16 ) ) );
 			$data .= " /* {$ascii} */\n";
 		}
-		else if ( $j % 16 != 15 )
+		else if ( $j % 16 != 0 )
 		{
 			$data .= "\n";
 		}
