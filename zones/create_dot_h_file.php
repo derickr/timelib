@@ -7,7 +7,7 @@ $data = '';
 $version_info = file( 'version-info.txt' );
 $version = trim( $version_info[1] );
 
-$idx_entries = count( file( 'timezonedb.idx' ) );
+$idx_entries = count( file( 'timezonedb.idx' ) ) - 5;
 $index_data .= "const timelib_tzdb_index_entry timezonedb_idx_builtin[{$idx_entries}] = {\n";
 $index_data .= file_get_contents( 'timezonedb.idx' );
 $index_data .= "};\n";
