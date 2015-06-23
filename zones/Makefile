@@ -46,3 +46,10 @@ release-pecl: timezonedb.tgz
 	cd ~/dev/php/pecl/timezonedb/trunk
 	svn commit -m "- Updated to version "`cat version-info.txt | tail -n 1`" ("cat version-info.txt | head -n 1`")" timezonedb.c timezonedb.h package.xml package2.xml
 	cd -
+
+release-docs: timezonedb.tgz
+	pecl upgrade -f timezonedb.tgz
+	cd ~/dev/php/phpdoc/en/reference/datetime/
+	-php ../../../doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
+	echo svn commit -m "- Updated to version "`cat version-info.txt | tail -n 1`" ("`cat version-info.txt | head -n 1`")" timezones.xml
+	cd -
