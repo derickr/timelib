@@ -1,9 +1,8 @@
 all: index
 
-clean:
-	rm -rf code
-	rm timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt
-	rm timezonedb-201*.tgz timezonedb.tgz
+clean: release-php-clean
+	-rm -rf code
+	-rm -f timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt timezonedb-201*.tgz timezonedb.tgz
 
 tzdb:
 	rm -rf code
@@ -53,3 +52,6 @@ release-docs: timezonedb.tgz
 	-php ../../../doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
 	echo svn commit -m "- Updated to version "`cat version-info.txt | tail -n 1`" ("`cat version-info.txt | head -n 1`")" timezones.xml
 	cd -
+
+release-php-clean:
+	-rm -rf /tmp/tz-tmp
