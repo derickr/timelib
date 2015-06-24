@@ -45,7 +45,9 @@ timezonedb.tgz: index
 release-pecl: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	$(eval TAG := $(shell cat version-info.txt | tail -n 1 | tr "." "_"))
 	cd ~/dev/php/pecl/timezonedb/trunk; svn commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezonedb.c timezonedb.h package.xml package2.xml
+	svn cp -m "Released version $(VERSION) ($(TZVERSION))" https://svn.php.net/repository/pecl/timezonedb/trunk https://svn.php.net/repository/pecl/timezonedb/tags/RELEASE_$(TAG)
 
 release-docs: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
