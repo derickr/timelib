@@ -59,3 +59,36 @@ release-docs: timezonedb.tgz
 
 release-php-clean:
 	-rm -rf /tmp/tz-tmp
+
+release-php-clone: release-php-clean
+	git clone git@git.php.net:php-src.git /tmp/tz-tmp
+
+release-php-commit-55: timezonedb.tgz
+	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
+	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git checkout PHP-5.5
+	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
+	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+
+release-php-commit-56: timezonedb.tgz release-php-commit-55
+	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
+	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git checkout PHP-5.6
+	cd /tmp/tz-tmp; git merge PHP-5.5 --strategy=ours -m "Empty merge"
+	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
+	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+
+release-php-commit-70: timezonedb.tgz release-php-commit-56
+	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
+	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git checkout master
+	cd /tmp/tz-tmp; git merge PHP-5.6 --strategy=ours -m "Empty merge"
+	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
+	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+
+release-php-commit: release-php-clone release-php-commit-55 release-php-commit-56 release-php-commit-70
+
+release-php-push: release-php-commit
+	cd /tmp/tz-tmp; git push origin PHP-5.5 PHP-5.6 master
+
+release-php: release-php-clean release-php-clone release-php-commit release-php-push
