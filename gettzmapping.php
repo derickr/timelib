@@ -765,7 +765,11 @@
 			fprintf(STDERR, "skipped.\n");
 			continue;
 		}
-		$tz = timezone_open($zone);
+		$tz = @timezone_open($zone);
+		if (!$tz) {
+			fprintf(STDERR, "skipped.\n");
+			continue;
+		}
 		$transistions = timezone_transitions_get($tz);
 		if ($transistions === FALSE) {
 			$transistions = array();
