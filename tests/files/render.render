@@ -1,7 +1,7 @@
 Expected:                                                          | Timestamp: | Timezone:
 TYPE: 0 TS: 1117141919 | 2005-05-26 23:11:59 CEST Europe/Amsterdam | 1117141919 | Europe/Amsterdam
 TYPE: 0 TS: 1117141919 | 2005-05-26 22:11:59 BST Europe/London     | 1117141919 | Europe/London
-TYPE: 0 TS: 1117141919 | 2005-05-27 07:11:59 EST Australia/Sydney  | 1117141919 | Australia/Sydney
+TYPE: 0 TS: 1117141919 | 2005-05-27 07:11:59 AEST Australia/Sydney | 1117141919 | Australia/Sydney
 
 TYPE: 0 TS: 1130630400 | 2005-10-30 00:00:00 GMT GMT               | 1130630400 | GMT
 TYPE: 0 TS: 1130633999 | 2005-10-30 00:59:59 GMT GMT               | 1130633999 | GMT
