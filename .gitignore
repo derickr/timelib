@@ -21,7 +21,6 @@ timelib.a
 timelib.o
 timelib_config.h
 tm2unixtime.o
-todo
 unixtime2tm.o
 zones/.cvsignore
 zones/code/
