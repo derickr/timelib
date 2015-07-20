@@ -1,14 +1,15 @@
 <?php
 
-if (strpos($argv[0], 'test_render') !== false)
+if (strpos($argv[0], 'test_create') !== false)
 {
 	error_reporting(0);
-	test_render($argv[1]);
+	test_create($argv[1]);
 }
 
-function test_render($file)
+function test_create($file)
 {
 	$tests = file($file);
+	unset($tests[0]);
 
 	$descriptorspec = array(
 		0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
@@ -26,29 +27,28 @@ function test_render($file)
 			continue;
 		}
 		$test_parts = explode('|', $test);
-		if (trim($test_parts[0]) == 'Expected:') {
-			continue;
-		}
-		$ts = trim($test_parts[2]);
+		$teste = trim($test_parts[1]);
+		$ts_exp = trim($test_parts[0]);
+		$base = trim($test_parts[2]);
 		$tz = trim($test_parts[3]);
-		$ps_exp = trim($test_parts[1]);
-		$process = proc_open("./tester-render-ts \"$ts\"i \"$tz\"", $descriptorspec, $pipes);
+		$process = proc_open("./tests/tester-create-ts \"$teste\" \"$base\" \"$tz\"", $descriptorspec, $pipes);
 
-//		fwrite($pipes[0], $teste);
+		fwrite($pipes[0], $teste);
 		fclose($pipes[0]);
 
 		$result = explode('|', trim(fgets($pipes[1])));
+		$ts_res = trim($result[0]);
 		$ps_res = trim($result[1]);
 		
-		$teste = "$ts ($tz) \n";
-		if ($ps_exp == $ps_res) {
+		$teste .= " ( $base, $tz)\n";
+		if ($ts_exp == $ts_res) {
 			echo $format['OKAY'] . "OKAY" . $format['NORM'];
-			echo " | " . $ps_res . " | " . $teste;
+			echo " | " . $ts_res . " | " . $teste;
 			$results['OKAY']++;
 		} else {
 			echo $format['FAIL'] . "FAIL";
-			echo " | " . $ps_res . " | " . $teste;
-			echo "EXP  = " . $ps_exp, "\n";
+			echo " | " . $ts_res . " | " . $teste;
+			echo "EXP  = " . $ts_exp, "\n";
 			echo $format['NORM'];
 			$results['FAIL']++;
 		}

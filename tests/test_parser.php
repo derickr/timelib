@@ -1,12 +1,12 @@
 <?php
 
-if (strpos($argv[0], 'test_parse_format') !== false)
+if (strpos($argv[0], 'test_parser') !== false)
 {
 	error_reporting(0);
-	test_parse_format($argv[1]);
+	test_parser($argv[1]);
 }
 
-function test_parse_format($file)
+function test_parser($file)
 {
 	$tests = file($file);
 
@@ -22,11 +22,10 @@ function test_parse_format($file)
 	foreach ($tests as $test)
 	{
 		$test_parts = explode('|', $test);
-		$testform = trim($test_parts[2]);
-		$teste = trim($test_parts[3]);
+		$teste = trim($test_parts[2]);
 		$ts_exp = trim($test_parts[0]);
 		$ps_exp = trim($test_parts[1]);
-		$process = proc_open("./tester-parse-string-by-format \"$testform\" \"$teste\"", $descriptorspec, $pipes);
+		$process = proc_open("./tests/tester-parse-string \"$teste\"", $descriptorspec, $pipes);
 
 		fwrite($pipes[0], $teste);
 		fclose($pipes[0]);
@@ -41,7 +40,7 @@ function test_parse_format($file)
 		
 		if ($ps_exp == $ps_res) {
 			echo $format['OKAY'] . "OKAY" . $format['NORM'];
-			echo " | " . $ps_res . " | " . $testform . " | " . $teste;
+			echo " | " . $ps_res . " | " . $teste;
 			if ($return_value) {
 				echo " errors=", $return_value;
 			}
@@ -49,7 +48,7 @@ function test_parse_format($file)
 			$results['OKAY']++;
 		} else {
 			echo $format['FAIL'] . "FAIL";
-			echo " | " . $ps_res . " | " . $testform . " | " . $teste;
+			echo " | " . $ps_res . " | " . $teste;
 			if ($return_value) {
 				echo " errors=", $return_value;
 			}

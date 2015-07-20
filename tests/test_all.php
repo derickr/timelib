@@ -15,8 +15,8 @@ $tests = array(
 foreach ($tests as $test => $ext)
 {
 	echo "$test=>$ext\n";
-	require_once("$test.php");
-	foreach (new DirectoryIterator(dirname(__FILE__) . '/tests') as $it)
+	require_once("tests/{$test}.php");
+	foreach (new DirectoryIterator(dirname(__FILE__) . '/files') as $it)
 	{
 		if (fnmatch("*$ext", $it->getFilename()))
 		{
