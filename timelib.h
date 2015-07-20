@@ -26,7 +26,8 @@
 #include <limits.h>
 #endif
 
-#define TIMELIB_VERSION 201102
+#define TIMELIB_VERSION 201501
+#define TIMELIB_ASCII_VERSION "2015.01"
 
 #define TIMELIB_NONE             0x00
 #define TIMELIB_OVERRIDE_TIME    0x01
