@@ -59,17 +59,17 @@ clean:
 test: tests/tester-parse-string tests/tester-create-ts tests/tester-render-ts tests/tester-parse-string-by-format
 	php tests/test_all.php
 
-test-parse-string: tester-parse-string
-	@for i in tests/files/*.parse; do echo $$i; php files/test_parser.php $$i; echo; done
+test-parse-string: tests/tester-parse-string
+	@for i in tests/files/*.parse; do echo $$i; php tests/test_parser.php $$i; echo; done
 
-test-parse-format: tester-parse-string-by-format
-	@for i in tests/files/*.parseformat; do echo $$i; php files/test_parse_format.php $$i; echo; done
+test-parse-format: tests/tester-parse-string-by-format
+	@for i in tests/files/*.parseformat; do echo $$i; php tests/test_parse_format.php $$i; echo; done
 
-test-create-ts: tester-create-ts
-	@for i in tests/files/*.ts; do echo $$i; php files/test_create.php $$i; echo; done
+test-create-ts: tests/tester-create-ts
+	@for i in tests/files/*.ts; do echo $$i; php tests/test_create.php $$i; echo; done
 
-test-render-ts: tester-render-ts
-	@for i in tests/files/*.render; do echo $$i; php files/test_render.php $$i; echo; done
+test-render-ts: tests/tester-render-ts
+	@for i in tests/files/*.render; do echo $$i; php tests/test_render.php $$i; echo; done
 
 package: clean
 	tar -cvzf parse_date.tar.gz parse_date.re Makefile tests
