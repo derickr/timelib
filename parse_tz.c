@@ -426,13 +426,13 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 
 		*transition_time = 0;
 		j = 0;
-		while (j < tz->bit32.timecnt && tz->type[j].isdst) {
+		while (j < tz->bit32.timecnt && tz->type[tz->trans_idx[j]].isdst) {
 			++j;
 		}
 		if (j == tz->bit32.timecnt) {
 			j = 0;
 		}
-		return &(tz->type[j]);
+		return &(tz->type[tz->trans_idx[j]]);
 	}
 
 	/* In all other cases we loop through the available transtion times to find

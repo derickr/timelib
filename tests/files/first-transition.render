@@ -1,0 +1,7 @@
+Expected:                                                             | Timestamp:  | Timezone:
+TYPE: 0 TS: -2695022427 | 1884-08-06 06:39:33 PST America/Los_Angeles | -2695022427 | America/Los_Angeles
+TYPE: 0 TS: -2190187227 | 1900-08-06 06:39:33 PST America/Los_Angeles | -2190187227 | America/Los_Angeles
+TYPE: 0 TS: -2158651227 | 1901-08-06 06:39:33 PST America/Los_Angeles | -2158651227 | America/Los_Angeles
+TYPE: 0 TS: -2127115227 | 1902-08-06 06:39:33 PST America/Los_Angeles | -2127115227 | America/Los_Angeles
+TYPE: 0 TS: -1637832027 | 1918-02-06 06:39:33 PST America/Los_Angeles | -1637832027 | America/Los_Angeles
+TYPE: 0 TS: -1622197227 | 1918-08-06 06:39:33 PDT America/Los_Angeles | -1622197227 | America/Los_Angeles
