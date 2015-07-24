@@ -4,7 +4,7 @@ CC=gcc
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-parse-tz tests/tester-iso-week tests/test-abbr-to-id
 AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
-	tests/tester-create-ts tests/tester-render-ts
+	tests/tester-create-ts tests/tester-render-ts tests/tester-diff
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
 all: parse_date.o tm2unixtime.o unixtime2tm.o dow.o astro.o interval.o \
@@ -56,7 +56,7 @@ timezonemap.h: gettzmapping.php
 clean:
 	rm -f parse_iso_intervals.c parse_date.c *.o timelib.a timezonemap.h ${TEST_BINARIES}
 
-test: tests/tester-parse-string tests/tester-create-ts tests/tester-render-ts tests/tester-parse-string-by-format
+test: tests/tester-parse-string tests/tester-create-ts tests/tester-render-ts tests/tester-parse-string-by-format tests/tester-diff
 	php tests/test_all.php
 
 test-parse-string: tests/tester-parse-string
@@ -70,6 +70,9 @@ test-create-ts: tests/tester-create-ts
 
 test-render-ts: tests/tester-render-ts
 	@for i in tests/files/*.render; do echo $$i; php tests/test_render.php $$i; echo; done
+
+test-diff: tests/tester-diff
+	@for i in tests/files/*.diff; do echo $$i; php tests/test_diff.php $$i; echo; done
 
 package: clean
 	tar -cvzf parse_date.tar.gz parse_date.re Makefile tests

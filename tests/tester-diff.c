@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	timelib_rel_time *rt;
 
 	if (argc < 3) {
-		printf("Usage:\n\ttester-diff [t1] [t2]\n\tExample: ./tester-create-ts \"9/11\" \"2008-03-26\"\n\n");
+		printf("Usage:\n\ttester-diff [t1] [t2]\n\tExample: ./tester-diff \"2008-02-26\" \"2008-03-26\"\n\n");
 		exit(-1);
 	}
 
