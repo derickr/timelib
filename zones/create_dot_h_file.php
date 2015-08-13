@@ -77,7 +77,7 @@ for ($i = 0; $i < $dta_l; $i++)
 			$data .= "\n";
 		}
 		$ascii = '';
-		$data .= "#if PHP_VERSION_ID >= 70000\n";
+		$data .= "#ifdef TIMELIB_SUPPORTS_V2DATA\n";
 		$j = 0;
 	}
 	if ( $i + 1 == $endOfData )
@@ -101,7 +101,7 @@ echo "\n";
 
 $data .= "\n";
 
-$header_data .= "#if PHP_VERSION_ID >= 70000\n" .
+$header_data .= "#ifdef TIMELIB_SUPPORTS_V2DATA\n" .
 	"const unsigned char timelib_timezone_db_data_builtin[$dta_l] = {\n" .
 	"#else\n" .
 	"const unsigned char timelib_timezone_db_data_builtin[$legacy_dta_l] = {\n" .

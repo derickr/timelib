@@ -7,7 +7,7 @@ file_put_contents( $dataFileName, '' );
 
 $idx_php = "<?php return [\n";
 $idx_data = <<<HEREDOC
-#if PHP_VERSION_ID >= 70000
+#ifdef TIMELIB_SUPPORTS_V2DATA
 # define FOR_V2(v2,v1) v2
 #else
 # define FOR_V2(v2,v1) v1
