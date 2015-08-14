@@ -18,7 +18,7 @@ $currentDataLength = 0;
 $missing = 0;
 
 $files = array_merge( glob( "code/data/*" ), glob( "code/data/*/*" ), glob( "code/data/*/*/*" ) );
-sort( $files );
+usort( $files, 'strcasecmp' );
 foreach( $files as $fileName )
 {
 	if ( is_dir( $fileName ) )
