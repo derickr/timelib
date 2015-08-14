@@ -55,7 +55,7 @@ release-docs: timezonedb.tgz
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	pecl upgrade -f timezonedb.tgz
 	cd ~/dev/php/phpdoc/en/reference/datetime/; svn up
-	cd ~/dev/php/phpdoc/en/reference/datetime/; php ../../../doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
+	cd ~/dev/php/phpdoc/en/reference/datetime/; php -dextension=timezonedb.so ../../../doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
 	cd ~/dev/php/phpdoc/en/reference/datetime/; svn commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezones.xml
 
 release-php-clean:
