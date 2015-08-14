@@ -31,6 +31,7 @@ version-info.txt:
 
 timezonedb.h: timezonedb.idx version-info.txt create_dot_h_file.php
 	php create_dot_h_file.php
+	cp timezonedb.h ..
 
 index: timezonedb.h
 
