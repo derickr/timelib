@@ -14,7 +14,7 @@ parse_date.c: timezonemap.h parse_date.re
 	re2c -d -b parse_date.re > parse_date.c
 
 parse_iso_intervals.c: parse_iso_intervals.re
-	re2c -b parse_iso_intervals.re > parse_iso_intervals.c
+	re2c -d -b parse_iso_intervals.re > parse_iso_intervals.c
 
 timelib.a: parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o timelib.o astro.o interval.o
 	ar -rc timelib.a parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o timelib.o astro.o interval.o
