@@ -30,6 +30,14 @@
 #include <limits.h>
 #endif
 
+#ifndef timelib_malloc
+# define timelib_malloc  malloc
+# define timelib_realloc realloc
+# define timelib_calloc  calloc
+# define timelib_strdup  strdup
+# define timelib_free    free
+#endif
+
 #define TIMELIB_VERSION 201501
 #define TIMELIB_ASCII_VERSION "2015.01"
 
