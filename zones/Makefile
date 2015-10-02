@@ -47,7 +47,7 @@ release-pecl: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	$(eval TAG := $(shell cat version-info.txt | tail -n 1 | tr "." "_"))
-	cd ~/dev/php/pecl/timezonedb/trunk; svn commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezonedb.c timezonedb.h package.xml package2.xml
+	cd ~/dev/php/pecl/timezonedb/trunk; svn commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezonedb.c timezonedb.h package.xml
 	svn cp -m "Released version $(VERSION) ($(TZVERSION))" https://svn.php.net/repository/pecl/timezonedb/trunk https://svn.php.net/repository/pecl/timezonedb/tags/RELEASE_$(TAG)
 
 release-docs: timezonedb.tgz
@@ -74,14 +74,22 @@ release-php-commit-56: timezonedb.tgz
 release-php-commit-70: timezonedb.tgz release-php-commit-56
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
-	cd /tmp/tz-tmp; git checkout master
+	cd /tmp/tz-tmp; git checkout PHP-7.0
 	cd /tmp/tz-tmp; git merge PHP-5.6 --strategy=ours -m "Empty merge"
 	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
 	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
 
-release-php-commit: release-php-clone release-php-commit-56 release-php-commit-70
+release-php-commit-master: timezonedb.tgz release-php-commit-70
+	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
+	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git checkout master
+	cd /tmp/tz-tmp; git merge PHP-7.0 --strategy=ours -m "Empty merge"
+	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
+	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+
+release-php-commit: release-php-clone release-php-commit-56 release-php-commit-70 release-php-commit-master
 
 release-php-push: release-php-commit
-	cd /tmp/tz-tmp; git push origin PHP-5.6 master
+	cd /tmp/tz-tmp; git push origin PHP-5.6 PHP-7.0 master
 
 release-php: release-php-clean release-php-clone release-php-commit release-php-push
