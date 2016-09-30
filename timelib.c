@@ -314,7 +314,7 @@ timelib_long timelib_parse_tz_cor(char **ptr)
 	timelib_long  tmp;
 
 	while (isdigit(**ptr) || **ptr == ':') {
-			++*ptr;
+		++*ptr;
 	}
 	end = *ptr;
 	switch (end - begin) {
