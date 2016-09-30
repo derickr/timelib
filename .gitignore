@@ -4,7 +4,9 @@ astro.o
 dow.o
 interval.o
 parse_date.o
+parse_date.c
 parse_iso_intervals.o
+parse_iso_intervals.c
 parse_tz.o
 svn-commit.tmp
 test-abbr-to-id
