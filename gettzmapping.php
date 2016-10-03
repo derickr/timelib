@@ -775,6 +775,9 @@
 			$transistions = array();
 		}
 		foreach ($transistions as $trans) {
+			if (preg_match( '/^[+-][0-9]{2}$/', $trans['abbr'] ) ) {
+				continue;
+			}
 			if ($trans['abbr'] == 'LMT') {
 				continue;
 			}
