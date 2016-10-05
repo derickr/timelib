@@ -2061,7 +2061,6 @@ timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, 
 				s->time->m = 1;
 				s->time->d = 1;
 				s->time->h = s->time->i = s->time->s = 0;
-				s->time->f = 0.0;
 				s->time->relative.s += tmp;
 				s->time->is_localtime = 1;
 				s->time->zone_type = TIMELIB_ZONETYPE_OFFSET;
