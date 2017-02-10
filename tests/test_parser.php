@@ -45,6 +45,10 @@ function test_parser($file)
 	foreach ($tests as $test)
 	{
 		$test_parts = explode('|', $test);
+		if (count($test_parts ) != 3) {
+			echo "\n";
+			continue;
+		}
 		$teste = trim($test_parts[2]);
 		$ts_exp = trim($test_parts[0]);
 		$ps_exp = trim($test_parts[1]);
