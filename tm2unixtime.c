@@ -369,7 +369,7 @@ static timelib_sll do_years(timelib_sll year)
 	return res;
 }
 
-static timelib_sll do_months(timelib_ull month, timelib_ull year)
+static timelib_sll do_months(timelib_ull month, timelib_sll year)
 {
 	if (timelib_is_leap(year)) {
 		return ((month_tab_leap[month - 1] + 1) * SECS_PER_DAY);
