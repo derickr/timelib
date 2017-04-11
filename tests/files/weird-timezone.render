@@ -1,10 +1,10 @@
 Expected:                                                          | Timestamp: | Timezone:
-TYPE: 0 TS: 368237    | 1970-01-04 21:47:17 PNT Pacific/Pitcairn   | 368237     | Pacific/Pitcairn
+TYPE: 0 TS: 368237    | 1970-01-04 21:47:17 -0830 Pacific/Pitcairn | 368237     | Pacific/Pitcairn
 
 TYPE: 0 TS: 893665799 | 1998-04-27 08:29:59 UTC UTC                | 893665799  | UTC
 TYPE: 0 TS: 893665800 | 1998-04-27 08:30:00 UTC UTC                | 893665800  | UTC
 TYPE: 0 TS: 893665801 | 1998-04-27 08:30:01 UTC UTC                | 893665801  | UTC
 
-TYPE: 0 TS: 893665799 | 1998-04-26 23:59:59 PNT Pacific/Pitcairn   | 893665799  | Pacific/Pitcairn
-TYPE: 0 TS: 893665800 | 1998-04-27 00:30:00 PST Pacific/Pitcairn   | 893665800  | Pacific/Pitcairn
-TYPE: 0 TS: 893665801 | 1998-04-27 00:30:01 PST Pacific/Pitcairn   | 893665801  | Pacific/Pitcairn
+TYPE: 0 TS: 893665799 | 1998-04-26 23:59:59 -0830 Pacific/Pitcairn | 893665799  | Pacific/Pitcairn
+TYPE: 0 TS: 893665800 | 1998-04-27 00:30:00 -08 Pacific/Pitcairn   | 893665800  | Pacific/Pitcairn
+TYPE: 0 TS: 893665801 | 1998-04-27 00:30:01 -08 Pacific/Pitcairn   | 893665801  | Pacific/Pitcairn
