@@ -55,7 +55,7 @@
 #define timelib_conv_int(l) ((l & 0x000000ff) << 24) + ((l & 0x0000ff00) << 8) + ((l & 0x00ff0000) >> 8) + ((l & 0xff000000) >> 24)
 #endif
 
-static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
+static int read_php_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	uint32_t version;
 
@@ -76,6 +76,40 @@ static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 	*tzf += 13;
 
 	return version;
+}
+
+static int read_tzif_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
+{
+	uint32_t version;
+
+	/* read ID */
+	version = (*tzf)[4] - '0';
+	*tzf += 5;
+
+	/* set BC flag and country code to default */
+	tz->bc = 0;
+	tz->location.country_code[0] = '?';
+	tz->location.country_code[1] = '?';
+	tz->location.country_code[2] = '\0';
+
+	/* skip rest of preamble */
+	*tzf += 15;
+
+	return version;
+}
+
+static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz, unsigned int *type)
+{
+	/* read marker (TZif) or (PHP) */
+	if (memcmp(*tzf, "PHP", 3) == 0) {
+		*type = TIMELIB_TZINFO_PHP;
+		return read_php_preamble(tzf, tz);
+	} else if (memcmp(*tzf, "TZif", 4) == 0) {
+		*type = TIMELIB_TZINFO_ZONEINFO;
+		return read_tzif_preamble(tzf, tz);
+	} else {
+		return -1;
+	}
 }
 
 static void read_header(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -100,7 +134,7 @@ static void skip_64bit_transistions(const unsigned char **tzf, timelib_tzinfo *t
 	}
 }
 
-static void read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
+static int read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	int32_t *buffer = NULL;
 	uint32_t i;
@@ -109,18 +143,22 @@ static void read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
 	if (tz->bit32.timecnt) {
 		buffer = (int32_t*) timelib_malloc(tz->bit32.timecnt * sizeof(int32_t));
 		if (!buffer) {
-			return;
+			return -1;
 		}
 		memcpy(buffer, *tzf, sizeof(int32_t) * tz->bit32.timecnt);
 		*tzf += (sizeof(int32_t) * tz->bit32.timecnt);
 		for (i = 0; i < tz->bit32.timecnt; i++) {
 			buffer[i] = timelib_conv_int(buffer[i]);
+			/* Sanity check to see whether TS is just increasing */
+			if (i > 0 && !(buffer[i] > buffer[i - 1])) {
+				return -2;
+			}
 		}
 
 		cbuffer = (unsigned char*) timelib_malloc(tz->bit32.timecnt * sizeof(unsigned char));
 		if (!cbuffer) {
 			timelib_free(buffer);
-			return;
+			return -3;
 		}
 		memcpy(cbuffer, *tzf, sizeof(unsigned char) * tz->bit32.timecnt);
 		*tzf += sizeof(unsigned char) * tz->bit32.timecnt;
@@ -128,6 +166,8 @@ static void read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
 
 	tz->trans = buffer;
 	tz->trans_idx = cbuffer;
+
+	return 0;
 }
 
 static void skip_64bit_types(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -145,7 +185,7 @@ static void skip_64bit_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	}
 }
 
-static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
+static int read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	unsigned char *buffer;
 	int32_t *leap_buffer;
@@ -153,7 +193,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 
 	buffer = (unsigned char*) timelib_malloc(tz->bit32.typecnt * sizeof(unsigned char) * 6);
 	if (!buffer) {
-		return;
+		return -1;
 	}
 	memcpy(buffer, *tzf, sizeof(unsigned char) * 6 * tz->bit32.typecnt);
 	*tzf += sizeof(unsigned char) * 6 * tz->bit32.typecnt;
@@ -161,7 +201,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	tz->type = (ttinfo*) timelib_malloc(tz->bit32.typecnt * sizeof(struct ttinfo));
 	if (!tz->type) {
 		timelib_free(buffer);
-		return;
+		return -2;
 	}
 
 	for (i = 0; i < tz->bit32.typecnt; i++) {
@@ -174,7 +214,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 
 	tz->timezone_abbr = (char*) timelib_malloc(tz->bit32.charcnt);
 	if (!tz->timezone_abbr) {
-		return;
+		return -3;
 	}
 	memcpy(tz->timezone_abbr, *tzf, sizeof(char) * tz->bit32.charcnt);
 	*tzf += sizeof(char) * tz->bit32.charcnt;
@@ -182,7 +222,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	if (tz->bit32.leapcnt) {
 		leap_buffer = (int32_t *) timelib_malloc(tz->bit32.leapcnt * 2 * sizeof(int32_t));
 		if (!leap_buffer) {
-			return;
+			return -4;
 		}
 		memcpy(leap_buffer, *tzf, sizeof(int32_t) * tz->bit32.leapcnt * 2);
 		*tzf += sizeof(int32_t) * tz->bit32.leapcnt * 2;
@@ -190,7 +230,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 		tz->leap_times = (tlinfo*) timelib_malloc(tz->bit32.leapcnt * sizeof(tlinfo));
 		if (!tz->leap_times) {
 			timelib_free(leap_buffer);
-			return;
+			return -5;
 		}
 		for (i = 0; i < tz->bit32.leapcnt; i++) {
 			tz->leap_times[i].trans = timelib_conv_int(leap_buffer[i * 2]);
@@ -202,7 +242,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	if (tz->bit32.ttisstdcnt) {
 		buffer = (unsigned char*) timelib_malloc(tz->bit32.ttisstdcnt * sizeof(unsigned char));
 		if (!buffer) {
-			return;
+			return -6;
 		}
 		memcpy(buffer, *tzf, sizeof(unsigned char) * tz->bit32.ttisstdcnt);
 		*tzf += sizeof(unsigned char) * tz->bit32.ttisstdcnt;
@@ -216,7 +256,7 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	if (tz->bit32.ttisgmtcnt) {
 		buffer = (unsigned char*) timelib_malloc(tz->bit32.ttisgmtcnt * sizeof(unsigned char));
 		if (!buffer) {
-			return;
+			return -7;
 		}
 		memcpy(buffer, *tzf, sizeof(unsigned char) * tz->bit32.ttisgmtcnt);
 		*tzf += sizeof(unsigned char) * tz->bit32.ttisgmtcnt;
@@ -226,6 +266,8 @@ static void read_types(const unsigned char **tzf, timelib_tzinfo *tz)
 		}
 		timelib_free(buffer);
 	}
+
+	return 0;
 }
 
 static void skip_posix_string(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -257,6 +299,15 @@ static void read_location(const unsigned char **tzf, timelib_tzinfo *tz)
 	memcpy(tz->location.comments, *tzf, comments_len);
 	tz->location.comments[comments_len] = '\0';
 	*tzf += comments_len;
+}
+
+static void set_default_location_and_comments(const unsigned char **tzf, timelib_tzinfo *tz)
+{
+	tz->location.latitude = 0;
+	tz->location.longitude = 0;
+	tz->location.comments = timelib_malloc(2);
+	tz->location.comments[0] = '?';
+	tz->location.comments[1] = '\0';
 }
 
 void timelib_dump_tzinfo(timelib_tzinfo *tz)
@@ -358,9 +409,14 @@ int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
 	return (seek_to_tz_position(&tzf, timezone, tzdb));
 }
 
-static void skip_64bit_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
+static int skip_64bit_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 {
-	*tzf += 20;
+	if (memcmp(*tzf, "TZif2", 5) == 0) {
+		*tzf += 20;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 static void read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -382,22 +438,39 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb)
 	const unsigned char *tzf;
 	timelib_tzinfo *tmp;
 	int version;
+	unsigned int type; /* TIMELIB_TZINFO_PHP or TIMELIB_TZINFO_ZONEINFO */
 
 	if (seek_to_tz_position(&tzf, timezone, tzdb)) {
 		tmp = timelib_tzinfo_ctor(timezone);
 
-		version = read_preamble(&tzf, tmp);
+		version = read_preamble(&tzf, tmp, &type);
+		if (version == -1) {
+			timelib_tzinfo_dtor(tmp);
+			return NULL;
+		}
+
 		read_header(&tzf, tmp);
-		read_transistions(&tzf, tmp);
+		if (read_transistions(&tzf, tmp) < 0) {
+			/* Corrupt file as transitions do not increase */
+			return NULL;
+		}
 		read_types(&tzf, tmp);
 		if (version == 2) {
-			skip_64bit_preamble(&tzf, tmp);
+			if (!skip_64bit_preamble(&tzf, tmp)) {
+				/* 64 bit preamble is not in place */
+				return NULL;
+			}
 			read_64bit_header(&tzf, tmp);
 			skip_64bit_transistions(&tzf, tmp);
 			skip_64bit_types(&tzf, tmp);
 			skip_posix_string(&tzf, tmp);
 		}
-		read_location(&tzf, tmp);
+
+		if (type == TIMELIB_TZINFO_PHP) {
+			read_location(&tzf, tmp);
+		} else {
+			set_default_location_and_comments(&tzf, tmp);
+		}
 	} else {
 		tmp = NULL;
 	}
