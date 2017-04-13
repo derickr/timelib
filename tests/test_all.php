@@ -33,6 +33,7 @@ $tests = array(
 	'test_create' => '.ts',
 	'test_render' => '.render',
 	'test_parse_format' => '.parseformat',
+	'test_diff' => '.diff',
 );
 
 foreach ($tests as $test => $ext)
