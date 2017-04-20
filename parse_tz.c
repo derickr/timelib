@@ -397,10 +397,10 @@ const timelib_tzdb *timelib_builtin_db(void)
 	return &timezonedb_builtin;
 }
 
-const timelib_tzdb_index_entry *timelib_timezone_builtin_identifiers_list(int *count)
+const timelib_tzdb_index_entry *timelib_timezone_identifiers_list(timelib_tzdb *tzdb, int *count)
 {
-	*count = sizeof(timezonedb_idx_builtin) / sizeof(*timezonedb_idx_builtin);
-	return timezonedb_idx_builtin;
+	*count = tzdb->index_size;
+	return tzdb->index;
 }
 
 int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)

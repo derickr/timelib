@@ -123,7 +123,7 @@ timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *
 timelib_sll timelib_get_current_offset(timelib_time *t);
 void timelib_dump_tzinfo(timelib_tzinfo *tz);
 const timelib_tzdb *timelib_builtin_db(void);
-const timelib_tzdb_index_entry *timelib_timezone_builtin_identifiers_list(int *count);
+const timelib_tzdb_index_entry *timelib_timezone_identifiers_list(timelib_tzdb *tzdb, int *count);
 timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper);
 
 /* From parse_zoneinfo.c */
