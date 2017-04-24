@@ -1,18 +1,28 @@
 all: index
 
+download:
+	-@rm tzdata201*tar.gz
+	-@rm tzcode201*tar.gz
+	@echo "Downloading latest Olson TZDB release..."
+	$(eval VERSION := $(shell curl -s -o - https://www.iana.org/time-zones | grep \"version\" | sed 's/.*version">//' | sed 's/<\/span.*//'))
+	curl -s -o tzdata$(VERSION).tar.gz https://www.iana.org/time-zones/repository/releases/tzdata$(VERSION).tar.gz
+	curl -s -o tzcode$(VERSION).tar.gz https://www.iana.org/time-zones/repository/releases/tzcode$(VERSION).tar.gz
+
 clean: release-php-clean
 	-rm -rf code
-	-rm -f timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt timezonedb-201*.tgz timezonedb.tgz
+	-rm -f timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt timezonedb-201*.tgz timezonedb.tgz timezonedb.zip
 
-tzdb:
-	rm -rf code
-	mkdir code
+tzdb: download
+	-@rm -rf code
+	@mkdir code
+	@echo "Unpacking Olson TZDB release..."
 	tar -C code -xzf tzdata*tar.gz
 	tar -C code -xzf tzcode*tar.gz
 
 code/zone.tab: tzdb
-	make -C code
-	for i in africa antarctica australasia asia etcetera europe factory northamerica pacificnew southamerica backward; do \
+	@make -C code
+	@echo "Compiling tzdata files..."
+	@for i in africa antarctica australasia asia etcetera europe factory northamerica pacificnew southamerica backward; do \
 		cat code/$$i | ./code/zic -d code/data -; \
 		echo "- $$i"; \
 	done;
@@ -24,6 +34,11 @@ timezonedb.dta: code/zone.tab
 	php build-idx.php
 
 timezonedb.idx: timezonedb.idx.php timezonedb.dta
+
+timezonedb.zip: code/zone.tab
+	@echo -n "Making archive..."
+	-@cd code/data; zip --quiet -r ../../timezonedb.zip .
+	@echo " done"
 
 version-info.txt:
 	find . -name tzdata*.tar.gz | sed 's/.*20/20/' | sed 's/\.tar.*//' > version-info.txt
