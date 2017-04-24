@@ -23,51 +23,33 @@
  */
 #include "timelib.h"
 
+
 int main(int argc, char *argv[])
 {
 	signed long long ts;
-	timelib_time *local_time;
-	timelib_tzinfo *tz;
+	timelib_time *t;
+	char    *tz;
+	timelib_tzinfo  *tzi;
 
-	ts = 368237; /*Monday 1970-01-01 17:17:17 */
-
-	if (argc == 3) {
-		timelib_tzdb *db = timelib_zoneinfo(argv[2]);
-
-		if (!db) {
-			fprintf(stderr, "Can not read timezone database in '%s'.\n", argv[2]);
-			return 2;
-		}
-		
-		tz = timelib_parse_tzfile(argv[1], db);
-		if (!tz) {
-			fprintf(stderr, "Can not read timezone identifier '%s' from database in '%s'.\n", argv[1], argv[2]);
-
-			timelib_zoneinfo_dtor(db);
-			return 3;
-		}
-
-		timelib_zoneinfo_dtor(db);
-	} else {
-		tz = timelib_parse_tzfile(argv[1], timelib_builtin_db());
-		if (!tz) {
-			fprintf(stderr, "Can not read timezone identifier '%s' from built in database.\n", argv[1]);
-			return 4;
-		}
+	if (argc < 3) {
+		printf("Usage:\n\ttester-render [t] [tz specification]\n\tExample: ./tester-render \"1114819200\" \"Europe/Amsterdam\"\n\n");
+		exit(-1);
 	}
-	timelib_dump_tzinfo(tz);
+	ts = atoll(argv[1]);
+	tz = argv[2];
+	tzi = timelib_parse_tzfile(tz, timelib_zoneinfo("/usr/share/zoneinfo"));
 
-	local_time = timelib_time_ctor();
-	timelib_set_timezone(local_time, tz);
-	timelib_unixtime2gmt(local_time, ts);
-	timelib_dump_date(local_time, 1);
-	timelib_unixtime2local(local_time, ts);
-	timelib_dump_date(local_time, 1);
+	if (!tzi) {
+		printf("Timezone identifier \"%s\" does not exist\n", tz);
+		exit(-2);
+	}
 
-	timelib_update_ts(local_time, tz);
-
-	timelib_tzinfo_dtor(local_time->tz_info);
-	timelib_time_dtor(local_time);
+	t = timelib_time_ctor();
+	timelib_set_timezone(t, tzi);
+	timelib_unixtime2local(t, ts);
+	timelib_dump_date(t, 3);
+	timelib_tzinfo_dtor(t->tz_info);
+	timelib_time_dtor(t);
 
 	return 0;
 }

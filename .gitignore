@@ -8,6 +8,7 @@ parse_date.c
 parse_iso_intervals.o
 parse_iso_intervals.c
 parse_tz.o
+parse_zoneinfo.o
 svn-commit.tmp
 test-abbr-to-id
 test-astro
@@ -19,6 +20,7 @@ tester-parse-string
 tester-parse-string-by-format
 tester-parse-tz
 tester-render-ts
+tester-render-ts-zoneinfo
 timelib.a
 timelib.o
 timelib_config.h
@@ -30,6 +32,7 @@ zones/oldtz/
 zones/timezonedb.dta
 zones/timezonedb.idx
 zones/timezonedb.idx.php
+zones/timezonedb.zip
 zones/tzcode*.tar.gz
 zones/tzdata*.tar.gz
 zones/timezonedb.h
