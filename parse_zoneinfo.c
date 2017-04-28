@@ -23,7 +23,6 @@
  * THE SOFTWARE.
  */
 
-#define _GNU_SOURCE
 #include "timelib.h"
 
 #include <sys/stat.h>

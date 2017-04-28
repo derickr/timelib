@@ -69,6 +69,7 @@ TL_CHECK_INT_TYPE(uint32_t)
 
 dnl Check for headers needed by timelib
 AC_CHECK_HEADERS([ \
+sys/time.h \
 sys/types.h \
 inttypes.h \
 stdint.h \
