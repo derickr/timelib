@@ -72,11 +72,7 @@ int timelib_time_compare(timelib_time *t1, timelib_time *t2)
 			return 0;
 		}
 
-		if (t1->sse < 0) {
-			return (t1->f < t2->f) ? 1 : -1;
-		} else {
-			return (t1->f < t2->f) ? -1 : 1;
-		}
+		return (t1->f < t2->f) ? -1 : 1;
 	}
 
 	return (t1->sse < t2->sse) ? -1 : 1;
