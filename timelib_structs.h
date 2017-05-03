@@ -29,14 +29,20 @@
 # include "timelib_config.h"
 #endif
 
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+
+#ifdef _WIN32
+# ifdef HAVE_WINSOCK2_H
+#  include <winsock2.h>
+# endif
+#endif
+
 #ifndef TIMELIB_OMIT_STDINT
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
 #endif
 
 #if defined(HAVE_INTTYPES_H)

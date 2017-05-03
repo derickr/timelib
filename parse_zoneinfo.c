@@ -29,7 +29,15 @@
 #include <limits.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
+
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
+#if HAVE_IO_H
+# include <io.h>
+#endif
+
 #include <dirent.h>
 #include <sys/mman.h>
 

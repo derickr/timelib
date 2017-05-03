@@ -74,7 +74,9 @@ sys/types.h \
 inttypes.h \
 stdint.h \
 string.h \
-stdlib.h
+stdlib.h \
+unistd.h \
+io.h
 ])
 
 dnl Check for strtoll, atoll
