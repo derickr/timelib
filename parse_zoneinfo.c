@@ -54,7 +54,9 @@
 # include <io.h>
 #endif
 
-#include <dirent.h>
+#if HAVE_DIRENT_H
+# include <dirent.h>
+#endif
 #include <sys/mman.h>
 
 /* Filter out some non-tzdata files and the posix/right databases, if
