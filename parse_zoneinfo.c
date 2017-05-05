@@ -220,7 +220,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 	dirstack = malloc(dirstack_size * sizeof(*dirstack));
 	dirstack_top = 1;
 	dirstack[0] = strdup("");
-	
+
 	/* Index array. */
 	index_size = 64;
 	db_index = malloc(index_size * sizeof(timelib_tzdb_index_entry));
@@ -247,7 +247,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 			const char *leaf = ents[count - 1]->d_name;
 
 			snprintf(name, sizeof(name), "%s/%s/%s", directory, top, leaf);
-			
+
 			if (strlen(name) && stat(name, &st) == 0) {
 				/* Name, relative to the zoneinfo prefix. */
 				const char *root = top;
@@ -274,13 +274,14 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 
 					{
 						size_t length;
-						const char *tzfile_data = map_tzfile(directory, name, &length);
+						char *tzfile_data = read_tzfile(directory, name, &length);
 
 						if (tzfile_data) {
 							tmp_data = realloc(tmp_data, data_size + length);
 							memcpy(tmp_data + data_size, tzfile_data, length);
 							db_index[index_next].pos = data_size;
 							data_size += length;
+							free(tzfile_data);
 						}
 					}
 
@@ -290,7 +291,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 
 			free(ents[--count]);
 		}
-		
+
 		if (count != -1) {
 			free(ents);
 		}
