@@ -34,6 +34,22 @@
 # include <unistd.h>
 #endif
 
+#ifdef _WIN32
+# include "win_dirent.h"
+#endif
+
+#ifndef MAXPATHLEN
+# ifdef _WIN32
+#  define MAXPATHLEN 2048
+# elif PATH_MAX
+#  define MAXPATHLEN PATH_MAX
+# elif defined(MAX_PATH)
+#  define MAXPATHLEN MAX_PATH
+# else
+#  define MAXPATHLEN 256
+# endif
+#endif
+
 #if HAVE_IO_H
 # include <io.h>
 #endif
@@ -110,6 +126,75 @@ static char *map_tzfile(const char *directory, const char *timezone, size_t *len
 	return p != MAP_FAILED ? p : NULL;
 }
 
+static int timelib_scandir(const char *directory_name, struct dirent ***namelist, int (*filter)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
+{
+	DIR *dir;
+	struct dirent **entries = NULL;
+	int entries_size = 0;
+	int entries_count = 0;
+	char entry_container[sizeof(struct dirent) + MAXPATHLEN];
+	struct dirent *entry = (struct dirent *)&entry_container;
+
+	dir = opendir(directory_name);
+	if (!dir) {
+		return -1;
+	}
+
+	while ((entry = readdir(dir)) != NULL) {
+		int new_entry_size = 0;
+		struct dirent *new_entry = NULL;
+
+		/* Skip if the filter matches */
+		if (filter && (*filter)(entry) == 0) {
+			continue;
+		}
+
+		/* Make sure our entries array is large enough */
+		if (entries_count == entries_size) {
+			struct dirent **new_entries;
+
+			if (entries_size == 0) {
+				entries_size = 16;
+			} else {
+				entries_size *= 2;
+			}
+
+			new_entries = (struct dirent **) realloc(entries, entries_size * sizeof(struct dirent *));
+			if (!new_entries) {
+				return -1;
+			}
+			entries = new_entries;
+		}
+
+		/* Add our new entry to the list */
+		new_entry_size = sizeof(struct dirent) + (strlen(entry->d_name) + 1);
+		new_entry = (struct dirent *) malloc(new_entry_size);
+
+		if (new_entry == NULL) {
+			goto cleanup;
+		}
+
+		entries[entries_count++] = (struct dirent *) memcpy(new_entry, entry, new_entry_size);
+	}
+
+	closedir(dir);
+
+	*namelist = entries;
+
+	if (compar) {
+		qsort(*namelist, entries_count, sizeof(struct dirent *), (int (*) (const void *, const void *)) compar);
+	}
+
+	return entries_count;
+
+cleanup:
+	while (entries_count-- > 0) {
+		free(entries[entries_count]);
+	}
+	free(entries);
+	return -1;
+}
+
 /* Create the zone identifier index by trawling the filesystem. */
 static int create_zone_index(const char *directory, timelib_tzdb *db)
 {
@@ -141,7 +226,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 		top = dirstack[--dirstack_top];
 		snprintf(name, sizeof(name), "%s/%s", directory, top);
 
-		count = scandir(name, &ents, index_filter, alphasort);
+		count = timelib_scandir(name, &ents, index_filter, alphasort);
 		if (count == -1) {
 			free(dirstack);
 			free(db_index);
