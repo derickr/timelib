@@ -358,7 +358,13 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 	int left = 0, right = tzdb->index_size - 1;
 #ifdef HAVE_SETLOCALE
 	char *cur_locale = NULL, *tmp;
+#endif
 
+	if (tzdb->index_size == 0) {
+		return 0;
+	}
+
+#ifdef HAVE_SETLOCALE
 	tmp = setlocale(LC_CTYPE, NULL);
 	if (tmp) {
 		cur_locale = timelib_strdup(tmp);
