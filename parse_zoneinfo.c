@@ -98,15 +98,16 @@ static int is_valid_tzfile(const struct stat *st, int fd)
 	return S_ISREG(st->st_mode) && st->st_size > 20;
 }
 
-/* Return the mmap()ed tzfile if found, else NULL.  On success, the
+/* Return the contents of the tzfile if found, else NULL.  On success, the
  * length of the mapped data is placed in *length. */
-static char *map_tzfile(const char *directory, const char *timezone, size_t *length)
+static char *read_tzfile(const char *directory, const char *timezone, size_t *length)
 {
-	char fname[PATH_MAX];
+	char fname[MAXPATHLEN];
+	char *buffer;
 	struct stat st;
-	char *p;
 	int fd;
-	
+	int read_bytes;
+
 	if (timezone[0] == '\0' || strstr(timezone, "..") != NULL) {
 		return NULL;
 	}
@@ -122,10 +123,16 @@ static char *map_tzfile(const char *directory, const char *timezone, size_t *len
 	}
 
 	*length = st.st_size;
-	p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+
+	buffer = calloc(1, *length + 1);
+	read_bytes = read(fd, buffer, *length);
 	close(fd);
-	
-	return p != MAP_FAILED ? p : NULL;
+
+	if (read_bytes == -1 || read_bytes != *length) {
+		return NULL;
+	}
+
+	return buffer;
 }
 
 static int timelib_scandir(const char *directory_name, struct dirent ***namelist, int (*filter)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
