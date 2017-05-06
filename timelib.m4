@@ -73,7 +73,9 @@ sys/time.h \
 sys/types.h \
 inttypes.h \
 stdint.h \
+dirent.h \
 string.h \
+strings.h \
 stdlib.h \
 unistd.h \
 io.h

@@ -39,6 +39,14 @@
 # endif
 #endif
 
+#ifdef HAVE_STRING_H
+# include <string.h>
+#endif
+
+#ifdef HAVE_STRINGS_H
+# include <strings.h>
+#endif
+
 #ifndef TIMELIB_OMIT_STDINT
 
 #ifdef HAVE_SYS_TYPES_H
@@ -127,12 +135,6 @@ typedef unsigned __int64  uint64_t;
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#include <strings.h>
 #endif
 
 #if (defined(__x86_64__) || defined(__LP64__) || defined(_LP64) || defined(_WIN64)) && !defined(TIMELIB_FORCE_LONG32)

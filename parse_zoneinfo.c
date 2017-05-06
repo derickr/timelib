@@ -111,7 +111,11 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 	char *buffer;
 	struct stat st;
 	int fd;
+#ifdef _WIN32
 	int read_bytes;
+#else
+	ssize_t read_bytes;
+#endif
 
 	if (timezone[0] == '\0' || strstr(timezone, "..") != NULL) {
 		return NULL;
@@ -133,7 +137,7 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 	read_bytes = read(fd, buffer, *length);
 	close(fd);
 
-	if (read_bytes == -1 || read_bytes != *length) {
+	if (read_bytes == -1 || read_bytes != st.st_size) {
 		return NULL;
 	}
 
