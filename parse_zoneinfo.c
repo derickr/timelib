@@ -73,6 +73,12 @@ static int index_filter(const struct dirent *ent)
 		&& strstr(ent->d_name, ".tab") == NULL;
 }
 
+static int timelib_alphasort(const struct dirent **a, const struct dirent **b)
+{
+	return strcmp((*a)->d_name, (*b)->d_name);
+}
+
+
 static int sysdbcmp(const void *first, const void *second)
 {
 	const timelib_tzdb_index_entry *alpha = first, *beta = second;
@@ -234,7 +240,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 		top = dirstack[--dirstack_top];
 		snprintf(name, sizeof(name), "%s/%s", directory, top);
 
-		count = timelib_scandir(name, &ents, index_filter, alphasort);
+		count = timelib_scandir(name, &ents, index_filter, timelib_alphasort);
 		if (count == -1) {
 			free(dirstack);
 			free(db_index);
