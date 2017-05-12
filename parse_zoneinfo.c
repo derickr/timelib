@@ -58,6 +58,12 @@
 # include <dirent.h>
 #endif
 
+#if _MSC_VER
+# define TIMELIB_DIR_SEPARATOR "\\"
+#else
+# define TIMELIB_DIR_SEPARATOR "/"
+#endif
+
 /* Filter out some non-tzdata files and the posix/right databases, if
  * present. */
 static int index_filter(const struct dirent *ent)
@@ -121,7 +127,7 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 		return NULL;
 	}
 
-	snprintf(fname, sizeof(fname), "%s/%s", directory, timezone /* canonical_tzname(timezone) */);
+	snprintf(fname, sizeof(fname), "%s%s%s", directory, TIMELIB_DIR_SEPARATOR, timezone /* canonical_tzname(timezone) */);
 
 	fd = open(fname, O_RDONLY);
 	if (fd == -1) {
@@ -255,7 +261,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 			struct stat st;
 			const char *leaf = ents[count - 1]->d_name;
 
-			snprintf(name, sizeof(name), "%s/%s/%s", directory, top, leaf);
+			snprintf(name, sizeof(name), "%s%s%s%s%s", directory, TIMELIB_DIR_SEPARATOR, top, TIMELIB_DIR_SEPARATOR, leaf);
 
 			if (strlen(name) && stat(name, &st) == 0) {
 				/* Name, relative to the zoneinfo prefix. */
@@ -265,7 +271,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 					root++;
 				}
 
-				snprintf(name, sizeof(name), "%s%s%s", root, *root ? "/": "", leaf);
+				snprintf(name, sizeof(name), "%s%s%s", root, *root ? TIMELIB_DIR_SEPARATOR : "", leaf);
 
 				if (S_ISDIR(st.st_mode)) {
 					if (dirstack_top == dirstack_size) {
