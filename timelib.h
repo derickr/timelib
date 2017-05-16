@@ -73,6 +73,10 @@
 #define strncasecmp strnicmp
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Function pointers */
 typedef timelib_tzinfo* (*timelib_tz_get_wrapper)(char *tzname, const timelib_tzdb *tzdb);
 
@@ -168,5 +172,9 @@ int timelib_astro_rise_set_altitude(timelib_time *time, double lon, double lat, 
 timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two);
 timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
 timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif
