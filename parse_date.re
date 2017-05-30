@@ -2050,7 +2050,7 @@ timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, 
 					}
 				}
 				break;
-			case 'u': /* up to six digit millisecond */
+			case 'u': /* up to six digit microsecond */
 				{
 					double f;
 					char *tptr;
@@ -2058,7 +2058,7 @@ timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, 
 					TIMELIB_CHECK_NUMBER;
 					tptr = ptr;
 					if ((f = timelib_get_nr((char **) &ptr, 6)) == TIMELIB_UNSET || (ptr - tptr < 1)) {
-						add_pbf_error(s, "A six digit millisecond could not be found", string, begin);
+						add_pbf_error(s, "A six digit microsecond could not be found", string, begin);
 					} else {
 						s->time->f = (f / pow(10, (ptr - tptr)));
 					}
