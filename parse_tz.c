@@ -23,18 +23,7 @@
  */
 
 #include "timelib.h"
-
-#include <stdio.h>
-
-#ifdef HAVE_LOCALE_H
-#include <locale.h>
-#endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#include <strings.h>
-#endif
+#include "timelib_private.h"
 
 #define TIMELIB_SUPPORTS_V2DATA
 #include "timezonedb.h"

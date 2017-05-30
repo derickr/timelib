@@ -23,6 +23,7 @@
  */
 
 #include "timelib.h"
+#include "timelib_private.h"
 #include <math.h>
 
 timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)

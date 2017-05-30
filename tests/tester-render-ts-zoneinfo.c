@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 #include "timelib.h"
-
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {

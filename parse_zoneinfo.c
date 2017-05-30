@@ -24,15 +24,11 @@
  */
 
 #include "timelib.h"
+#include "timelib_private.h"
 
 #include <sys/stat.h>
-#include <limits.h>
 #include <errno.h>
 #include <fcntl.h>
-
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 
 #ifdef _WIN32
 # include "win_dirent.h"
@@ -48,14 +44,6 @@
 # else
 #  define MAXPATHLEN 256
 # endif
-#endif
-
-#if HAVE_IO_H
-# include <io.h>
-#endif
-
-#if HAVE_DIRENT_H
-# include <dirent.h>
 #endif
 
 #if _MSC_VER

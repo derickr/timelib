@@ -25,20 +25,11 @@
 /* $Id$ */
 
 #include "timelib.h"
+#include "timelib_private.h"
 
-#include <stdio.h>
 #include <ctype.h>
 #include <math.h>
 #include <assert.h>
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#include <strings.h>
-#endif
 
 #if defined(_MSC_VER)
 # define strtoll(s, f, b) _atoi64(s)
@@ -145,8 +136,6 @@ typedef unsigned char uchar;
 #define DEBUG_OUTPUT(s)
 #define YYDEBUG(s,c)
 #endif
-
-#include "timelib_structs.h"
 
 typedef struct timelib_elems {
 	unsigned int   c; /* Number of elements */
