@@ -25,18 +25,9 @@
 /* $Id$ */
 
 #include "timelib.h"
+#include "timelib_private.h"
 
-#include <stdio.h>
 #include <ctype.h>
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#include <strings.h>
-#endif
 
 #if defined(_MSC_VER)
 # define strtoll(s, f, b) _atoi64(s)
@@ -88,8 +79,6 @@ typedef unsigned char uchar;
 #define YYDEBUG(s,c)
 #endif
 
-#include "timelib_structs.h"
-
 typedef struct Scanner {
 	int           fd;
 	uchar        *lim, *str, *ptr, *cur, *tok, *pos;
@@ -107,15 +96,6 @@ typedef struct Scanner {
 	int have_begin_date;
 	int have_end_date;
 } Scanner;
-
-static void add_warning(Scanner *s, char *error)
-{
-	s->errors->warning_count++;
-	s->errors->warning_messages = timelib_realloc(s->errors->warning_messages, s->errors->warning_count * sizeof(timelib_error_message));
-	s->errors->warning_messages[s->errors->warning_count - 1].position = s->tok ? s->tok - s->str : 0;
-	s->errors->warning_messages[s->errors->warning_count - 1].character = s->tok ? *s->tok : 0;
-	s->errors->warning_messages[s->errors->warning_count - 1].message = timelib_strdup(error);
-}
 
 static void add_error(Scanner *s, char *error)
 {
@@ -178,55 +158,6 @@ static timelib_ull timelib_get_unsigned_nr(char **ptr, int max_length)
 		++*ptr;
 	}
 	return dir * timelib_get_nr(ptr, max_length);
-}
-
-static void timelib_eat_spaces(char **ptr)
-{
-	while (**ptr == ' ' || **ptr == '\t') {
-		++*ptr;
-	}
-}
-
-static void timelib_eat_until_separator(char **ptr)
-{
-	while (strchr(" \t.,:;/-0123456789", **ptr) == NULL) {
-		++*ptr;
-	}
-}
-
-static timelib_long timelib_get_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb)
-{
-	timelib_long retval = 0;
-
-	*tz_not_found = 0;
-
-	while (**ptr == ' ' || **ptr == '\t' || **ptr == '(') {
-		++*ptr;
-	}
-	if ((*ptr)[0] == 'G' && (*ptr)[1] == 'M' && (*ptr)[2] == 'T' && ((*ptr)[3] == '+' || (*ptr)[3] == '-')) {
-		*ptr += 3;
-	}
-	if (**ptr == '+') {
-		++*ptr;
-		t->is_localtime = 1;
-		t->zone_type = TIMELIB_ZONETYPE_OFFSET;
-		*tz_not_found = 0;
-		t->dst = 0;
-
-		retval = -1 * timelib_parse_tz_cor(ptr);
-	} else if (**ptr == '-') {
-		++*ptr;
-		t->is_localtime = 1;
-		t->zone_type = TIMELIB_ZONETYPE_OFFSET;
-		*tz_not_found = 0;
-		t->dst = 0;
-
-		retval = timelib_parse_tz_cor(ptr);
-	}
-	while (**ptr == ')') {
-		++*ptr;
-	}
-	return retval;
 }
 
 #define timelib_split_free(arg) {       \

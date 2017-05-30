@@ -1,4 +1,8 @@
-CFLAGS=-O0 -ggdb3 -Wall -DHAVE_STDLIB_H -DHAVE_STRING_H -DHAVE_INTTYPES_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
+CFLAGS=-O0 -ggdb3 \
+	-Wall -Werror -Wextra \
+	-Wmaybe-uninitialized -Wdeclaration-after-statement -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
+	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
+
 LDFLAGS=-lm
 CC=gcc
 MANUAL_TESTS=tests/tester-parse-interval \
@@ -56,8 +60,11 @@ timezonemap.h: gettzmapping.php
 	echo Generating timezone mapping file.
 	php gettzmapping.php > timezonemap.h
 
+clean-all: clean
+	rm -f timezonemap.h
+
 clean:
-	rm -f parse_iso_intervals.c parse_date.c *.o timelib.a timezonemap.h ${TEST_BINARIES}
+	rm -f parse_iso_intervals.c parse_date.c *.o timelib.a ${TEST_BINARIES}
 
 test: tests/tester-parse-string tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo tests/tester-parse-string-by-format
 	php tests/test_all.php

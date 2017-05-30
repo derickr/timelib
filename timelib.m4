@@ -71,12 +71,10 @@ dnl Check for headers needed by timelib
 AC_CHECK_HEADERS([ \
 sys/time.h \
 sys/types.h \
-inttypes.h \
 stdint.h \
 dirent.h \
 string.h \
 strings.h \
-stdlib.h \
 unistd.h \
 io.h
 ])

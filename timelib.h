@@ -25,10 +25,240 @@
 #ifndef __TIMELIB_H__
 #define __TIMELIB_H__
 
-#include "timelib_structs.h"
-#if HAVE_LIMITS_H
-#include <limits.h>
+#ifdef HAVE_TIMELIB_CONFIG_H
+# include "timelib_config.h"
 #endif
+
+#include <stdlib.h>
+#include <inttypes.h>
+
+# ifndef HAVE_INT32_T
+#  if SIZEOF_INT == 4
+typedef int int32_t;
+#  elif SIZEOF_LONG == 4
+typedef long int int32_t;
+#  endif
+# endif
+
+# ifndef HAVE_UINT32_T
+#  if SIZEOF_INT == 4
+typedef unsigned int uint32_t;
+#  elif SIZEOF_LONG == 4
+typedef unsigned long int uint32_t;
+#  endif
+# endif
+
+#ifdef _WIN32
+# if _MSC_VER >= 1600
+# include <stdint.h>
+# endif
+# ifndef SIZEOF_INT
+#  define SIZEOF_INT 4
+# endif
+# ifndef SIZEOF_LONG
+#  define SIZEOF_LONG 4
+# endif
+# ifndef int32_t
+typedef __int32           int32_t;
+# endif
+# ifndef uint32_t
+typedef unsigned __int32  uint32_t;
+# endif
+# ifndef int64_t
+typedef __int64           int64_t;
+# endif
+# ifndef uint64_t
+typedef unsigned __int64  uint64_t;
+# endif
+# ifndef PRId32
+#  define PRId32       "I32d"
+# endif
+# ifndef PRIu32
+#  define PRIu32       "I32u"
+# endif
+# ifndef PRId64
+#  define PRId64       "I64d"
+# endif
+# ifndef PRIu64
+#  define PRIu64       "I64u"
+# endif
+# ifndef INT32_MAX
+#define INT32_MAX    _I32_MAX
+# endif
+# ifndef INT32_MIN
+#define INT32_MIN    ((int32_t)_I32_MIN)
+# endif
+# ifndef UINT32_MAX
+#define UINT32_MAX   _UI32_MAX
+# endif
+# ifndef INT64_MIN
+#define INT64_MIN    ((int64_t)_I64_MIN)
+# endif
+# ifndef INT64_MAX
+#define INT64_MAX    _I64_MAX
+# endif
+# ifndef UINT64_MAX
+#define UINT64_MAX   _UI64_MAX
+# endif
+#endif
+
+#if (defined(__x86_64__) || defined(__LP64__) || defined(_LP64) || defined(_WIN64)) && !defined(TIMELIB_FORCE_LONG32)
+typedef int64_t timelib_long;
+typedef uint64_t timelib_ulong;
+# define TIMELIB_LONG_MAX INT64_MAX
+# define TIMELIB_LONG_MIN INT64_MIN
+# define TIMELIB_ULONG_MAX UINT64_MAX
+# define TIMELIB_LONG_FMT "%" PRId64
+# define TIMELIB_ULONG_FMT "%" PRIu64
+#else
+typedef int32_t timelib_long;
+typedef uint32_t timelib_ulong;
+# define TIMELIB_LONG_MAX INT32_MAX
+# define TIMELIB_LONG_MIN INT32_MIN
+# define TIMELIB_ULONG_MAX UINT32_MAX
+# define TIMELIB_LONG_FMT "%" PRId32
+# define TIMELIB_ULONG_FMT "%" PRIu32
+#endif
+
+#if defined(_MSC_VER)
+typedef uint64_t timelib_ull;
+typedef int64_t timelib_sll;
+# define TIMELIB_LL_CONST(n) n ## i64
+#else
+typedef unsigned long long timelib_ull;
+typedef signed long long timelib_sll;
+# define TIMELIB_LL_CONST(n) n ## ll
+#endif
+
+typedef struct ttinfo ttinfo;
+typedef struct tlinfo tlinfo;
+
+typedef struct tlocinfo
+{
+	char country_code[3];
+	double latitude;
+	double longitude;
+	char *comments;
+} tlocinfo;
+
+typedef struct timelib_tzinfo
+{
+	char    *name;
+	struct {
+		uint32_t ttisgmtcnt;
+		uint32_t ttisstdcnt;
+		uint32_t leapcnt;
+		uint32_t timecnt;
+		uint32_t typecnt;
+		uint32_t charcnt;
+	} bit32;
+	struct {
+		uint64_t ttisgmtcnt;
+		uint64_t ttisstdcnt;
+		uint64_t leapcnt;
+		uint64_t timecnt;
+		uint64_t typecnt;
+		uint64_t charcnt;
+	} bit64;
+
+	int32_t *trans;
+	unsigned char *trans_idx;
+
+	ttinfo  *type;
+	char    *timezone_abbr;
+
+	tlinfo  *leap_times;
+	unsigned char bc;
+	tlocinfo location;
+} timelib_tzinfo;
+
+typedef struct timelib_rel_time {
+	timelib_sll y, m, d; /* Years, Months and Days */
+	timelib_sll h, i, s; /* Hours, mInutes and Seconds */
+	double      f;       /* Fraction */
+
+	int weekday; /* Stores the day in 'next monday' */
+	int weekday_behavior; /* 0: the current day should *not* be counted when advancing forwards; 1: the current day *should* be counted */
+
+	int first_last_day_of;
+	int invert; /* Whether the difference should be inverted */
+	timelib_sll days; /* Contains the number of *days*, instead of Y-M-D differences */
+
+	struct {
+		unsigned int type;
+		timelib_sll amount;
+	} special;
+
+	unsigned int   have_weekday_relative, have_special_relative;
+} timelib_rel_time;
+
+typedef struct timelib_time_offset {
+	int32_t      offset;
+	unsigned int leap_secs;
+	unsigned int is_dst;
+	char        *abbr;
+	timelib_sll  transistion_time;
+} timelib_time_offset;
+
+typedef struct timelib_time {
+	timelib_sll      y, m, d;     /* Year, Month, Day */
+	timelib_sll      h, i, s;     /* Hour, mInute, Second */
+	double           f;           /* Fraction */
+	int              z;           /* GMT offset in minutes */
+	char            *tz_abbr;     /* Timezone abbreviation (display only) */
+	timelib_tzinfo  *tz_info;     /* Timezone structure */
+	signed int       dst;         /* Flag if we were parsing a DST zone */
+	timelib_rel_time relative;
+
+	timelib_sll      sse;         /* Seconds since epoch */
+
+	unsigned int   have_time, have_date, have_zone, have_relative, have_weeknr_day;
+
+	unsigned int   sse_uptodate; /* !0 if the sse member is up to date with the date/time members */
+	unsigned int   tim_uptodate; /* !0 if the date/time members are up to date with the sse member */
+	unsigned int   is_localtime; /*  1 if the current struct represents localtime, 0 if it is in GMT */
+	unsigned int   zone_type;    /*  1 time offset,
+	                              *  3 TimeZone identifier,
+	                              *  2 TimeZone abbreviation */
+} timelib_time;
+
+typedef struct timelib_abbr_info {
+	timelib_sll  utc_offset;
+	char        *abbr;
+	int          dst;
+} timelib_abbr_info;
+
+typedef struct timelib_error_message {
+	int         position;
+	char        character;
+	char       *message;
+} timelib_error_message;
+
+typedef struct timelib_error_container {
+	struct timelib_error_message *error_messages;
+	struct timelib_error_message *warning_messages;
+	int                           error_count;
+	int                           warning_count;
+} timelib_error_container;
+
+typedef struct _timelib_tz_lookup_table {
+	char       *name;
+	int         type;
+	float       gmtoffset;
+	char       *full_tz_name;
+} timelib_tz_lookup_table;
+
+typedef struct _timelib_tzdb_index_entry {
+	char *id;
+	unsigned int pos;
+} timelib_tzdb_index_entry;
+
+typedef struct _timelib_tzdb {
+	char                           *version;
+	int                             index_size;
+	const timelib_tzdb_index_entry *index;
+	const unsigned char            *data;
+} timelib_tzdb;
 
 #ifndef timelib_malloc
 # define timelib_malloc  malloc
@@ -49,29 +279,6 @@
 #define TIMELIB_TZINFO_ZONEINFO  0x02
 
 #define TIMELIB_UNSET   -99999
-
-#define TIMELIB_SPECIAL_WEEKDAY                   0x01
-#define TIMELIB_SPECIAL_DAY_OF_WEEK_IN_MONTH      0x02
-#define TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH 0x03
-
-#define TIMELIB_SPECIAL_FIRST_DAY_OF_MONTH        0x01
-#define TIMELIB_SPECIAL_LAST_DAY_OF_MONTH         0x02
-
-#ifndef LONG_MAX
-#define LONG_MAX 2147483647L
-#endif
-
-#ifndef LONG_MIN
-#define LONG_MIN (- LONG_MAX - 1)
-#endif
-
-#if defined(_MSC_VER) && !defined(strcasecmp)
-#define strcasecmp stricmp
-#endif
-
-#if defined(_MSC_VER) && !defined(strncasecmp)
-#define strncasecmp strnicmp
-#endif
 
 #ifdef __cplusplus
 extern "C" {

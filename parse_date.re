@@ -25,20 +25,11 @@
 /* $Id$ */
 
 #include "timelib.h"
+#include "timelib_private.h"
 
-#include <stdio.h>
 #include <ctype.h>
 #include <math.h>
 #include <assert.h>
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#include <strings.h>
-#endif
 
 #if defined(_MSC_VER)
 # define strtoll(s, f, b) _atoi64(s)
@@ -146,8 +137,6 @@ typedef unsigned char uchar;
 #define YYDEBUG(s,c)
 #endif
 
-#include "timelib_structs.h"
-
 typedef struct timelib_elems {
 	unsigned int   c; /* Number of elements */
 	char         **v; /* Values */
@@ -176,17 +165,17 @@ typedef struct _timelib_relunit {
 } timelib_relunit;
 
 /* The timezone table. */
-const static timelib_tz_lookup_table timelib_timezone_lookup[] = {
+static const timelib_tz_lookup_table timelib_timezone_lookup[] = {
 #include "timezonemap.h"
 	{ NULL, 0, 0, NULL },
 };
 
-const static timelib_tz_lookup_table timelib_timezone_fallbackmap[] = {
+static const timelib_tz_lookup_table timelib_timezone_fallbackmap[] = {
 #include "fallbackmap.h"
 	{ NULL, 0, 0, NULL },
 };
 
-const static timelib_tz_lookup_table timelib_timezone_utc[] = {
+static const timelib_tz_lookup_table timelib_timezone_utc[] = {
 	{ "utc", 0, 0, "UTC" },
 };
 
@@ -692,7 +681,7 @@ static void timelib_set_relative(char **ptr, timelib_sll amount, int behavior, S
 	}
 }
 
-const static timelib_tz_lookup_table* abbr_search(const char *word, timelib_long gmtoffset, int isdst)
+static const timelib_tz_lookup_table* abbr_search(const char *word, timelib_long gmtoffset, int isdst)
 {
 	int first_found = 0;
 	const timelib_tz_lookup_table  *tp, *first_found_elem = NULL;

@@ -23,6 +23,7 @@
  */
 
 #include "timelib.h"
+#include "timelib_private.h"
 #include <ctype.h>
 #include <math.h>
 

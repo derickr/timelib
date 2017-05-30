@@ -26,15 +26,15 @@
    | Schlyter, who wrote this in December 1992                            |
  */
 
+#include "timelib.h"
 #include <stdio.h>
 #include <math.h>
-#include "timelib.h"
 
 #define days_since_2000_Jan_0(y,m,d) \
 	(367L*(y)-((7*((y)+(((m)+9)/12)))/4)+((275*(m))/9)+(d)-730530L)
 
 #ifndef PI
- #define PI        3.1415926535897932384
+# define PI        3.1415926535897932384
 #endif
 
 #define RADEG     ( 180.0 / PI )
