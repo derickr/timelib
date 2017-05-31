@@ -92,6 +92,9 @@
 #define DAYS_PER_LYEAR_PERIOD 146097
 #define YEARS_PER_LYEAR_PERIOD 400
 
+#define TIMELIB_TZINFO_PHP       0x01
+#define TIMELIB_TZINFO_ZONEINFO  0x02
+
 #define timelib_is_leap(y) ((y) % 4 == 0 && ((y) % 100 != 0 || (y) % 400 == 0))
 
 #define TIMELIB_DEBUG(s)  if (0) { s }

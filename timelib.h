@@ -276,9 +276,6 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_OVERRIDE_TIME    0x01
 #define TIMELIB_NO_CLONE         0x02
 
-#define TIMELIB_TZINFO_PHP       0x01
-#define TIMELIB_TZINFO_ZONEINFO  0x02
-
 #define TIMELIB_UNSET   -99999
 
 /* An entry for each of these error codes is also in the
