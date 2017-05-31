@@ -31,12 +31,16 @@ int main(int argc, char *argv[])
 	const timelib_tzdb_index_entry *entries;
 	timelib_tzinfo *tzi;	
 
-	if (argc < 2) {
+	if (argc > 2) {
 		printf("Usage:\n\tenumerate-timezones [zoneinfo path]\n\tExample: ./enumerate-timezone /usr/share/zoneinfo\"\n\n");
 		exit(-1);
 	}
-	
-	db = timelib_zoneinfo(argv[1]);
+	if (argc == 1) {
+		db = (timelib_tzdb*) timelib_builtin_db();
+	} else {
+		db = timelib_zoneinfo(argv[1]);
+	}
+
 	entries = timelib_timezone_identifiers_list(db, &count);
 
 	for (i = 0; i < count; i++) {
@@ -49,6 +53,10 @@ int main(int argc, char *argv[])
 			printf("OK:   %s\n", entries[i].id);
 			timelib_tzinfo_dtor(tzi);
 		}
+	}
+
+	if (db != timelib_builtin_db()) {
+		timelib_zoneinfo_dtor(db);
 	}
 }
 
