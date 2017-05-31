@@ -30,6 +30,7 @@
 #endif
 
 #include <stdlib.h>
+#include <limits.h>
 #include <inttypes.h>
 
 # ifndef HAVE_INT32_T
