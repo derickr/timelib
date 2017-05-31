@@ -285,10 +285,12 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 							db_index[index_next].pos = data_size;
 							data_size += length;
 							free(tzfile_data);
+
+							index_next++;
+						} else {
+							free(db_index[index_next].id);
 						}
 					}
-
-					index_next++;
 				}
 			}
 
