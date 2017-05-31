@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	timelib_time *t, *now;
 	char    *tz;
 	timelib_tzinfo *tzi;
+	int dummy_error;
 
 	if (argc < 4) {
 		printf("Usage:\n\ttester-create-ts [t] [reference] [tz specification]\n\tExample: ./tester-create-ts \"9/11\" \"00:00:00\" \"Europe/Amsterdam\"\n\n");
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
 	t = timelib_strtotime(argv[1], strlen(argv[1]), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 	now = timelib_strtotime(argv[2], strlen(argv[2]), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 	tz = argv[3];
-	tzi = timelib_parse_tzfile(tz, timelib_builtin_db());
+	tzi = timelib_parse_tzfile(tz, timelib_builtin_db(), &dummy_error);
 
 	timelib_fill_holes(t, now, TIMELIB_OVERRIDE_TIME);
 	timelib_time_dtor(now);

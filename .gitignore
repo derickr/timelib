@@ -21,6 +21,7 @@ tester-parse-string-by-format
 tester-parse-tz
 tester-render-ts
 tester-render-ts-zoneinfo
+tests/enumerate-timezones
 timelib.a
 timelib.o
 timelib_config.h

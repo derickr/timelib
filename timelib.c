@@ -37,6 +37,26 @@
 
 #define HOUR(a) (int)(a * 60)
 
+const char *timelib_error_messages[8] = {
+	"No error",
+	"Can not allocate buffer for parsing",
+	"Corrupt tzfile: The transitions in the file don't always increase",
+	"Corrupt tzfile: The expected 64-bit preamble is missing",
+	"Corrupt tzfile: No abbreviation could be found for a transition",
+	"The version used in this timezone identifier is unsupported",
+	"No timezone with this name could be found",
+};
+
+const char *timelib_get_error_message(int error_code)
+{
+	int entries = sizeof(timelib_error_messages) / sizeof(char*);
+
+	if (error_code >= 0 && error_code < entries) {
+		return timelib_error_messages[error_code];
+	}
+	return "Unknown error code";
+}
+
 timelib_time* timelib_time_ctor(void)
 {
 	timelib_time *t;

@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 	signed long long ts;
 	timelib_time *local_time;
 	timelib_tzinfo *tz;
+	int dummy_error;
 
 	ts = 368237; /*Monday 1970-01-01 17:17:17 */
 
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
 			return 2;
 		}
 		
-		tz = timelib_parse_tzfile(argv[1], db);
+		tz = timelib_parse_tzfile(argv[1], db, &dummy_error);
 		if (!tz) {
 			fprintf(stderr, "Can not read timezone identifier '%s' from database in '%s'.\n", argv[1], argv[2]);
 
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
 
 		timelib_zoneinfo_dtor(db);
 	} else {
-		tz = timelib_parse_tzfile(argv[1], timelib_builtin_db());
+		tz = timelib_parse_tzfile(argv[1], timelib_builtin_db(), &dummy_error);
 		if (!tz) {
 			fprintf(stderr, "Can not read timezone identifier '%s' from built in database.\n", argv[1]);
 			return 4;

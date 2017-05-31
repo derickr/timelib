@@ -280,12 +280,22 @@ typedef struct _timelib_tzdb {
 
 #define TIMELIB_UNSET   -99999
 
+/* An entry for each of these error codes is also in the
+ * timelib_error_messages array in timelib.c */
+#define TIMELIB_ERROR_NO_ERROR                            0x00
+#define TIMELIB_ERROR_CANNOT_ALLOCATE                     0x01
+#define TIMELIB_ERROR_CORRUPT_TRANSITIONS_DONT_INCREASE   0x02
+#define TIMELIB_ERROR_CORRUPT_NO_64BIT_PREAMBLE           0x03
+#define TIMELIB_ERROR_CORRUPT_NO_ABBREVIATION             0x04
+#define TIMELIB_ERROR_UNSUPPORTED_VERSION                 0x05
+#define TIMELIB_ERROR_NO_SUCH_TIMEZONE                    0x06
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Function pointers */
-typedef timelib_tzinfo* (*timelib_tz_get_wrapper)(char *tzname, const timelib_tzdb *tzdb);
+typedef timelib_tzinfo* (*timelib_tz_get_wrapper)(char *tzname, const timelib_tzdb *tzdb, int *error_code);
 
 /* From dow.c */
 timelib_sll timelib_day_of_week(timelib_sll y, timelib_sll m, timelib_sll d);
@@ -328,7 +338,7 @@ void timelib_set_timezone(timelib_time *t, timelib_tzinfo *tz);
 
 /* From parse_tz.c */
 int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb);
-timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb);
+timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, int *error_code);
 int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz);
 timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *tz);
 timelib_sll timelib_get_current_offset(timelib_time *t);
@@ -342,6 +352,7 @@ timelib_tzdb *timelib_zoneinfo(char *directory);
 void timelib_zoneinfo_dtor(timelib_tzdb *tzdb);
 
 /* From timelib.c */
+const char *timelib_get_error_message(int error_code);
 timelib_tzinfo* timelib_tzinfo_ctor(char *name);
 void timelib_time_tz_abbr_update(timelib_time* tm, char* tz_abbr);
 void timelib_time_tz_name_update(timelib_time* tm, char* tz_name);

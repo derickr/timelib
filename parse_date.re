@@ -791,7 +791,9 @@ timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_n
 
 		/* Otherwise, we look if we have a TimeZone identifier */
 		if (!found || strcmp("UTC", tz_abbr) == 0) {
-			if ((res = tz_wrapper(tz_abbr, tzdb)) != NULL) {
+			int dummy_error_code;
+
+			if ((res = tz_wrapper(tz_abbr, tzdb, &dummy_error_code)) != NULL) {
 				t->tz_info = res;
 				t->zone_type = TIMELIB_ZONETYPE_ID;
 				found++;

@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	timelib_time *t;
 	char    *tz;
 	timelib_tzinfo  *tzi;
+	int dummy_error;
 
 	if (argc < 3) {
 		printf("Usage:\n\ttester-render [t] [tz specification]\n\tExample: ./tester-render \"1114819200\" \"Europe/Amsterdam\"\n\n");
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
 	}
 	ts = atoll(argv[1]);
 	tz = argv[2];
-	tzi = timelib_parse_tzfile(tz, timelib_builtin_db());
+	tzi = timelib_parse_tzfile(tz, timelib_builtin_db(), &dummy_error);
 
 	t = timelib_time_ctor();
 	timelib_set_timezone(t, tzi);
