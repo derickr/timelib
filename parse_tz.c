@@ -79,6 +79,9 @@ static int read_tzif_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 		case '2':
 			version = 2;
 			break;
+		case '3':
+			version = 3;
+			break;
 		default:
 			return -1;
 	}
@@ -418,6 +421,9 @@ static int skip_64bit_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 	if (memcmp(*tzf, "TZif2", 5) == 0) {
 		*tzf += 20;
 		return 1;
+	} else if (memcmp(*tzf, "TZif3", 5) == 0) {
+		*tzf += 20;
+		return 1;
 	} else {
 		return 0;
 	}
@@ -454,6 +460,7 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
 			timelib_tzinfo_dtor(tmp);
 			return NULL;
 		}
+//printf("- timezone: %s, version: %0d\n", timezone, version);
 
 		read_header(&tzf, tmp);
 		if ((transitions_result = read_transistions(&tzf, tmp)) != 0) {
@@ -467,7 +474,7 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
 			timelib_tzinfo_dtor(tmp);
 			return NULL;
 		}
-		if (version == 2) {
+		if (version == 2 || version == 3) {
 			if (!skip_64bit_preamble(&tzf, tmp)) {
 				/* 64 bit preamble is not in place */
 				*error_code = TIMELIB_ERROR_CORRUPT_NO_64BIT_PREAMBLE;
