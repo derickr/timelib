@@ -27,15 +27,17 @@
 int main(int argc, char *argv[])
 {
 	timelib_sll y, m, d;
-	timelib_sll week, year;
+	timelib_sll year, week, day;
 
 	y = atoi(argv[1]);
 	m = atoi(argv[2]);
 	d = atoi(argv[3]);
 
 	timelib_isoweek_from_date(y, m, d, &week, &year);
-
 	printf("%llu-%llu\n", week, year);
+
+	timelib_isodate_from_date(y, m, d, &year, &week, &day);
+	printf("%lluW%lluD%llu\n", year, week, day);
 
 	return 0;
 }

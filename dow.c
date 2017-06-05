@@ -138,6 +138,12 @@ void timelib_isoweek_from_date(timelib_sll y, timelib_sll m, timelib_sll d, time
 	}
 }
 
+void timelib_isodate_from_date(timelib_sll y, timelib_sll m, timelib_sll d, timelib_sll *iy, timelib_sll *iw, timelib_sll *id)
+{
+	timelib_isoweek_from_date(y, m, d, iw, iy);
+	*id = timelib_day_of_week_ex(y, m, d, 1);
+}
+
 timelib_sll timelib_daynr_from_weeknr(timelib_sll y, timelib_sll w, timelib_sll d)
 {
 	timelib_sll dow, day;
