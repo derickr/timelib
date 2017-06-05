@@ -367,7 +367,6 @@ void timelib_time_set_option(timelib_time* tm, int option, void* option_value);
 void timelib_time_dtor(timelib_time* t);
 timelib_time* timelib_time_clone(timelib_time* orig);
 int timelib_time_compare(timelib_time *t1, timelib_time *t2);
-void timelib_set_fraction_from_timeval(timelib_time *t, struct timeval tp);
 
 timelib_time_offset* timelib_time_offset_ctor(void);
 void timelib_time_offset_dtor(timelib_time_offset* t);
