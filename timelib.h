@@ -355,7 +355,11 @@ timelib_tzdb *timelib_zoneinfo(char *directory);
 void timelib_zoneinfo_dtor(timelib_tzdb *tzdb);
 
 /* From timelib.c */
+
+/* Returns a static string containing an error message belonging to a specific
+ * error code. */
 const char *timelib_get_error_message(int error_code);
+
 timelib_tzinfo* timelib_tzinfo_ctor(char *name);
 void timelib_time_tz_abbr_update(timelib_time* tm, char* tz_abbr);
 void timelib_time_tz_name_update(timelib_time* tm, char* tz_name);
