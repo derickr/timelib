@@ -43,3 +43,6 @@ zones/version-info.txt
 .idea
 zones/timezonedb.tgz
 zones/timezonedb-201*.tgz
+docs/date-from-iso-parts
+docs/date-from-parts
+docs/date-to-parts
