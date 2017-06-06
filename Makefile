@@ -7,7 +7,7 @@ LDFLAGS=-lm
 CC=gcc
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-parse-tz tests/tester-iso-week tests/test-abbr-to-id \
-	tests/enumerate-timezones
+	tests/enumerate-timezones tests/date_from_isodate
 AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 	tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
@@ -59,6 +59,9 @@ tests/test-astro: timelib.a tests/test-astro.c
 
 tests/enumerate-timezones: timelib.a tests/enumerate-timezones.c
 	gcc $(CFLAGS) $(LDFLAGS) -o tests/enumerate-timezones tests/enumerate-timezones.c timelib.a
+
+tests/date_from_isodate: timelib.a tests/date_from_isodate.c
+	gcc $(CFLAGS) $(LDFLAGS) -o tests/date_from_isodate tests/date_from_isodate.c timelib.a
 
 timezonemap.h: gettzmapping.php
 	echo Generating timezone mapping file.

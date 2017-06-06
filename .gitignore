@@ -22,6 +22,7 @@ tester-parse-tz
 tester-render-ts
 tester-render-ts-zoneinfo
 tests/enumerate-timezones
+tests/date_from_isodate
 timelib.a
 timelib.o
 timelib_config.h
