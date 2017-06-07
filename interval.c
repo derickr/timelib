@@ -86,6 +86,10 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 			rt->i += dst_m_corr;
 		}
 	}
+	// because of adding DST correlation there could be negative values which need to be normalized.
+	if (rt->d < 0 || rt->h < 0 || rt->i < 0) {
+		timelib_do_rel_normalize(rt->invert ? one : two, rt);
+	}
 
 	/* Restore old TZ info */
 	memcpy(one, &one_backup, sizeof(one_backup));
