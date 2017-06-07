@@ -329,7 +329,7 @@ void timelib_strtointerval(char *s, size_t len,
 /* From tm2unixtime.c */
 void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi);
 void timelib_do_normalize(timelib_time *base);
-void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt);
+void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt, timelib_sll absolute);
 
 /* From unixtime2tm.c */
 int timelib_apply_localtime(timelib_time *t, unsigned int localtime);
@@ -393,7 +393,7 @@ double timelib_ts_to_juliandate(timelib_sll ts);
 int timelib_astro_rise_set_altitude(timelib_time *time, double lon, double lat, double altit, int upper_limb, double *h_rise, double *h_set, timelib_sll *ts_rise, timelib_sll *ts_set, timelib_sll *ts_transit);
 
 /* from interval.c */
-timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two);
+timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two, timelib_sll absolute);
 timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
 timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
 

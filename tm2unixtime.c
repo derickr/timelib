@@ -192,14 +192,14 @@ static void do_adjust_for_weekday(timelib_time* time)
 	time->relative.have_weekday_relative = 0;
 }
 
-void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt)
+void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt, timelib_sll absolute)
 {
 	do_range_limit(0, 60, 60, &rt->s, &rt->i);
 	do_range_limit(0, 60, 60, &rt->i, &rt->h);
 	do_range_limit(0, 24, 24, &rt->h, &rt->d);
 	do_range_limit(0, 12, 12, &rt->m, &rt->y);
 
-	do_range_limit_days_relative(&base->y, &base->m, &rt->y, &rt->m, &rt->d, rt->invert);
+	do_range_limit_days_relative(&base->y, &base->m, &rt->y, &rt->m, &rt->d, (absolute || rt->invert));
 	do_range_limit(0, 12, 12, &rt->m, &rt->y);
 }
 
