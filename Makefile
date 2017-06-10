@@ -1,9 +1,10 @@
 CFLAGS=-O0 -ggdb3 \
-	-Wall -Werror -Wextra \
+	-Wall -Werror -Wextra -fsanitize=undefined \
 	-Wmaybe-uninitialized -Wdeclaration-after-statement -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
+	-pedantic \
 	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
 
-LDFLAGS=-lm
+LDFLAGS=-lm -fsanitize=undefined
 CC=gcc
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-parse-tz tests/tester-iso-week tests/test-abbr-to-id \
