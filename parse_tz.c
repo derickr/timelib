@@ -38,6 +38,14 @@
 # endif
 #endif
 
+#if defined(__s390__)
+# if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#  define WORDS_BIGENDIAN
+# else
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
+
 #ifdef WORDS_BIGENDIAN
 static inline uint32_t timelib_conv_int_unsigned(uint32_t value)
 {
