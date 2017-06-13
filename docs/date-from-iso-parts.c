@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
 	timelib_sll th = 12;
 	timelib_sll ti = 50;
 	timelib_sll ts = 58;
+	double      tf =  48.0 / 1000.0;
 	char           *tz_id = "America/New_York";
 	timelib_time   *t;
 	timelib_tzinfo *tzi;
@@ -96,6 +97,7 @@ int main(int argc, char *argv[])
 	t = timelib_time_ctor();
 	timelib_date_from_isodate(ty, tw, td, &t->y, &t->m, &t->d);
 	t->h = th; t->i = ti; t->s = ts;
+	t->f = tf;
 
 	timelib_update_ts(t, tzi);
 	timelib_set_timezone(t, tzi);
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
 			t->m, t->d, t->h, t->i, t->s
 		);
 		if (t->f > +0.0) {
-			printf(" %.6f", t->f);
+			printf(".%03d", (int) (t->f * (double) 1000.0));
 		}
 		printf("\n");
 	}
