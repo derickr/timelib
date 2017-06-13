@@ -39,14 +39,14 @@ struct {
 	/* cache *tz_cache; */
 } global;
 
-int create_cache(timelib_tzdb *db)
+void create_cache(timelib_tzdb *db)
 {
 	global.db = db;
 
 	/* Loop over all the entries and store in tz_cache */
 }
 
-int cleanup_cache()
+void cleanup_cache()
 {
 	if (global.db != timelib_builtin_db()) {
 		timelib_zoneinfo_dtor(global.db);
@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
 	char           *tz_id = "America/New_York";
 	timelib_time   *t;
 	timelib_tzinfo *tzi;
-	timelib_error_container *errors;
 	
 	if (argc < 4) {
 		printf("Usage:\n\tdate-from-iso-parts isoyear isoweek isoday\n\tExample: ./date-from-iso-parts 2017 23 2\n\n");
