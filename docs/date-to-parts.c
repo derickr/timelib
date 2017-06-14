@@ -39,14 +39,14 @@ struct {
 	/* cache *tz_cache; */
 } global;
 
-int create_cache(timelib_tzdb *db)
+void create_cache(timelib_tzdb *db)
 {
 	global.db = db;
 
 	/* Loop over all the entries and store in tz_cache */
 }
 
-int cleanup_cache()
+void cleanup_cache()
 {
 	if (global.db != timelib_builtin_db()) {
 		timelib_zoneinfo_dtor(global.db);
