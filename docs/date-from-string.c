@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "../timelib.h"
 
 struct {
@@ -74,6 +75,9 @@ int main(int argc, char *argv[])
 	char           *time_string = NULL;
 	char           *tz_id = NULL;
 	timelib_time   *t;
+#if defined(PARTIAL)
+	timelib_time   *t_now;
+#endif
 	timelib_tzinfo *tzi = NULL;
 	timelib_tzinfo *tzi_utc = NULL;
 	struct timelib_error_container *errors;
@@ -96,11 +100,24 @@ int main(int argc, char *argv[])
 	}
 	tzi_utc = cached_fetch_tzinfo("UTC");
 
+#if defined(PARTIAL)
+	/* Doing this means you can also supply partial date/time strings, such as
+	 * "July 4th" */
+
+	/* Create "now" to fill in the holes */
+	t_now = timelib_time_ctor();
+	if (tzi) {
+		timelib_set_timezone(t_now, tzi);
+	} else {
+		timelib_set_timezone(t_now, tzi_utc);
+	}
+	timelib_unixtime2gmt(t_now, time(NULL));
+#endif
+
 	/* Convert from string to timelib_t
 	 *
 	 * Passing in the "Z" at the end of the string, means the extra timezone gets ignored.
-	 * If you *don't* want that, then uncomment the "timelib_set_timezone" line
-	 * below (as marked). */
+	 * If you *don't* want that, then compile with -DDONT_IGNORE_TZ */
 	t = timelib_strtotime(time_string, strlen(time_string), &errors, global.db, cached_tzfile_wrapper);
 
 	/* Error handling */
@@ -112,14 +129,22 @@ int main(int argc, char *argv[])
 	}
 	timelib_error_container_dtor(errors);
 
+#if defined(PARTIAL)
+	/* Add missing fields */
+	timelib_fill_holes(t, t_now, TIMELIB_NO_CLONE);
+#endif
+
 	if (tzi) {
-		/* Uncomment this line to ignore timezone info from string */
-		/* timelib_set_timezone(t, tzi); */
+#if defined(DONT_IGNORE_TZ)
+		timelib_set_timezone(t, tzi);
+#endif
 
 		timelib_update_ts(t, tzi);
 		timelib_unixtime2local(t, t->sse);
+		timelib_dump_date(t, 1);
 	} else {
 		timelib_update_ts(t, tzi_utc);
+		timelib_dump_date(t, 1);
 	}
 
 	timelib_set_timezone(t, tzi_utc);
@@ -130,6 +155,11 @@ int main(int argc, char *argv[])
 	printf("Timestamp: %lld\n", (t->sse * 1000) + (int) (t->f * 1000.0));
 
 	timelib_time_dtor(t);
+#if defined(PARTIAL)
+	timelib_time_dtor(t_now);
+#endif
+	timelib_tzinfo_dtor(tzi);
+	timelib_tzinfo_dtor(tzi_utc);
 
 	cleanup_cache();
 }
