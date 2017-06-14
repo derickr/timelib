@@ -13,8 +13,11 @@ AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 	tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
+EXAMPLE_BINARIES=docs/date-from-iso-parts docs/date-from-parts docs/date-from-string \
+	docs/date-to-parts
+
 all: parse_date.o tm2unixtime.o unixtime2tm.o dow.o astro.o interval.o \
-		${TEST_BINARIES}
+		${TEST_BINARIES} ${EXAMPLE_BINARIES}
 
 parse_date.c: timezonemap.h parse_date.re
 	re2c -d -b parse_date.re > parse_date.c
@@ -63,6 +66,20 @@ tests/enumerate-timezones: timelib.a tests/enumerate-timezones.c
 
 tests/date_from_isodate: timelib.a tests/date_from_isodate.c
 	gcc $(CFLAGS) -o tests/date_from_isodate tests/date_from_isodate.c timelib.a $(LDFLAGS)
+
+
+docs/date-from-parts: timelib.a docs/date-from-parts.c
+	gcc $(CFLAGS) -o docs/date-from-parts docs/date-from-parts.c timelib.a $(LDFLAGS)
+
+docs/date-from-iso-parts: timelib.a docs/date-from-iso-parts.c
+	gcc $(CFLAGS) -o docs/date-from-iso-parts docs/date-from-iso-parts.c timelib.a $(LDFLAGS)
+
+docs/date-from-string: timelib.a docs/date-from-string.c
+	gcc $(CFLAGS) -o docs/date-from-string docs/date-from-string.c timelib.a $(LDFLAGS)
+
+docs/date-to-parts: timelib.a docs/date-to-parts.c
+	gcc $(CFLAGS) -o docs/date-to-parts docs/date-to-parts.c timelib.a $(LDFLAGS)
+
 
 timezonemap.h: gettzmapping.php
 	echo Generating timezone mapping file.
