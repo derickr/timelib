@@ -1,5 +1,7 @@
+# `make WARNINGS_AS_ERRORS=` to continue with older toolchains
+WARNINGS_AS_ERRORS ?= -Werror
 CFLAGS=-O0 -ggdb3 \
-	-Wall -Werror -Wextra -fsanitize=undefined \
+	-Wall $(WARNINGS_AS_ERRORS) -Wextra -fsanitize=undefined \
 	-Wmaybe-uninitialized -Wdeclaration-after-statement -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
 	-pedantic \
 	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
