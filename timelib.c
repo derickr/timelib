@@ -162,10 +162,12 @@ timelib_tzinfo *timelib_tzinfo_clone(timelib_tzinfo *tz)
 	tmp->bit32.typecnt = tz->bit32.typecnt;
 	tmp->bit32.charcnt = tz->bit32.charcnt;
 
-	tmp->trans = (int32_t *) timelib_malloc(tz->bit32.timecnt * sizeof(int32_t));
-	tmp->trans_idx = (unsigned char*) timelib_malloc(tz->bit32.timecnt * sizeof(unsigned char));
-	memcpy(tmp->trans, tz->trans, tz->bit32.timecnt * sizeof(int32_t));
-	memcpy(tmp->trans_idx, tz->trans_idx, tz->bit32.timecnt * sizeof(unsigned char));
+	if (tz->bit32.timecnt) {
+		tmp->trans = (int32_t *) timelib_malloc(tz->bit32.timecnt * sizeof(int32_t));
+		tmp->trans_idx = (unsigned char*) timelib_malloc(tz->bit32.timecnt * sizeof(unsigned char));
+		memcpy(tmp->trans, tz->trans, tz->bit32.timecnt * sizeof(int32_t));
+		memcpy(tmp->trans_idx, tz->trans_idx, tz->bit32.timecnt * sizeof(unsigned char));
+	}
 
 	tmp->type = (ttinfo*) timelib_malloc(tz->bit32.typecnt * sizeof(struct ttinfo));
 	memcpy(tmp->type, tz->type, tz->bit32.typecnt * sizeof(struct ttinfo));
@@ -173,8 +175,10 @@ timelib_tzinfo *timelib_tzinfo_clone(timelib_tzinfo *tz)
 	tmp->timezone_abbr = (char*) timelib_malloc(tz->bit32.charcnt);
 	memcpy(tmp->timezone_abbr, tz->timezone_abbr, tz->bit32.charcnt);
 
-	tmp->leap_times = (tlinfo*) timelib_malloc(tz->bit32.leapcnt * sizeof(tlinfo));
-	memcpy(tmp->leap_times, tz->leap_times, tz->bit32.leapcnt * sizeof(tlinfo));
+	if (tz->bit32.leapcnt) {
+		tmp->leap_times = (tlinfo*) timelib_malloc(tz->bit32.leapcnt * sizeof(tlinfo));
+		memcpy(tmp->leap_times, tz->leap_times, tz->bit32.leapcnt * sizeof(tlinfo));
+	}
 
 	return tmp;
 }
