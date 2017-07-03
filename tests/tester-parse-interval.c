@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	timelib_time     *b = NULL, *e = NULL;
 	timelib_rel_time *p = NULL;
 	int               r = 0;
-	int           i;
+	int               i, errors_found;
 	struct timelib_error_container *errors;
 
 	timelib_strtointerval(argv[1], strlen(argv[1]), &b, &e, &p, &r, &errors);
@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	errors_found = errors->error_count ? 1 : 0;
 	timelib_error_container_dtor(errors);
-	return errors->error_count ? 1 : 0;
+	return errors_found;
 }

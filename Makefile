@@ -1,5 +1,5 @@
 CFLAGS=-O0 -ggdb3 \
-	-Wall -Werror -Wextra -fsanitize=undefined \
+	-Wall -Werror -Wextra -fsanitize=undefined -fsanitize=address \
 	-Wmaybe-uninitialized -Wdeclaration-after-statement -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
 	-pedantic \
 	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER

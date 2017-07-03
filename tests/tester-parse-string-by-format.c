@@ -28,7 +28,7 @@
 int main(int argc, char *argv[])
 {
 	timelib_time *t;
-	int           i;
+	int           i, errors_found;
 	struct timelib_error_container *errors;
 
 	t = timelib_parse_from_format(argv[1], argv[2], strlen(argv[2]), &errors, timelib_builtin_db(), timelib_parse_tzfile);
@@ -39,6 +39,9 @@ int main(int argc, char *argv[])
 		printf("E=%d ", errors->error_count);
 	}
 	timelib_dump_date(t, 1);
+	if (t->tz_info) {
+		timelib_tzinfo_dtor(t->tz_info);
+	}
 	timelib_time_dtor(t);
 
 	if (errors->warning_count) {
@@ -54,6 +57,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	errors_found = errors->error_count ? 1 : 0;
 	timelib_error_container_dtor(errors);
-	return errors->error_count ? 1 : 0;
+	return errors_found;
 }

@@ -43,10 +43,16 @@ int main(int argc, char *argv[])
 	tzi = timelib_parse_tzfile(tz, timelib_builtin_db(), &dummy_error);
 
 	timelib_fill_holes(t, now, TIMELIB_OVERRIDE_TIME);
+	if (now->tz_info && (now->tz_info != tzi)) {
+		timelib_tzinfo_dtor(now->tz_info);
+	}
 	timelib_time_dtor(now);
 	timelib_update_ts(t, tzi);
 
 	timelib_dump_date(t, 1);
+	if (t->tz_info && (t->tz_info != tzi)) {
+		timelib_tzinfo_dtor(t->tz_info);
+	}
 	timelib_time_dtor(t);
 	if (tzi) {
 		timelib_tzinfo_dtor(tzi);

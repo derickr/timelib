@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	timelib_time *t;
 	char    *tz;
 	timelib_tzinfo  *tzi;
+	timelib_tzdb    *zoneinfo;
 	int              dummy_error;
 
 	if (argc < 3) {
@@ -38,7 +39,8 @@ int main(int argc, char *argv[])
 	}
 	ts = atoll(argv[1]);
 	tz = argv[2];
-	tzi = timelib_parse_tzfile(tz, timelib_zoneinfo("/usr/share/zoneinfo"), &dummy_error);
+	zoneinfo = timelib_zoneinfo("/usr/share/zoneinfo");
+	tzi = timelib_parse_tzfile(tz, zoneinfo, &dummy_error);
 
 	if (!tzi) {
 		printf("Timezone identifier \"%s\" does not exist\n", tz);
@@ -51,6 +53,7 @@ int main(int argc, char *argv[])
 	timelib_dump_date(t, 3);
 	timelib_tzinfo_dtor(t->tz_info);
 	timelib_time_dtor(t);
+	timelib_zoneinfo_dtor(zoneinfo);
 
 	return 0;
 }
