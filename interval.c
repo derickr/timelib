@@ -98,6 +98,9 @@ timelib_time *timelib_add(timelib_time *old_time, timelib_rel_time *interval)
 {
 	int bias = 1;
 	timelib_time *t = timelib_time_clone(old_time);
+	timelib_sll years = interval->y;
+	timelib_sll months = interval->m;
+	timelib_sll days = interval->d;
 
 	if (interval->have_weekday_relative || interval->have_special_relative) {
 		memcpy(&t->relative, interval, sizeof(timelib_rel_time));
@@ -105,10 +108,15 @@ timelib_time *timelib_add(timelib_time *old_time, timelib_rel_time *interval)
 		if (interval->invert) {
 			bias = -1;
 		}
+		if (interval->days != TIMELIB_UNSET) {
+			years = 0;
+			months = 0;
+			days = interval->days;
+		}
 		memset(&t->relative, 0, sizeof(timelib_rel_time));
-		t->relative.y = interval->y * bias;
-		t->relative.m = interval->m * bias;
-		t->relative.d = interval->d * bias;
+		t->relative.y = years * bias;
+		t->relative.m = months * bias;
+		t->relative.d = days * bias;
 		t->relative.h = interval->h * bias;
 		t->relative.i = interval->i * bias;
 		t->relative.s = interval->s * bias;
@@ -121,7 +129,7 @@ timelib_time *timelib_add(timelib_time *old_time, timelib_rel_time *interval)
 
 //	printf("%lld %lld %d\n", old_time->dst, t->dst, (t->sse - old_time->sse));
 	/* Adjust for backwards DST changeover */
-	if (old_time->dst == 1 && t->dst == 0 && !interval->y && !interval->m && !interval->d) {
+	if (old_time->dst == 1 && t->dst == 0 && !years && !months && !days) {
 		t->sse -= old_time->z;
 		t->sse += t->z;
 	}
@@ -136,15 +144,23 @@ timelib_time *timelib_sub(timelib_time *old_time, timelib_rel_time *interval)
 {
 	int bias = 1;
 	timelib_time *t = timelib_time_clone(old_time);
+	timelib_sll years = interval->y;
+	timelib_sll months = interval->m;
+	timelib_sll days = interval->d;
 
 	if (interval->invert) {
 		bias = -1;
 	}
+	if (interval->days != TIMELIB_UNSET) {
+		years = 0;
+		months = 0;
+		days = interval->days;
+	}
 
 	memset(&t->relative, 0, sizeof(timelib_rel_time));
-	t->relative.y = 0 - (interval->y * bias);
-	t->relative.m = 0 - (interval->m * bias);
-	t->relative.d = 0 - (interval->d * bias);
+	t->relative.y = 0 - (years * bias);
+	t->relative.m = 0 - (months * bias);
+	t->relative.d = 0 - (days * bias);
 	t->relative.h = 0 - (interval->h * bias);
 	t->relative.i = 0 - (interval->i * bias);
 	t->relative.s = 0 - (interval->s * bias);
@@ -155,12 +171,12 @@ timelib_time *timelib_sub(timelib_time *old_time, timelib_rel_time *interval)
 	timelib_update_ts(t, NULL);
 
 	/* Adjust for backwards DST changeover */
-	if (old_time->dst == 1 && t->dst == 0 && !interval->y && !interval->m && !interval->d) {
+	if (old_time->dst == 1 && t->dst == 0 && !years && !months && !days) {
 		t->sse -= old_time->z;
 		t->sse += t->z;
 	}
 	/* Adjust for forwards DST changeover */
-	if (old_time->dst == 0 && t->dst == 1 && !interval->y && !interval->m && !interval->d ) {
+	if (old_time->dst == 0 && t->dst == 1 && !years && !months && !days) {
 		t->sse -= old_time->z;
 		t->sse += t->z;
 	}
