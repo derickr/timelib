@@ -125,7 +125,8 @@ int main(void)
 		printf("\n");
 	}
 
-
+	timelib_error_container_dtor(errors);
+	timelib_tzinfo_dtor(tzi);
 	timelib_time_dtor(t);
 
 	cleanup_cache();

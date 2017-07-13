@@ -158,7 +158,9 @@ int main(int argc, char *argv[])
 #if defined(PARTIAL)
 	timelib_time_dtor(t_now);
 #endif
-	timelib_tzinfo_dtor(tzi);
+	if (tzi) {
+		timelib_tzinfo_dtor(tzi);
+	}
 	timelib_tzinfo_dtor(tzi_utc);
 
 	cleanup_cache();

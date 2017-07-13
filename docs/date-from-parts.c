@@ -117,6 +117,7 @@ int main(void)
 	}
 
 
+	timelib_tzinfo_dtor(tzi);
 	timelib_time_dtor(t);
 
 	cleanup_cache();
