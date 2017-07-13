@@ -101,8 +101,8 @@ int main(void)
 			t->y < 0 ? "-" : "", LLABS(t->y),
 			t->m, t->d, t->h, t->i, t->s
 		);
-		if (t->f > +0.0) {
-			printf(" %.6f", t->f);
+		if (t->us > 0) {
+			printf(".%03lld", (t->us / 1000));
 		}
 		printf("\n");
 	}
@@ -119,8 +119,8 @@ int main(void)
 			iso_week, iso_dow,
 			t->h, t->i, t->s
 		);
-		if (t->f > +0.0) {
-			printf(" %.6f", t->f);
+		if (t->us > 0) {
+			printf(".%03lld", (t->us / 1000));
 		}
 		printf("\n");
 	}

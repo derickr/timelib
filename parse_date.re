@@ -105,7 +105,7 @@ typedef unsigned char uchar;
 #define timelib_string_free timelib_free
 
 #define TIMELIB_HAVE_TIME() { if (s->time->have_time) { add_error(s, "Double time specification"); timelib_string_free(str); return TIMELIB_ERROR; } else { s->time->have_time = 1; s->time->h = 0; s->time->i = 0; s->time->s = 0; s->time->f = 0; } }
-#define TIMELIB_UNHAVE_TIME() { s->time->have_time = 0; s->time->h = 0; s->time->i = 0; s->time->s = 0; s->time->f = 0; }
+#define TIMELIB_UNHAVE_TIME() { s->time->have_time = 0; s->time->h = 0; s->time->i = 0; s->time->s = 0; s->time->us = 0; }
 #define TIMELIB_HAVE_DATE() { if (s->time->have_date) { add_error(s, "Double date specification"); timelib_string_free(str); return TIMELIB_ERROR; } else { s->time->have_date = 1; } }
 #define TIMELIB_UNHAVE_DATE() { s->time->have_date = 0; s->time->d = 0; s->time->m = 0; s->time->y = 0; }
 #define TIMELIB_HAVE_RELATIVE() { s->time->have_relative = 1; }
@@ -494,7 +494,7 @@ static void timelib_skip_day_suffix(char **ptr)
 	}
 }
 
-static double timelib_get_frac_nr(char **ptr, int max_length)
+static timelib_sll timelib_get_frac_nr(char **ptr, int max_length)
 {
 	char *begin, *end, *str;
 	double tmp_nr = TIMELIB_UNSET;
@@ -512,12 +512,9 @@ static double timelib_get_frac_nr(char **ptr, int max_length)
 		++len;
 	}
 	end = *ptr;
-	str = timelib_calloc(1, end - begin + 1);
-	memcpy(str, begin, end - begin);
-	if (str[0] == ':') {
-		str[0] = '.';
-	}
-	tmp_nr = strtod(str, NULL);
+	str = timelib_calloc(1, end - begin);
+	memcpy(str, begin + 1, end - begin - 1);
+	tmp_nr = strtod(str, NULL) * pow(10, 7 - (end - begin));
 	timelib_free(str);
 	return tmp_nr;
 }
@@ -657,7 +654,7 @@ static void timelib_set_relative(char **ptr, timelib_sll amount, int behavior, S
 	}
 
 	switch (relunit->unit) {
-		case TIMELIB_MICROSEC: s->time->relative.f += (((double) amount * (double) relunit->multiplier) / 1000000); break;
+		case TIMELIB_MICROSEC: s->time->relative.us += amount * relunit->multiplier; break;
 		case TIMELIB_SECOND:   s->time->relative.s += amount * relunit->multiplier; break;
 		case TIMELIB_MINUTE:   s->time->relative.i += amount * relunit->multiplier; break;
 		case TIMELIB_HOUR:     s->time->relative.h += amount * relunit->multiplier; break;
@@ -1027,7 +1024,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		s->time->m = 1;
 		s->time->d = 1;
 		s->time->h = s->time->i = s->time->s = 0;
-		s->time->f = 0.0;
+		s->time->us = 0;
 		s->time->relative.s += i;
 		s->time->is_localtime = 1;
 		s->time->zone_type = TIMELIB_ZONETYPE_OFFSET;
@@ -1040,7 +1037,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 
 	timestampms
 	{
-		timelib_ull i, ms;
+		timelib_ull i, us;
 
 		TIMELIB_INIT;
 		TIMELIB_HAVE_RELATIVE();
@@ -1049,14 +1046,14 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		TIMELIB_HAVE_TZ();
 
 		i = timelib_get_unsigned_nr((char **) &ptr, 24);
-		ms = timelib_get_unsigned_nr((char **) &ptr, 24);
+		us = timelib_get_unsigned_nr((char **) &ptr, 24);
 		s->time->y = 1970;
 		s->time->m = 1;
 		s->time->d = 1;
 		s->time->h = s->time->i = s->time->s = 0;
-		s->time->f = 0.0;
+		s->time->us = 0;
 		s->time->relative.s += i;
-		s->time->relative.f = ((double) ms) / 1000000.0;
+		s->time->relative.us = us;
 		s->time->is_localtime = 1;
 		s->time->zone_type = TIMELIB_ZONETYPE_OFFSET;
 		s->time->z = 0;
@@ -1156,7 +1153,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == ':' || *ptr == '.') {
-				s->time->f = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
 			}
 		}
 		timelib_eat_spaces((char **) &ptr);
@@ -1177,7 +1174,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->f = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
 			}
 		}
 
@@ -1448,7 +1445,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		s->time->i = timelib_get_nr((char **) &ptr, 2);
 		s->time->s = timelib_get_nr((char **) &ptr, 2);
 		if (*ptr == '.') {
-			s->time->f = timelib_get_frac_nr((char **) &ptr, 9);
+			s->time->us = timelib_get_frac_nr((char **) &ptr, 9);
 			if (*ptr) { /* timezone is optional */
 				s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
 				if (tz_not_found) {
@@ -1689,7 +1686,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->f = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
 			}
 		}
 
@@ -1714,7 +1711,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->f = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
 			}
 		}
 
@@ -1794,7 +1791,7 @@ timelib_time* timelib_strtotime(char *s, size_t len, struct timelib_error_contai
 		} else {
 			timelib_error_container_dtor(in.errors);
 		}
-		in.time->y = in.time->d = in.time->m = in.time->h = in.time->i = in.time->s = in.time->f = in.time->dst = in.time->z = TIMELIB_UNSET;
+		in.time->y = in.time->d = in.time->m = in.time->h = in.time->i = in.time->s = in.time->us = in.time->dst = in.time->z = TIMELIB_UNSET;
 		in.time->is_localtime = in.time->zone_type = 0;
 		return in.time;
 	}
@@ -1812,7 +1809,7 @@ timelib_time* timelib_strtotime(char *s, size_t len, struct timelib_error_contai
 	in.time->h = TIMELIB_UNSET;
 	in.time->i = TIMELIB_UNSET;
 	in.time->s = TIMELIB_UNSET;
-	in.time->f = TIMELIB_UNSET;
+	in.time->us = TIMELIB_UNSET;
 	in.time->z = TIMELIB_UNSET;
 	in.time->dst = TIMELIB_UNSET;
 	in.tzdb = tzdb;
@@ -1864,7 +1861,7 @@ static void timelib_time_reset_fields(timelib_time *time)
 	time->m = 1;
 	time->d = 1;
 	time->h = time->i = time->s = 0;
-	time->f = 0.0;
+	time->us = 0;
 	time->tz_info = NULL;
 }
 
@@ -1878,7 +1875,7 @@ static void timelib_time_reset_unset_fields(timelib_time *time)
 	if (time->h == TIMELIB_UNSET ) time->h = 0;
 	if (time->i == TIMELIB_UNSET ) time->i = 0;
 	if (time->s == TIMELIB_UNSET ) time->s = 0;
-	if (time->f == TIMELIB_UNSET ) time->f = 0.0;
+	if (time->us == TIMELIB_UNSET ) time->us = 0;
 }
 
 timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper)
@@ -1905,7 +1902,7 @@ timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, 
 	in.time->h = TIMELIB_UNSET;
 	in.time->i = TIMELIB_UNSET;
 	in.time->s = TIMELIB_UNSET;
-	in.time->f = TIMELIB_UNSET;
+	in.time->us = TIMELIB_UNSET;
 	in.time->z = TIMELIB_UNSET;
 	in.time->dst = TIMELIB_UNSET;
 	in.tzdb = tzdb;
@@ -2051,7 +2048,7 @@ timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, 
 					if ((f = timelib_get_nr((char **) &ptr, 6)) == TIMELIB_UNSET || (ptr - tptr < 1)) {
 						add_pbf_error(s, "A six digit microsecond could not be found", string, begin);
 					} else {
-						s->time->f = (f / pow(10, (ptr - tptr)));
+						s->time->us = (f * pow(10, 6 - (ptr - tptr)));
 					}
 				}
 				break;
@@ -2221,15 +2218,15 @@ void timelib_fill_holes(timelib_time *parsed, timelib_time *now, int options)
 		parsed->h = 0;
 		parsed->i = 0;
 		parsed->s = 0;
-		parsed->f = 0;
+		parsed->us = 0;
 	}
 	if (
 		parsed->y != TIMELIB_UNSET || parsed->m != TIMELIB_UNSET || parsed->d != TIMELIB_UNSET ||
 		parsed->h != TIMELIB_UNSET || parsed->i != TIMELIB_UNSET || parsed->s != TIMELIB_UNSET
 	) {
-		if (parsed->f == TIMELIB_UNSET) parsed->f = 0;
+		if (parsed->us == TIMELIB_UNSET) parsed->us = 0;
 	} else {
-		if (parsed->f == TIMELIB_UNSET) parsed->f = now->f != TIMELIB_UNSET ? now->f : 0;
+		if (parsed->us == TIMELIB_UNSET) parsed->us = now->us != TIMELIB_UNSET ? now->us : 0;
 	}
 	if (parsed->y == TIMELIB_UNSET) parsed->y = now->y != TIMELIB_UNSET ? now->y : 0;
 	if (parsed->m == TIMELIB_UNSET) parsed->m = now->m != TIMELIB_UNSET ? now->m : 0;

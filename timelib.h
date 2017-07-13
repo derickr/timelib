@@ -176,7 +176,7 @@ typedef struct timelib_tzinfo
 typedef struct timelib_rel_time {
 	timelib_sll y, m, d; /* Years, Months and Days */
 	timelib_sll h, i, s; /* Hours, mInutes and Seconds */
-	double      f;       /* Fraction */
+	timelib_sll us;      /* Microseconds */
 
 	int weekday; /* Stores the day in 'next monday' */
 	int weekday_behavior; /* 0: the current day should *not* be counted when advancing forwards; 1: the current day *should* be counted */
@@ -204,8 +204,8 @@ typedef struct timelib_time_offset {
 typedef struct timelib_time {
 	timelib_sll      y, m, d;     /* Year, Month, Day */
 	timelib_sll      h, i, s;     /* Hour, mInute, Second */
-	double           f;           /* Fraction */
-	int              z;           /* GMT offset in minutes */
+	timelib_sll      us;          /* Microseconds */
+	int              z;           /* UTC offset in seconds */
 	char            *tz_abbr;     /* Timezone abbreviation (display only) */
 	timelib_tzinfo  *tz_info;     /* Timezone structure */
 	signed int       dst;         /* Flag if we were parsing a DST zone */

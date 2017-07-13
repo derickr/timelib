@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
 	/* Show Unix timestamp */
 	timelib_dump_date(t, 1);
-	printf("Timestamp: %lld\n", (t->sse * 1000) + (int) (t->f * 1000.0));
+	printf("Timestamp: %lld\n", (t->sse * 1000) + (int) (t->us / 1000.0));
 
 	timelib_time_dtor(t);
 #if defined(PARTIAL)
