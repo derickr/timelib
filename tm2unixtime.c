@@ -433,16 +433,15 @@ static timelib_sll do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 		case TIMELIB_ZONETYPE_OFFSET:
 
 			tz->is_localtime = 1;
-			return tz->z * 60;
+			return -tz->z;
 			break;
 
 		case TIMELIB_ZONETYPE_ABBR: {
 			timelib_sll tmp;
 
 			tz->is_localtime = 1;
-			tmp = tz->z;
-			tmp -= tz->dst * 60;
-			tmp *= 60;
+			tmp = -tz->z;
+			tmp -= tz->dst * 3600;
 			return tmp;
 			}
 			break;

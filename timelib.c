@@ -35,7 +35,8 @@
 
 #define TIMELIB_LLABS(y) (y < 0 ? (y * -1) : y)
 
-#define HOUR(a) (int)(a * 60)
+#define sHOUR(a) (int)(a * 3600)
+#define sMIN(a) (int)(a * 60)
 
 const char *timelib_error_messages[8] = {
 	"No error",
@@ -344,22 +345,22 @@ timelib_long timelib_parse_tz_cor(char **ptr)
 	switch (end - begin) {
 		case 1: /* H */
 		case 2: /* HH */
-			return HOUR(strtol(begin, NULL, 10));
+			return sHOUR(strtol(begin, NULL, 10));
 			break;
 		case 3: /* H:M */
 		case 4: /* H:MM, HH:M, HHMM */
 			if (begin[1] == ':') {
-				tmp = HOUR(strtol(begin, NULL, 10)) + strtol(begin + 2, NULL, 10);
+				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 2, NULL, 10));
 				return tmp;
 			} else if (begin[2] == ':') {
-				tmp = HOUR(strtol(begin, NULL, 10)) + strtol(begin + 3, NULL, 10);
+				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
 				return tmp;
 			} else {
 				tmp = strtol(begin, NULL, 10);
-				return HOUR(tmp / 100) + tmp % 100;
+				return sHOUR(tmp / 100) + sMIN(tmp % 100);
 			}
 		case 5: /* HH:MM */
-			tmp = HOUR(strtol(begin, NULL, 10)) + strtol(begin + 3, NULL, 10);
+			tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
 			return tmp;
 	}
 	return 0;

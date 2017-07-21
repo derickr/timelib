@@ -713,7 +713,7 @@ static const timelib_tz_lookup_table* abbr_search(const char *word, timelib_long
 	/* Still didn't find anything, let's find the zone solely based on
 	 * offset/isdst then */
 	for (fmp = timelib_timezone_fallbackmap; fmp->name; fmp++) {
-		if ((fmp->gmtoffset * 60) == gmtoffset && fmp->type == isdst) {
+		if (fmp->gmtoffset == gmtoffset && fmp->type == isdst) {
 			return fmp;
 		}
 	}
@@ -735,9 +735,9 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 	memcpy(word, begin, end - begin);
 
 	if ((tp = abbr_search(word, -1, 0))) {
-		value = -tp->gmtoffset / 60;
+		value = tp->gmtoffset;
 		*dst = tp->type;
-		value += tp->type * 60;
+		value -= tp->type * 3600;
 		*found = 1;
 	} else {
 		*found = 0;
@@ -767,7 +767,7 @@ timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_n
 		*tz_not_found = 0;
 		t->dst = 0;
 
-		retval = -1 * timelib_parse_tz_cor(ptr);
+		retval = timelib_parse_tz_cor(ptr);
 	} else if (**ptr == '-') {
 		++*ptr;
 		t->is_localtime = 1;
@@ -775,7 +775,7 @@ timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_n
 		*tz_not_found = 0;
 		t->dst = 0;
 
-		retval = timelib_parse_tz_cor(ptr);
+		retval = -1 * timelib_parse_tz_cor(ptr);
 	} else {
 		int found = 0;
 		timelib_long offset = 0;
