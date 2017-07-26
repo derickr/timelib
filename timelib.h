@@ -370,7 +370,6 @@ void timelib_do_normalize(timelib_time *base);
 void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt);
 
 /* From unixtime2tm.c */
-int timelib_apply_localtime(timelib_time *t, unsigned int localtime);
 void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts);
 void timelib_unixtime2local(timelib_time *tm, timelib_sll ts);
 void timelib_update_from_sse(timelib_time *tm);

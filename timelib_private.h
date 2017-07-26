@@ -142,4 +142,7 @@ typedef struct tlinfo
 #define strncasecmp strnicmp
 #endif
 
+/* From unixtime2tm.c */
+int timelib_apply_localtime(timelib_time *t, unsigned int localtime);
+
 #endif
