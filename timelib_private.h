@@ -73,6 +73,16 @@
 #include <limits.h>
 #endif
 
+#define TIMELIB_SECOND   1
+#define TIMELIB_MINUTE   2
+#define TIMELIB_HOUR     3
+#define TIMELIB_DAY      4
+#define TIMELIB_MONTH    5
+#define TIMELIB_YEAR     6
+#define TIMELIB_WEEKDAY  7
+#define TIMELIB_SPECIAL  8
+#define TIMELIB_MICROSEC 9
+
 #define TIMELIB_SPECIAL_WEEKDAY                   0x01
 #define TIMELIB_SPECIAL_DAY_OF_WEEK_IN_MONTH      0x02
 #define TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH 0x03
