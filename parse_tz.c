@@ -146,7 +146,7 @@ static void read_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	*tzf += sizeof(buffer);
 }
 
-static void skip_64bit_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
+static void skip_64bit_transitions(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	if (tz->bit64.timecnt) {
 		*tzf += (sizeof(int64_t) * tz->bit64.timecnt);
@@ -154,7 +154,7 @@ static void skip_64bit_transistions(const unsigned char **tzf, timelib_tzinfo *t
 	}
 }
 
-static int read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
+static int read_transitions(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	int32_t *buffer = NULL;
 	uint32_t i;
@@ -483,7 +483,7 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
 //printf("- timezone: %s, version: %0d\n", timezone, version);
 
 		read_header(&tzf, tmp);
-		if ((transitions_result = read_transistions(&tzf, tmp)) != 0) {
+		if ((transitions_result = read_transitions(&tzf, tmp)) != 0) {
 			/* Corrupt file as transitions do not increase */
 			*error_code = transitions_result;
 			timelib_tzinfo_dtor(tmp);
@@ -501,7 +501,7 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
 				return NULL;
 			}
 			read_64bit_header(&tzf, tmp);
-			skip_64bit_transistions(&tzf, tmp);
+			skip_64bit_transitions(&tzf, tmp);
 			skip_64bit_types(&tzf, tmp);
 			skip_posix_string(&tzf, tmp);
 		}
@@ -597,18 +597,18 @@ timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *
 	int32_t offset = 0, leap_secs = 0;
 	char *abbr;
 	timelib_time_offset *tmp = timelib_time_offset_ctor();
-	timelib_sll                transistion_time;
+	timelib_sll                transition_time;
 
-	if ((to = fetch_timezone_offset(tz, ts, &transistion_time))) {
+	if ((to = fetch_timezone_offset(tz, ts, &transition_time))) {
 		offset = to->offset;
 		abbr = &(tz->timezone_abbr[to->abbr_idx]);
 		tmp->is_dst = to->isdst;
-		tmp->transistion_time = transistion_time;
+		tmp->transition_time = transition_time;
 	} else {
 		offset = 0;
 		abbr = tz->timezone_abbr;
 		tmp->is_dst = 0;
-		tmp->transistion_time = 0;
+		tmp->transition_time = 0;
 	}
 
 	if ((tl = fetch_leaptime_offset(tz, ts))) {

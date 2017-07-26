@@ -455,19 +455,19 @@ static timelib_sll do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 			if (tzi) {
 				timelib_time_offset *before, *after;
 				timelib_sll          tmp;
-				int                  in_transistion;
+				int                  in_transition;
 
 				tz->is_localtime = 1;
 				before = timelib_get_time_zone_info(tz->sse, tzi);
 				after = timelib_get_time_zone_info(tz->sse - before->offset, tzi);
 				timelib_set_timezone(tz, tzi);
 
-				in_transistion = (
-					((tz->sse - after->offset) >= (after->transistion_time + (before->offset - after->offset))) &&
-					((tz->sse - after->offset) < after->transistion_time)
+				in_transition = (
+					((tz->sse - after->offset) >= (after->transition_time + (before->offset - after->offset))) &&
+					((tz->sse - after->offset) < after->transition_time)
 				);
 
-				if ((before->offset != after->offset) && !in_transistion) {
+				if ((before->offset != after->offset) && !in_transition) {
 					tmp = -after->offset;
 				} else {
 					tmp = -tz->z;
