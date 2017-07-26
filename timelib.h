@@ -356,8 +356,6 @@ timelib_time *timelib_parse_from_format(char *format, char *s, size_t len, timel
 void timelib_fill_holes(timelib_time *parsed, timelib_time *now, int options);
 char *timelib_timezone_id_from_abbr(const char *abbr, timelib_long gmtoffset, int isdst);
 const timelib_tz_lookup_table *timelib_timezone_abbreviations_list(void);
-timelib_long timelib_parse_tz_cor(char**);
-timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper);
 
 /* From parse_iso_intervals.re */
 void timelib_strtointerval(char *s, size_t len,
