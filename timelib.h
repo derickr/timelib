@@ -404,9 +404,6 @@ void timelib_zoneinfo_dtor(timelib_tzdb *tzdb);
  * error code. */
 const char *timelib_get_error_message(int error_code);
 
-void timelib_time_tz_abbr_update(timelib_time* tm, char* tz_abbr);
-void timelib_time_tz_name_update(timelib_time* tm, char* tz_name);
-
 timelib_rel_time* timelib_rel_time_ctor(void);
 void timelib_rel_time_dtor(timelib_rel_time* t);
 timelib_rel_time* timelib_rel_time_clone(timelib_rel_time *tz);

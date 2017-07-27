@@ -151,4 +151,8 @@ typedef struct tlinfo
 /* From unixtime2tm.c */
 int timelib_apply_localtime(timelib_time *t, unsigned int localtime);
 
+/* From parse_tz.c */
+void timelib_time_tz_abbr_update(timelib_time* tm, char* tz_abbr);
+
+
 #endif
