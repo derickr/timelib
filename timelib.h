@@ -424,7 +424,6 @@ void timelib_dump_rel_time(timelib_rel_time *d);
 
 void timelib_decimal_hour_to_hms(double h, int *hour, int *min, int *sec);
 void timelib_hms_to_decimal_hour(int hour, int min, int sec, double *h);
-timelib_long timelib_parse_tz_cor(char **ptr);
 
 /* from astro.c */
 double timelib_ts_to_juliandate(timelib_sll ts);

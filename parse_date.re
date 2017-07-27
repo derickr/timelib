@@ -735,6 +735,42 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 	return value;
 }
 
+#define sHOUR(a) (int)(a * 3600)
+#define sMIN(a) (int)(a * 60)
+
+static timelib_long timelib_parse_tz_cor(char **ptr)
+{
+	char *begin = *ptr, *end;
+	timelib_long  tmp;
+
+	while (isdigit(**ptr) || **ptr == ':') {
+		++*ptr;
+	}
+	end = *ptr;
+	switch (end - begin) {
+		case 1: /* H */
+		case 2: /* HH */
+			return sHOUR(strtol(begin, NULL, 10));
+			break;
+		case 3: /* H:M */
+		case 4: /* H:MM, HH:M, HHMM */
+			if (begin[1] == ':') {
+				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 2, NULL, 10));
+				return tmp;
+			} else if (begin[2] == ':') {
+				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
+				return tmp;
+			} else {
+				tmp = strtol(begin, NULL, 10);
+				return sHOUR(tmp / 100) + sMIN(tmp % 100);
+			}
+		case 5: /* HH:MM */
+			tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
+			return tmp;
+	}
+	return 0;
+}
+
 static timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
 {
 	timelib_tzinfo *res;

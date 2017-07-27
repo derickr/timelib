@@ -35,9 +35,6 @@
 
 #define TIMELIB_LLABS(y) (y < 0 ? (y * -1) : y)
 
-#define sHOUR(a) (int)(a * 3600)
-#define sMIN(a) (int)(a * 60)
-
 const char *timelib_error_messages[8] = {
 	"No error",
 	"Can not allocate buffer for parsing",
@@ -346,37 +343,4 @@ void timelib_dump_rel_time(timelib_rel_time *d)
 		}
 	}
 	printf("\n");
-}
-
-timelib_long timelib_parse_tz_cor(char **ptr)
-{
-	char *begin = *ptr, *end;
-	timelib_long  tmp;
-
-	while (isdigit(**ptr) || **ptr == ':') {
-		++*ptr;
-	}
-	end = *ptr;
-	switch (end - begin) {
-		case 1: /* H */
-		case 2: /* HH */
-			return sHOUR(strtol(begin, NULL, 10));
-			break;
-		case 3: /* H:M */
-		case 4: /* H:MM, HH:M, HHMM */
-			if (begin[1] == ':') {
-				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 2, NULL, 10));
-				return tmp;
-			} else if (begin[2] == ':') {
-				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
-				return tmp;
-			} else {
-				tmp = strtol(begin, NULL, 10);
-				return sHOUR(tmp / 100) + sMIN(tmp % 100);
-			}
-		case 5: /* HH:MM */
-			tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
-			return tmp;
-	}
-	return 0;
 }
