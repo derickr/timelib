@@ -380,6 +380,13 @@ void timelib_set_timezone(timelib_time *t, timelib_tzinfo *tz);
 /* From parse_tz.c */
 int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb);
 timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, int *error_code);
+
+/**
+ * Returns whether DST is active with time zone 'tz' for the time stamp 'ts'.
+ *
+ * Returns 0 if DST is not active, 1 if DST is active, or -1 if no transitions
+ * were available through 'tz'.
+ */
 int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz);
 timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *tz);
 timelib_sll timelib_get_current_offset(timelib_time *t);
@@ -397,11 +404,8 @@ void timelib_zoneinfo_dtor(timelib_tzdb *tzdb);
  * error code. */
 const char *timelib_get_error_message(int error_code);
 
-timelib_tzinfo* timelib_tzinfo_ctor(char *name);
 void timelib_time_tz_abbr_update(timelib_time* tm, char* tz_abbr);
 void timelib_time_tz_name_update(timelib_time* tm, char* tz_name);
-void timelib_tzinfo_dtor(timelib_tzinfo *tz);
-timelib_tzinfo* timelib_tzinfo_clone(timelib_tzinfo *tz);
 
 timelib_rel_time* timelib_rel_time_ctor(void);
 void timelib_rel_time_dtor(timelib_rel_time* t);

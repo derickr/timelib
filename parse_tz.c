@@ -463,6 +463,15 @@ static void read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	*tzf += sizeof(buffer);
 }
 
+static timelib_tzinfo* timelib_tzinfo_ctor(char *name)
+{
+	timelib_tzinfo *t;
+	t = timelib_calloc(1, sizeof(timelib_tzinfo));
+	t->name = timelib_strdup(name);
+
+	return t;
+}
+
 timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, int *error_code)
 {
 	const unsigned char *tzf;
@@ -514,6 +523,50 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
 	} else {
 		*error_code = TIMELIB_ERROR_NO_SUCH_TIMEZONE;
 		tmp = NULL;
+	}
+
+	return tmp;
+}
+
+void timelib_tzinfo_dtor(timelib_tzinfo *tz)
+{
+	TIMELIB_TIME_FREE(tz->name);
+	TIMELIB_TIME_FREE(tz->trans);
+	TIMELIB_TIME_FREE(tz->trans_idx);
+	TIMELIB_TIME_FREE(tz->type);
+	TIMELIB_TIME_FREE(tz->timezone_abbr);
+	TIMELIB_TIME_FREE(tz->leap_times);
+	TIMELIB_TIME_FREE(tz->location.comments);
+	TIMELIB_TIME_FREE(tz);
+	tz = NULL;
+}
+
+timelib_tzinfo *timelib_tzinfo_clone(timelib_tzinfo *tz)
+{
+	timelib_tzinfo *tmp = timelib_tzinfo_ctor(tz->name);
+	tmp->bit32.ttisgmtcnt = tz->bit32.ttisgmtcnt;
+	tmp->bit32.ttisstdcnt = tz->bit32.ttisstdcnt;
+	tmp->bit32.leapcnt = tz->bit32.leapcnt;
+	tmp->bit32.timecnt = tz->bit32.timecnt;
+	tmp->bit32.typecnt = tz->bit32.typecnt;
+	tmp->bit32.charcnt = tz->bit32.charcnt;
+
+	if (tz->bit32.timecnt) {
+		tmp->trans = (int32_t *) timelib_malloc(tz->bit32.timecnt * sizeof(int32_t));
+		tmp->trans_idx = (unsigned char*) timelib_malloc(tz->bit32.timecnt * sizeof(unsigned char));
+		memcpy(tmp->trans, tz->trans, tz->bit32.timecnt * sizeof(int32_t));
+		memcpy(tmp->trans_idx, tz->trans_idx, tz->bit32.timecnt * sizeof(unsigned char));
+	}
+
+	tmp->type = (ttinfo*) timelib_malloc(tz->bit32.typecnt * sizeof(struct ttinfo));
+	memcpy(tmp->type, tz->type, tz->bit32.typecnt * sizeof(struct ttinfo));
+
+	tmp->timezone_abbr = (char*) timelib_malloc(tz->bit32.charcnt);
+	memcpy(tmp->timezone_abbr, tz->timezone_abbr, tz->bit32.charcnt);
+
+	if (tz->bit32.leapcnt) {
+		tmp->leap_times = (tlinfo*) timelib_malloc(tz->bit32.leapcnt * sizeof(tlinfo));
+		memcpy(tmp->leap_times, tz->leap_times, tz->bit32.leapcnt * sizeof(tlinfo));
 	}
 
 	return tmp;

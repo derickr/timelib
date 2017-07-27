@@ -109,6 +109,12 @@
 
 #define TIMELIB_DEBUG(s)  if (0) { s }
 
+#define TIMELIB_TIME_FREE(m)    \
+	if (m) {        \
+		timelib_free(m);    \
+		m = NULL;   \
+	}
+
 typedef struct ttinfo
 {
 	int32_t      offset;
