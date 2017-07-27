@@ -240,9 +240,24 @@ timelib_long timelib_date_to_int(timelib_time *d, int *error)
 
 void timelib_decimal_hour_to_hms(double h, int *hour, int *min, int *sec)
 {
-	*hour = floor(h);
-	*min =  floor((h - *hour) * 60);
-	*sec =  (h - *hour - ((float) *min / 60)) * 3600;
+	if (h > 0) {
+		*hour = floor(h);
+		*min = floor((h - *hour) * 60);
+		*sec = (h - *hour - ((float) *min / 60)) * 3600;
+	} else {
+		*hour = ceil(h);
+		*min = 0 - ceil((h - *hour) * 60);
+		*sec = 0 - (h - *hour - ((float) *min / -60)) * 3600;
+	}
+}
+
+void timelib_hms_to_decimal_hour(int hour, int min, int sec, double *h)
+{
+	if (hour > 0) {
+		*h = ((double)hour + (double)min / 60 + (double)sec / 3600);
+	} else {
+		*h = ((double)hour - (double)min / 60 - (double)sec / 3600);
+	}
 }
 
 void timelib_dump_date(timelib_time *d, int options)
