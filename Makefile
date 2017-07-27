@@ -18,7 +18,8 @@ MANUAL_TESTS=tests/tester-parse-interval \
 	tests/enumerate-timezones tests/date_from_isodate
 AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 	tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo
-C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour.cpp
+C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour.cpp \
+	tests/c/timelib_juliandate.cpp
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
 EXAMPLE_BINARIES=docs/date-from-iso-parts docs/date-from-parts docs/date-from-string \
