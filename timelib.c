@@ -57,12 +57,23 @@ timelib_time* timelib_time_ctor(void)
 	return t;
 }
 
-timelib_rel_time* timelib_rel_time_ctor(void)
+void timelib_time_dtor(timelib_time* t)
 {
-	timelib_rel_time *t;
-	t = timelib_calloc(1, sizeof(timelib_rel_time));
+	TIMELIB_TIME_FREE(t->tz_abbr);
+	TIMELIB_TIME_FREE(t);
+}
 
-	return t;
+int timelib_time_compare(timelib_time *t1, timelib_time *t2)
+{
+	if (t1->sse == t2->sse) {
+		if (t1->us == t2->us) {
+			return 0;
+		}
+
+		return (t1->us < t2->us) ? -1 : 1;
+	}
+
+	return (t1->sse < t2->sse) ? -1 : 1;
 }
 
 timelib_time* timelib_time_clone(timelib_time *orig)
@@ -78,17 +89,17 @@ timelib_time* timelib_time_clone(timelib_time *orig)
 	return tmp;
 }
 
-int timelib_time_compare(timelib_time *t1, timelib_time *t2)
+timelib_rel_time* timelib_rel_time_ctor(void)
 {
-	if (t1->sse == t2->sse) {
-		if (t1->us == t2->us) {
-			return 0;
-		}
+	timelib_rel_time *t;
+	t = timelib_calloc(1, sizeof(timelib_rel_time));
 
-		return (t1->us < t2->us) ? -1 : 1;
-	}
+	return t;
+}
 
-	return (t1->sse < t2->sse) ? -1 : 1;
+void timelib_rel_time_dtor(timelib_rel_time* t)
+{
+	TIMELIB_TIME_FREE(t);
 }
 
 timelib_rel_time* timelib_rel_time_clone(timelib_rel_time *rel)
@@ -108,17 +119,6 @@ void timelib_time_tz_abbr_update(timelib_time* tm, char* tz_abbr)
 	for (i = 0; i < tz_abbr_len; i++) {
 		tm->tz_abbr[i] = toupper(tz_abbr[i]);
 	}
-}
-
-void timelib_time_dtor(timelib_time* t)
-{
-	TIMELIB_TIME_FREE(t->tz_abbr);
-	TIMELIB_TIME_FREE(t);
-}
-
-void timelib_rel_time_dtor(timelib_rel_time* t)
-{
-	TIMELIB_TIME_FREE(t);
 }
 
 timelib_time_offset* timelib_time_offset_ctor(void)
