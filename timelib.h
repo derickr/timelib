@@ -265,8 +265,9 @@ typedef struct timelib_abbr_info {
 #define TIMELIB_ERR_TRAILING_DATA              0x21a
 #define TIMELIB_ERR_DATA_MISSING               0x21b
 
-
-
+#define TIMELIB_ZONETYPE_OFFSET 1
+#define TIMELIB_ZONETYPE_ABBR   2
+#define TIMELIB_ZONETYPE_ID     3
 
 typedef struct timelib_error_message {
 	int         error_code;
