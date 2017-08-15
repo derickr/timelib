@@ -771,7 +771,7 @@ static timelib_long timelib_parse_tz_cor(char **ptr)
 	return 0;
 }
 
-static timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
+timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
 {
 	timelib_tzinfo *res;
 	timelib_long            retval = 0;

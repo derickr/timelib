@@ -467,6 +467,11 @@ char *timelib_timezone_id_from_abbr(const char *abbr, timelib_long gmtoffset, in
  */
 const timelib_tz_lookup_table *timelib_timezone_abbreviations_list(void);
 
+/**
+ * DEPRECATED, but still used by PHP.
+ */
+timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper);
+
 /* From parse_iso_intervals.re */
 
 /**
