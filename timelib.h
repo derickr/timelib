@@ -799,12 +799,21 @@ void timelib_hms_to_decimal_hour(int hour, int min, int sec, double *h);
 /* from astro.c */
 
 /**
+ * Converts the Unix Epoch time stamp 'ts' to a Julian Day
+ *
+ * The value returned is the number of whole days since -4714-11-24T12:00:00 UTC
+ * (in the proleptic Gregorian calendar):
+ * https://en.wikipedia.org/wiki/Julian_day
+ */
+double timelib_ts_to_julianday(timelib_sll ts);
+
+/**
  * Converts the Unix Epoch time stamp 'ts' to the J2000 epoch
  *
  * The value returned is the number of whole days since 2000-01-01T12:00:00
  * UTC: https://en.wikipedia.org/wiki/Epoch_(astronomy)#Julian_years_and_J2000
  */
-double timelib_ts_to_juliandate(timelib_sll ts);
+double timelib_ts_to_j2000(timelib_sll ts);
 
 /**
  * Calculates when the Sun is above a certain latitude.
