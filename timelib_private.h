@@ -25,6 +25,10 @@
 #ifndef __TIMELIB_PRIVATE_H__
 #define __TIMELIB_PRIVATE_H__
 
+#ifdef HAVE_SETLOCALE
+# include "locale.h"
+#endif
+
 #ifdef HAVE_TIMELIB_CONFIG_H
 # include "timelib_config.h"
 #endif
