@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 {
 	timelib_time *t;
 	int           i, errors_found;
-	struct timelib_error_container *errors;
+	timelib_error_container *errors;
 
 	t = timelib_parse_from_format(argv[1], argv[2], strlen(argv[2]), &errors, timelib_builtin_db(), timelib_parse_tzfile);
 	if (errors->warning_count) {

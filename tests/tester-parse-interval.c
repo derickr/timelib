@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	timelib_rel_time *p = NULL;
 	int               r = 0;
 	int               i, errors_found;
-	struct timelib_error_container *errors;
+	timelib_error_container *errors;
 
 	timelib_strtointerval(argv[1], strlen(argv[1]), &b, &e, &p, &r, &errors);
 	if (errors->warning_count) {
