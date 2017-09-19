@@ -35,6 +35,7 @@ zones/timezonedb.dta
 zones/timezonedb.idx
 zones/timezonedb.idx.php
 zones/timezonedb.zip
+zones/timezonedb-*.zip
 zones/tzcode*.tar.gz
 zones/tzdata*.tar.gz
 zones/timezonedb.h
