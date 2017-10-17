@@ -80,7 +80,7 @@ int main(void)
 
 	tzi = cached_fetch_tzinfo(tz_id);
 
-	/* Convert string to timelib_time, and hence its consitituent parts */
+	/* Convert string to timelib_time, and hence its constituent parts */
 	t = timelib_strtotime(
 		dt_string, strlen(dt_string),
 		&errors,
