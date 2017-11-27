@@ -630,7 +630,7 @@ int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz);
  * The returned information contains: the offset in seconds East of UTC (in
  * 'offset'), whether DST is active ('is_dst'), what the current time zone
  * abbreviation is ('abbr') and the transition time that got to this state (in
- * 'transistion_time');
+ * 'transition_time');
  */
 timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *tz);
 
