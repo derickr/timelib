@@ -5,8 +5,8 @@ download:
 	-@rm -f tzcode201*tar.gz
 	@echo "Downloading latest Olson TZDB release..."
 	$(eval VERSION := $(shell curl -s -o - https://www.iana.org/time-zones | grep \"version\" | sed 's/.*version">//' | sed 's/<\/span.*//'))
-	curl -s -o tzdata$(VERSION).tar.gz https://www.iana.org/time-zones/repository/releases/tzdata$(VERSION).tar.gz
-	curl -s -o tzcode$(VERSION).tar.gz https://www.iana.org/time-zones/repository/releases/tzcode$(VERSION).tar.gz
+	curl -s -o tzdata$(VERSION).tar.gz https://data.iana.org/time-zones/releases/tzdata$(VERSION).tar.gz
+	curl -s -o tzcode$(VERSION).tar.gz https://data.iana.org/time-zones/releases/tzcode$(VERSION).tar.gz
 	@echo " done"
 
 clean: release-php-clean
