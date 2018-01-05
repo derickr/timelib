@@ -77,7 +77,7 @@ static int sysdbcmp(const void *first, const void *second)
 {
 	const timelib_tzdb_index_entry *alpha = first, *beta = second;
 
-	return strcasecmp(alpha->id, beta->id);
+	return timelib_strcasecmp(alpha->id, beta->id);
 }
 
 /* Returns true if the passed-in stat structure describes a
