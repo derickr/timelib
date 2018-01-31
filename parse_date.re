@@ -619,7 +619,7 @@ static const timelib_relunit* timelib_lookup_relunit(char **ptr)
 	const timelib_relunit *tp, *value = NULL;
 
 	while (**ptr != '\0' && **ptr != ' ' && **ptr != ',' && **ptr != '\t' && **ptr != ';' && **ptr != ':' &&
-		   **ptr != '/' && **ptr != '.' && **ptr != '-' && **ptr != '(' && **ptr != ')' ) {
+		**ptr != '/' && **ptr != '.' && **ptr != '-' && **ptr != '(' && **ptr != ')' ) {
 		++*ptr;
 	}
 	end = *ptr;
@@ -1990,7 +1990,7 @@ static const timelib_format_config default_format_config = {
 	'\0'
 };
 
-static timelib_format_specifier_code timelib_lookup_format(char input, const timelib_format_specifier* format_map) 
+static timelib_format_specifier_code timelib_lookup_format(char input, const timelib_format_specifier* format_map)
 {
 	while (format_map && format_map->specifier != '\0') {
 		if (format_map->specifier == input) {
@@ -2001,25 +2001,25 @@ static timelib_format_specifier_code timelib_lookup_format(char input, const tim
 	return TIMELIB_FORMAT_LITERAL;
 }
 
-timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper) 
+timelib_time *timelib_parse_from_format(char *format, char *string, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper)
 {
 	return timelib_parse_from_format_with_map(format, string, len, errors, tzdb, tz_get_wrapper, &default_format_config);
 }
 
 timelib_time *timelib_parse_from_format_with_map(char *format, char *string, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper, const timelib_format_config* format_config)
 {
-	char       *fptr = format;
-	char       *ptr = string;
-	char       *begin;
-	timelib_sll tmp;
-	Scanner in;
-	Scanner *s = &in;
-	bool allow_extra = false;
-	bool prefix_found = false;
-	int iso_year = TIMELIB_UNSET;
-	int iso_week_of_year = TIMELIB_UNSET;
-	int iso_day_of_week = TIMELIB_UNSET;
-	char prefix_char = format_config->prefix_char;
+	char        *fptr = format;
+	char        *ptr = string;
+	char        *begin;
+	timelib_sll  tmp;
+	Scanner      in;
+	Scanner     *s = &in;
+	bool         allow_extra = false;
+	bool         prefix_found = false;
+	int          iso_year = TIMELIB_UNSET;
+	int          iso_week_of_year = TIMELIB_UNSET;
+	int          iso_day_of_week = TIMELIB_UNSET;
+	char         prefix_char = format_config->prefix_char;
 	const timelib_format_specifier *format_map = format_config->format_map;
 
 	memset(&in, 0, sizeof(in));
@@ -2048,11 +2048,14 @@ timelib_time *timelib_parse_from_format_with_map(char *format, char *string, siz
 		begin = ptr;
 
 		if (prefix_char) {
-			/** There are 2 cases where the input string and format string should match the next literal:
-			  *
-			  * 1. No prefix has been specified yet in the format, so expect 1:1 match.
-			  * 2. Sequential prefix characters indicating that the second prefix is escaped. (e.g. "%%" is expecting literal "%")
-			  */
+			/* There are 2 cases where the input string and format string
+			 * should match the next literal:
+			 *
+			 * 1. No prefix has been specified yet in the format, so expect 1:1
+			 *    match.
+			 * 2. Sequential prefix characters indicating that the second
+			 *    prefix is escaped. (e.g. "%%" is expecting literal "%")
+			 */
 			if ((!prefix_found && *fptr != prefix_char) ||
 				(prefix_found && *fptr == prefix_char)) {
 				if (*fptr != *ptr) {
@@ -2070,7 +2073,8 @@ timelib_time *timelib_parse_from_format_with_map(char *format, char *string, siz
 				continue;
 			}
 
-			/* Fall through case is that the prefix has been found and the next character is the format specifier. */
+			/* Fall through case is that the prefix has been found and the next
+			 * character is the format specifier. */
 			prefix_found = false;
 		}
 

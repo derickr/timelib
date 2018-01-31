@@ -220,8 +220,8 @@ typedef struct _timelib_time {
 	unsigned int   tim_uptodate; /* !0 if the date/time members are up to date with the sse member */
 	unsigned int   is_localtime; /*  1 if the current struct represents localtime, 0 if it is in GMT */
 	unsigned int   zone_type;    /*  1 time offset,
-                                  *  3 TimeZone identifier,
-                                  *  2 TimeZone abbreviation */
+	                              *  3 TimeZone identifier,
+	                              *  2 TimeZone abbreviation */
 } timelib_time;
 
 typedef struct _timelib_abbr_info {
@@ -389,14 +389,14 @@ typedef enum _timelib_format_specifier_code {
 } timelib_format_specifier_code;
 
 typedef struct _timelib_format_specifier {
-	char                             specifier;
-	timelib_format_specifier_code    code;
+	char                          specifier;
+	timelib_format_specifier_code code;
 } timelib_format_specifier;
 
 typedef struct _timelib_format_config {
-	const timelib_format_specifier   *format_map;
+	const timelib_format_specifier *format_map;
 	/* Format speciifiers must be preceded by 'prefix_char' if not '\0'. */
-	char                             prefix_char;
+	char                            prefix_char;
 } timelib_format_config;
 
 /* Function pointers */
@@ -482,12 +482,13 @@ timelib_time *timelib_strtotime(char *s, size_t len, timelib_error_container **e
 timelib_time *timelib_parse_from_format(char *format, char *s, size_t len, timelib_error_container **errors, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_get_wrapper);
 
 /* Parses the date/time string in 's' with length 'len' into the constituent
- * parts of timelib_time* according to the format in 'format' with format specifier
- * configuration 'format_config'.
+ * parts of timelib_time* according to the format in 'format' with format
+ * specifier configuration 'format_config'.
  *
  * 'format_map' is an array of pairs, with the first element being the format
- * specifier as a character and the second element corresponds to the representation
- * of the specifier from the enum list 'timelib_format_specifier_code'.
+ * specifier as a character and the second element corresponds to the
+ * representation of the specifier from the enum list
+ * 'timelib_format_specifier_code'.
  *
  * Note: 'format_map' must be terminated with specifier '\0' to indicate to the
  * parser that there are no more format specifiers in the list.
