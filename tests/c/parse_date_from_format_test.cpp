@@ -74,7 +74,6 @@ TEST_GROUP(parse_date_from_format)
 	void test_parse(const char *input, const char *format, const timelib_format_config *config)
 	{
 		if (t) {
-			timelib_dump_date(t, 1);
 			if (t->tz_info) {
 				timelib_tzinfo_dtor(t->tz_info);
 			}
@@ -107,7 +106,6 @@ TEST_GROUP(parse_date_from_format)
 
 	TEST_TEARDOWN()
 	{   
-		timelib_dump_date(t, 1);
 		if (t->tz_info) {
 			timelib_tzinfo_dtor(t->tz_info);
 		}
