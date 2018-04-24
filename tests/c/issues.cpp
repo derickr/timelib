@@ -130,3 +130,47 @@ TEST(issues, issue0019_test6)
 
 	timelib_time_dtor(t);
 }
+
+TEST(issues, issue0035_test1)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            str[] = "2017-12-31 23:59:59.999999 +1 microsecond";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_update_ts(t, tzi);
+
+	LONGS_EQUAL(2018, t->y);
+	LONGS_EQUAL(1, t->m);
+	LONGS_EQUAL(1, t->d);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(0, t->us);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, issue0035_test2)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            str[] = "2017-12-31 23:59:59.999999 +2 microsecond";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_update_ts(t, tzi);
+
+	LONGS_EQUAL(2018, t->y);
+	LONGS_EQUAL(1, t->m);
+	LONGS_EQUAL(1, t->d);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(1, t->us);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
