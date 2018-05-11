@@ -322,8 +322,8 @@ typedef struct _timelib_tzdb {
 #endif
 
 #define TIMELIB_VERSION 201801
-#define TIMELIB_EXTENDED_VERSION 20180001
-#define TIMELIB_ASCII_VERSION "2018.01alpha1"
+#define TIMELIB_EXTENDED_VERSION 20180002
+#define TIMELIB_ASCII_VERSION "2018.01alpha2"
 
 #define TIMELIB_NONE             0x00
 #define TIMELIB_OVERRIDE_TIME    0x01
