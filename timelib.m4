@@ -10,20 +10,20 @@ dnl TL_CHECK_INT_TYPE(type)
 dnl
 AC_DEFUN([TL_CHECK_INT_TYPE],[
 AC_CACHE_CHECK([for $1], ac_cv_int_type_$1, [
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 #if HAVE_INTTYPES_H
 # include <inttypes.h>
-#elif HAVE_STDINT_H   
-# include <stdint.h>  
-#endif],
-[if (($1 *) 0)
-  return 0;   
+#elif HAVE_STDINT_H
+# include <stdint.h>
+#endif]],
+[[if (($1 *) 0)
+  return 0;
 if (sizeof ($1))
   return 0;
-], [ac_cv_int_type_$1=yes], [ac_cv_int_type_$1=no])
+]])], [ac_cv_int_type_$1=yes], [ac_cv_int_type_$1=no])
 ])
 if test "$ac_cv_int_type_$1" = "yes"; then
   TL_DEF_HAVE($1, [Define if $1 type is present.])
@@ -38,8 +38,7 @@ AC_DEFUN([AC_TIMELIB_C_BIGENDIAN],
 [AC_CACHE_CHECK([whether byte ordering is bigendian], ac_cv_c_bigendian_php,
  [
   ac_cv_c_bigendian_php=unknown
-  AC_TRY_RUN(
-  [
+  AC_RUN_IFELSE([AC_LANG_SOURCE([[
 int main(void)
 {
         short one = 1;
@@ -50,8 +49,8 @@ int main(void)
         } else {
                 return(1);
         }
-} 
-  ], [ac_cv_c_bigendian_php=yes], [ac_cv_c_bigendian_php=no], [ac_cv_c_bigendian_php=unknown])
+}
+  ]])], [ac_cv_c_bigendian_php=yes], [ac_cv_c_bigendian_php=no], [ac_cv_c_bigendian_php=unknown])
  ])
  if test $ac_cv_c_bigendian_php = yes; then
    AC_DEFINE(WORDS_BIGENDIAN, [], [Define if processor uses big-endian word])
