@@ -2,7 +2,7 @@ FLAGS=-O0 -ggdb3 \
 	-Wall -Werror -Wextra -fsanitize=undefined -fsanitize=address \
 	-Wmaybe-uninitialized -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
 	-pedantic -Wno-implicit-fallthrough \
-	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
+	-DHAVE_STDINT_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
 
 CFLAGS=-Wdeclaration-after-statement ${FLAGS}
 
