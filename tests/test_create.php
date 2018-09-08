@@ -39,7 +39,7 @@ function test_create($file)
 		1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
 		2 => array("file", "/tmp/error-output.txt", "w") // stderr is a file to write to
 	);
-	
+
 	$results = array('OKAY' => 0, 'FAIL' => 0);
 	$format = array('OKAY' => '[32m', 'FAIL' => '[31m', 'NORM' => '[m');
 
@@ -62,7 +62,7 @@ function test_create($file)
 		$result = explode('|', trim(fgets($pipes[1])));
 		$ts_res = trim($result[0]);
 		$ps_res = trim($result[1]);
-		
+
 		$teste .= " ( $base, $tz)\n";
 		if ($ts_exp == $ts_res) {
 			echo $format['OKAY'] . "OKAY" . $format['NORM'];
@@ -79,7 +79,7 @@ function test_create($file)
 
 		$return_value = proc_close($process);
 	}
-	
+
 	return $results;
 }
 

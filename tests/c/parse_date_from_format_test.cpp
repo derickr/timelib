@@ -83,12 +83,12 @@ TEST_GROUP(parse_date_from_format)
 
 		char *formatCopy = strdup(format);
 		char *inputCopy = strdup(input);
-		t = timelib_parse_from_format_with_map(formatCopy, 
+		t = timelib_parse_from_format_with_map(formatCopy,
 											   inputCopy,
-											   strlen(inputCopy), 
-											   &errors, 
-											   timelib_builtin_db(), 
-											   timelib_parse_tzfile, 
+											   strlen(inputCopy),
+											   &errors,
+											   timelib_builtin_db(),
+											   timelib_parse_tzfile,
 											   config);
 		free(formatCopy);
 		free(inputCopy);
@@ -105,7 +105,7 @@ TEST_GROUP(parse_date_from_format)
 	}
 
 	TEST_TEARDOWN()
-	{   
+	{
 		if (t->tz_info) {
 			timelib_tzinfo_dtor(t->tz_info);
 		}

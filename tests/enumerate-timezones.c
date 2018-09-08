@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	int count, i;
 	timelib_tzdb *db;
 	const timelib_tzdb_index_entry *entries;
-	timelib_tzinfo *tzi;	
+	timelib_tzinfo *tzi;
 
 	if (argc > 2) {
 		printf("Usage:\n\tenumerate-timezones [zoneinfo path]\n\tExample: ./enumerate-timezone /usr/share/zoneinfo\"\n\n");
@@ -59,4 +59,3 @@ int main(int argc, char *argv[])
 		timelib_zoneinfo_dtor(db);
 	}
 }
-
