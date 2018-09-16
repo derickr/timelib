@@ -70,7 +70,6 @@ sys/time.h \
 sys/types.h \
 stdint.h \
 dirent.h \
-strings.h \
 unistd.h \
 io.h
 ])
