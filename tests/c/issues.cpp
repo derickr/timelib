@@ -174,3 +174,55 @@ TEST(issues, issue0035_test2)
 	timelib_time_dtor(t);
 	timelib_tzinfo_dtor(tzi);
 }
+
+TEST(issues, issue0050_test1)
+{
+	char            str1[] = "2018-10-11 20:59:06.914653";
+	char            str2[] = "2018-10-11 20:59:07.237419";
+	timelib_time   *t1    = timelib_strtotime(str1, sizeof(str1), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t2    = timelib_strtotime(str2, sizeof(str2), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	timelib_rel_time *diff;
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+
+	timelib_update_ts(t1, tzi);
+	timelib_update_ts(t2, tzi);
+
+	diff = timelib_diff(t1, t2);
+
+	LONGS_EQUAL(0, diff->s);
+	LONGS_EQUAL(322766, diff->us);
+
+	timelib_time_dtor(t1);
+	timelib_time_dtor(t2);
+	timelib_rel_time_dtor(diff);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, issue0050_test2)
+{
+	char            str1[] = "2018-10-11 20:59:06.237419";
+	char            str2[] = "2018-10-11 20:59:06.914653";
+	timelib_time   *t1    = timelib_strtotime(str1, sizeof(str1), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t2    = timelib_strtotime(str2, sizeof(str2), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	timelib_rel_time *diff;
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+
+	timelib_update_ts(t1, tzi);
+	timelib_update_ts(t2, tzi);
+
+	diff = timelib_diff(t1, t2);
+
+	LONGS_EQUAL(0, diff->s);
+	LONGS_EQUAL(677234, diff->us);
+
+	timelib_time_dtor(t1);
+	timelib_time_dtor(t2);
+	timelib_rel_time_dtor(diff);
+	timelib_tzinfo_dtor(tzi);
+}
