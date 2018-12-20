@@ -153,7 +153,7 @@ typedef struct _timelib_tzinfo
 		uint32_t timecnt;
 		uint32_t typecnt;
 		uint32_t charcnt;
-	} bit32;
+	} _bit32;
 	struct {
 		uint64_t ttisgmtcnt;
 		uint64_t ttisstdcnt;
@@ -163,7 +163,7 @@ typedef struct _timelib_tzinfo
 		uint64_t charcnt;
 	} bit64;
 
-	int32_t *trans;
+	int64_t *trans;
 	unsigned char *trans_idx;
 
 	ttinfo  *type;
