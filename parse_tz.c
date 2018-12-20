@@ -572,17 +572,7 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 	 * one in case there are only DST entries. Not sure which smartass came up
 	 * with this idea in the first though :) */
 	if (ts < tz->trans[0]) {
-		uint32_t j;
-
-		*transition_time = 0;
-		j = 0;
-		while (j < tz->bit32.timecnt && tz->type[tz->trans_idx[j]].isdst) {
-			++j;
-		}
-		if (j == tz->bit32.timecnt) {
-			j = 0;
-		}
-		return &(tz->type[tz->trans_idx[j]]);
+		return &(tz->type[0]);
 	}
 
 	/* In all other cases we loop through the available transition times to find

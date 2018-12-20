@@ -280,3 +280,63 @@ TEST(issues, issue0051_test2)
 	timelib_rel_time_dtor(diff);
 	timelib_tzinfo_dtor(tzi);
 }
+
+TEST(issues, issue0053_test1)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	timelib_sll     ts = -61626506832;
+	timelib_time   *t  = timelib_time_ctor();
+
+	tzi = timelib_parse_tzfile((char*) "America/Belize", timelib_builtin_db(), &dummy_error);
+	t->tz_info = tzi;
+	t->zone_type = TIMELIB_ZONETYPE_ID;
+	timelib_unixtime2local(t, ts);
+
+	LONGS_EQUAL(17, t->y);
+	LONGS_EQUAL(2, t->m);
+	LONGS_EQUAL(18, t->d);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(-21168, t->z);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, issue0053_test2)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	timelib_sll     ts = -1822500433;
+	timelib_time   *t  = timelib_time_ctor();
+
+	tzi = timelib_parse_tzfile((char*) "America/Belize", timelib_builtin_db(), &dummy_error);
+	t->tz_info = tzi;
+	t->zone_type = TIMELIB_ZONETYPE_ID;
+	timelib_unixtime2local(t, ts);
+
+	LONGS_EQUAL(-21168, t->z);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, issue0053_test3)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	timelib_sll     ts = -1822500432;
+	timelib_time   *t  = timelib_time_ctor();
+
+	tzi = timelib_parse_tzfile((char*) "America/Belize", timelib_builtin_db(), &dummy_error);
+	t->tz_info = tzi;
+	t->zone_type = TIMELIB_ZONETYPE_ID;
+	timelib_unixtime2local(t, ts);
+
+	LONGS_EQUAL(-21600, t->z);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
