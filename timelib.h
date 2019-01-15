@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Derick Rethans
+ * Copyright (c) 2015-2019 Derick Rethans
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -322,8 +322,8 @@ typedef struct _timelib_tzdb {
 #endif
 
 #define TIMELIB_VERSION 201801
-#define TIMELIB_EXTENDED_VERSION 20180105
-#define TIMELIB_ASCII_VERSION "2018.01RC3"
+#define TIMELIB_EXTENDED_VERSION 20180106
+#define TIMELIB_ASCII_VERSION "2018.01"
 
 #define TIMELIB_NONE             0x00
 #define TIMELIB_OVERRIDE_TIME    0x01
