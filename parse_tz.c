@@ -503,11 +503,6 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
 		tmp = timelib_tzinfo_ctor(timezone);
 
 		version = read_preamble(&tzf, tmp, &type);
-		if (version == -1) {
-			*error_code = TIMELIB_ERROR_UNSUPPORTED_VERSION;
-			timelib_tzinfo_dtor(tmp);
-			return NULL;
-		}
 		if (version < 2 || version > 3) {
 			*error_code = TIMELIB_ERROR_UNSUPPORTED_VERSION;
 			timelib_tzinfo_dtor(tmp);
