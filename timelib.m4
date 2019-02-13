@@ -16,11 +16,11 @@ AC_TRY_COMPILE([
 #endif
 #if HAVE_INTTYPES_H
 # include <inttypes.h>
-#elif HAVE_STDINT_H   
-# include <stdint.h>  
+#elif HAVE_STDINT_H
+# include <stdint.h>
 #endif],
 [if (($1 *) 0)
-  return 0;   
+  return 0;
 if (sizeof ($1))
   return 0;
 ], [ac_cv_int_type_$1=yes], [ac_cv_int_type_$1=no])
@@ -50,7 +50,7 @@ int main(void)
         } else {
                 return(1);
         }
-} 
+}
   ], [ac_cv_c_bigendian_php=yes], [ac_cv_c_bigendian_php=no], [ac_cv_c_bigendian_php=unknown])
  ])
  if test $ac_cv_c_bigendian_php = yes; then

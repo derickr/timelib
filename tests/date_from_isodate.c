@@ -23,7 +23,7 @@
  */
 
 /*
- * Example that shows how to convert a date/time in its parts, to a 
+ * Example that shows how to convert a date/time in its parts, to a
  * Unix timestamp.
  *
  * Compile with:

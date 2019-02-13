@@ -49,7 +49,7 @@ TEST(get_current_offset, London)
 
 	timelib_unixtime2local(t, 1483280063);
 	LONGS_EQUAL(0, timelib_get_current_offset(t));
-	
+
 	timelib_unixtime2local(t, 1501074654);
 	LONGS_EQUAL(3600, timelib_get_current_offset(t));
 
@@ -66,7 +66,7 @@ TEST(get_current_offset, Amsterdam)
 
 	timelib_unixtime2local(t, 1483280063);
 	LONGS_EQUAL(3600, timelib_get_current_offset(t));
-	
+
 	timelib_unixtime2local(t, 1501074654);
 	LONGS_EQUAL(7200, timelib_get_current_offset(t));
 
