@@ -340,3 +340,39 @@ TEST(issues, issue0053_test3)
 	timelib_time_dtor(t);
 	timelib_tzinfo_dtor(tzi);
 }
+
+/* Test for no transitions */
+TEST(issues, issue0065_test1)
+{
+	int                  dummy_error;
+	timelib_tzinfo      *tzi;
+	timelib_time_offset *offset;
+
+	tzi = timelib_parse_tzfile((char*) "Etc/Gmt+5", timelib_builtin_db(), &dummy_error);
+	offset = timelib_get_time_zone_info(-1822500432, tzi);
+
+	LONGS_EQUAL(INT64_MIN, offset->transition_time);
+
+	timelib_time_offset_dtor(offset);
+	timelib_tzinfo_dtor(tzi);
+}
+
+/* Test for offset from time before first transition */
+TEST(issues, issue0065_test2)
+{
+	int                  dummy_error;
+	timelib_tzinfo      *tzi;
+	timelib_time_offset *offset;
+
+	tzi = timelib_parse_tzfile((char*) "Europe/London", timelib_builtin_db(), &dummy_error);
+
+	offset = timelib_get_time_zone_info(-3852662326, tzi);
+	LONGS_EQUAL(INT64_MIN, offset->transition_time);
+	timelib_time_offset_dtor(offset);
+
+	offset = timelib_get_time_zone_info(-3852662325, tzi);
+	LONGS_EQUAL(-3852662325, offset->transition_time);
+	timelib_time_offset_dtor(offset);
+
+	timelib_tzinfo_dtor(tzi);
+}
