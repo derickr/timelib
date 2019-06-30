@@ -179,7 +179,7 @@ TEST(issues, issue0016_test1)
 {
 	int             dummy_error;
 	timelib_tzinfo *tzi;
-	char            str[] = "10000-01-01 00:00:00.000000";
+	char            str[] = "+10000-01-01 00:00:00.000000";
 	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 
 	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
@@ -223,7 +223,7 @@ TEST(issues, issue0016_test3)
 {
 	int             dummy_error;
 	timelib_tzinfo *tzi;
-	char            str[] = "291672107014-12-31 23:59:59";
+	char            str[] = "+291672107014-12-31 23:59:59";
 	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
 	timelib_update_ts(t, tzi);
