@@ -175,6 +175,71 @@ TEST(issues, issue0035_test2)
 	timelib_tzinfo_dtor(tzi);
 }
 
+TEST(issues, issue0016_test1)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            str[] = "+10000-01-01 00:00:00.000000";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_update_ts(t, tzi);
+
+	LONGS_EQUAL(10000, t->y);
+	LONGS_EQUAL(1, t->m);
+	LONGS_EQUAL(1, t->d);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(0, t->us);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, issue0016_test2)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            str[] = "-10000-01-01 00:00:00.000000";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_update_ts(t, tzi);
+
+	LONGS_EQUAL(-10000, t->y);
+	LONGS_EQUAL(1, t->m);
+	LONGS_EQUAL(1, t->d);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(0, t->us);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, issue0016_test3)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            str[] = "+291672107014-12-31 23:59:59";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_update_ts(t, tzi);
+
+	LONGS_EQUAL(291672107014, t->y);
+	LONGS_EQUAL(12, t->m);
+	LONGS_EQUAL(31, t->d);
+	LONGS_EQUAL(23, t->h);
+	LONGS_EQUAL(59, t->i);
+	LONGS_EQUAL(59, t->s);
+	LONGS_EQUAL(0, t->us);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+}
+
 TEST(issues, issue0050_test1)
 {
 	char            str1[] = "2018-10-11 20:59:06.914653";
@@ -200,6 +265,7 @@ TEST(issues, issue0050_test1)
 	timelib_rel_time_dtor(diff);
 	timelib_tzinfo_dtor(tzi);
 }
+
 
 TEST(issues, issue0050_test2)
 {
