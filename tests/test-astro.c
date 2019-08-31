@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	t = timelib_strtotime(argv[1] /*"2005-10-17 00:00:00"*/, strlen(argv[1]), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 	timelib_dump_date(t, 1);
 	rs = timelib_astro_rise_set_altitude(t, atof(argv[2]) /*9.627*/, atof(argv[3]) /*59.186*/, 0, 0, &h_rise, &h_set, &rise, &set, &transit);
-	
+
 	switch (rs) {
 		case 0:
 			break;

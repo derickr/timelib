@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Can not read timezone database in '%s'.\n", argv[2]);
 			return 2;
 		}
-		
+
 		tz = timelib_parse_tzfile(argv[1], db, &dummy_error);
 		if (!tz) {
 			fprintf(stderr, "Can not read timezone identifier '%s' from database in '%s'.\n", argv[1], argv[2]);

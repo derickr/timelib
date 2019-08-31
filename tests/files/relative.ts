@@ -40,7 +40,7 @@ TS: 1068372923 | 2003-11-09 12:15:23 CEST |                     |
 TS: 1068372923 | 2004-05-05 12:15:23 CEST 6 months ago 4 days | |
 
 TS: 1145570400 | 21-04-2006      |            | Europe/Amsterdam
-TS: 1145570400 | this weekday    | 21-04-2006 | Europe/Amsterdam 
+TS: 1145570400 | this weekday    | 21-04-2006 | Europe/Amsterdam
 TS: 1145484000 | last weekday    | 21-04-2006 | Europe/Amsterdam
 TS: 1145570400 | last weekday    | 22-04-2006 | Europe/Amsterdam
 TS: 1145570400 | last weekday    | 23-04-2006 | Europe/Amsterdam

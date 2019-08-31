@@ -23,7 +23,7 @@
  */
 
 /*
- * Example that shows how to convert a date/time in its parts, to a 
+ * Example that shows how to convert a date/time in its parts, to a
  * Unix timestamp.
  *
  * Compile with:
@@ -80,12 +80,12 @@ int main(int argc, char *argv[])
 	char           *tz_id = "America/New_York";
 	timelib_time   *t;
 	timelib_tzinfo *tzi;
-	
+
 	if (argc < 4) {
 		printf("Usage:\n\tdate-from-iso-parts isoyear isoweek isoday\n\tExample: ./date-from-iso-parts 2017 23 2\n\n");
 		exit(-1);
 	}
-	
+
 	ty = atoll(argv[1]);
 	tw = atoll(argv[2]);
 	td = atoll(argv[3]);

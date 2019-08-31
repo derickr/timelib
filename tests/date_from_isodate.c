@@ -23,7 +23,7 @@
  */
 
 /*
- * Example that shows how to convert a date/time in its parts, to a 
+ * Example that shows how to convert a date/time in its parts, to a
  * Unix timestamp.
  *
  * Compile with:
@@ -34,7 +34,7 @@
 #include <string.h>
 #include "timelib.h"
 
-#define TEST_COUNT 33
+#define TEST_COUNT 37
 
 timelib_sll tests[TEST_COUNT][2][3] = {
 	{ { 2014, 52, 1 }, { 2014, 12, 22 } },
@@ -70,6 +70,10 @@ timelib_sll tests[TEST_COUNT][2][3] = {
 	{ { 2043, 53, 5 }, { 2044,  1,  1 } },
 	{ { 2043, 53, 6 }, { 2044,  1,  2 } },
 	{ { 2043, 53, 7 }, { 2044,  1,  3 } },
+	{ { 2019,  0, 1 }, { 2018, 12, 24 } },
+	{ { 2019, -1, 1 }, { 2018, 12, 17 } },
+	{ { 2019, 62, 1 }, { 2020,  3,  2 } },
+	{ { 2019,110, 1 }, { 2021,  2,  1 } },
 };
 
 int main(int argc, char *argv[])

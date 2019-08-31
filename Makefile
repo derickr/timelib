@@ -2,7 +2,7 @@ FLAGS=-O0 -ggdb3 \
 	-Wall -Werror -Wextra -fsanitize=undefined -fsanitize=address \
 	-Wmaybe-uninitialized -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
 	-pedantic -Wno-implicit-fallthrough \
-	-DHAVE_STDINT_H -DHAVE_STRING_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
+	-DHAVE_STDINT_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
 
 CFLAGS=-Wdeclaration-after-statement ${FLAGS}
 
@@ -13,6 +13,7 @@ LDFLAGS=-lm -fsanitize=undefined -l:libubsan.so.1
 TEST_LDFLAGS=-lCppUTest
 
 CC=gcc-8
+CXX=g++-8
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-parse-tz tests/tester-iso-week tests/test-abbr-to-id \
 	tests/enumerate-timezones tests/date_from_isodate
@@ -39,56 +40,56 @@ timelib.a: parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o 
 	ar -rc timelib.a parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o
 
 tests/tester-diff: timelib.a tests/tester-diff.c
-	gcc $(CFLAGS) -o tests/tester-diff tests/tester-diff.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-diff tests/tester-diff.c timelib.a $(LDFLAGS)
 
 tests/tester-parse-string: timelib.a tests/tester-parse-string.c
-	gcc $(CFLAGS) -o tests/tester-parse-string tests/tester-parse-string.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-parse-string tests/tester-parse-string.c timelib.a $(LDFLAGS)
 
 tests/tester-parse-interval: timelib.a tests/tester-parse-interval.c
-	gcc $(CFLAGS) -o tests/tester-parse-interval tests/tester-parse-interval.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-parse-interval tests/tester-parse-interval.c timelib.a $(LDFLAGS)
 
 tests/tester-parse-string-by-format: timelib.a tests/tester-parse-string-by-format.c
-	gcc $(CFLAGS) -o tests/tester-parse-string-by-format tests/tester-parse-string-by-format.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-parse-string-by-format tests/tester-parse-string-by-format.c timelib.a $(LDFLAGS)
 
 tests/tester-create-ts: timelib.a tests/tester-create-ts.c
-	gcc $(CFLAGS) -o tests/tester-create-ts tests/tester-create-ts.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-create-ts tests/tester-create-ts.c timelib.a $(LDFLAGS)
 
 tests/tester-parse-tz: timelib.a tests/test-tz-parser.c
-	gcc $(CFLAGS) -o tests/tester-parse-tz tests/test-tz-parser.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-parse-tz tests/test-tz-parser.c timelib.a $(LDFLAGS)
 
 tests/tester-render-ts: timelib.a tests/tester-render-ts.c
-	gcc $(CFLAGS) -o tests/tester-render-ts tests/tester-render-ts.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-render-ts tests/tester-render-ts.c timelib.a $(LDFLAGS)
 
 tests/tester-render-ts-zoneinfo: timelib.a tests/tester-render-ts-zoneinfo.c
-	gcc $(CFLAGS) -o tests/tester-render-ts-zoneinfo tests/tester-render-ts-zoneinfo.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-render-ts-zoneinfo tests/tester-render-ts-zoneinfo.c timelib.a $(LDFLAGS)
 
 tests/tester-iso-week: timelib.a tests/tester-iso-week.c
-	gcc $(CFLAGS) -o tests/tester-iso-week tests/tester-iso-week.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/tester-iso-week tests/tester-iso-week.c timelib.a $(LDFLAGS)
 
 tests/test-abbr-to-id: timelib.a tests/test-abbr-to-id.c
-	gcc $(CFLAGS) -o tests/test-abbr-to-id tests/test-abbr-to-id.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/test-abbr-to-id tests/test-abbr-to-id.c timelib.a $(LDFLAGS)
 
 tests/test-astro: timelib.a tests/test-astro.c
-	gcc $(CFLAGS) -o tests/test-astro tests/test-astro.c timelib.a -lm $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/test-astro tests/test-astro.c timelib.a -lm $(LDFLAGS)
 
 tests/enumerate-timezones: timelib.a tests/enumerate-timezones.c
-	gcc $(CFLAGS) -o tests/enumerate-timezones tests/enumerate-timezones.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/enumerate-timezones tests/enumerate-timezones.c timelib.a $(LDFLAGS)
 
 tests/date_from_isodate: timelib.a tests/date_from_isodate.c
-	gcc $(CFLAGS) -o tests/date_from_isodate tests/date_from_isodate.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/date_from_isodate tests/date_from_isodate.c timelib.a $(LDFLAGS)
 
 
 docs/date-from-parts: timelib.a docs/date-from-parts.c
-	gcc $(CFLAGS) -o docs/date-from-parts docs/date-from-parts.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o docs/date-from-parts docs/date-from-parts.c timelib.a $(LDFLAGS)
 
 docs/date-from-iso-parts: timelib.a docs/date-from-iso-parts.c
-	gcc $(CFLAGS) -o docs/date-from-iso-parts docs/date-from-iso-parts.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o docs/date-from-iso-parts docs/date-from-iso-parts.c timelib.a $(LDFLAGS)
 
 docs/date-from-string: timelib.a docs/date-from-string.c
-	gcc $(CFLAGS) -o docs/date-from-string docs/date-from-string.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o docs/date-from-string docs/date-from-string.c timelib.a $(LDFLAGS)
 
 docs/date-to-parts: timelib.a docs/date-to-parts.c
-	gcc $(CFLAGS) -o docs/date-to-parts docs/date-to-parts.c timelib.a $(LDFLAGS)
+	$(CC) $(CFLAGS) -o docs/date-to-parts docs/date-to-parts.c timelib.a $(LDFLAGS)
 
 
 timezonemap.h: gettzmapping.php
@@ -102,7 +103,7 @@ clean:
 	rm -f parse_iso_intervals.c parse_date.c *.o timelib.a ${TEST_BINARIES}
 
 ctest: tests/c/all_tests.cpp timelib.a ${C_TESTS}
-	g++ $(CPPFLAGS) $(LDFLAGS) tests/c/all_tests.cpp ${C_TESTS} timelib.a $(TEST_LDFLAGS) -o ctest
+	$(CXX) $(CPPFLAGS) $(LDFLAGS) tests/c/all_tests.cpp ${C_TESTS} timelib.a $(TEST_LDFLAGS) -o ctest
 
 test: ctest tests/tester-parse-string tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo tests/tester-parse-string-by-format
 	-@php tests/test_all.php
