@@ -8,11 +8,11 @@ CFLAGS=-Wdeclaration-after-statement ${FLAGS}
 
 CPPFLAGS=${FLAGS}
 
-LDFLAGS=-lm -fsanitize=undefined -l:libubsan.so.1
+LDFLAGS=-lm -fsanitize=undefined -l:libubsan.so
 
 TEST_LDFLAGS=-lCppUTest
 
-CC=gcc-8
+CC=gcc
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-parse-tz tests/tester-iso-week tests/test-abbr-to-id \
 	tests/enumerate-timezones tests/date_from_isodate
