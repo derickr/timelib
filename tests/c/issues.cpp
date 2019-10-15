@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "timelib.h"
+#include <string.h>
 
 TEST_GROUP(issues)
 {
@@ -439,6 +440,38 @@ TEST(issues, issue0065_test2)
 	offset = timelib_get_time_zone_info(-3852662325, tzi);
 	LONGS_EQUAL(-3852662325, offset->transition_time);
 	timelib_time_offset_dtor(offset);
+	timelib_tzinfo_dtor(tzi);
+}
 
+TEST(issues, issue0069)
+{
+	char            str1[] = "2019-10-14T15:08:23.123+02:00";
+	char            str2[] = "-50000 msec";
+	timelib_time   *t1    = timelib_strtotime(str1, sizeof(str1), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t2    = timelib_strtotime(str2, sizeof(str2), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+
+	timelib_update_ts(t1, tzi);
+
+	memcpy(&t1->relative, &t2->relative, sizeof(timelib_rel_time));
+	t1->have_relative = 1;
+	t1->sse_uptodate = 0;
+
+	timelib_update_ts(t1, NULL);
+	timelib_update_from_sse(t1);
+	t1->have_relative = 0;
+
+	memset(&t1->relative, 0, sizeof(timelib_rel_time));
+
+	LONGS_EQUAL(123000, t1->us);
+	LONGS_EQUAL(33, t1->s);
+	LONGS_EQUAL( 7, t1->i);
+	LONGS_EQUAL(15, t1->h);
+
+	timelib_time_dtor(t1);
+	timelib_time_dtor(t2);
 	timelib_tzinfo_dtor(tzi);
 }
