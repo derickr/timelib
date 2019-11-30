@@ -238,8 +238,8 @@ static timelib_lookup_table const timelib_reltext_lookup[] = {
 	{ "tenth",    0, 10 },
 	{ "eleventh", 0, 11 },
 	{ "twelfth",  0, 12 },
-	{ "last",     0, -1 },
-	{ "previous", 0, -1 },
+	{ "last",     1, -1 },
+	{ "previous", 1, -1 },
 	{ "this",     1,  0 },
 	{ NULL,       1,  0 }
 };

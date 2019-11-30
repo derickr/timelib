@@ -44,15 +44,15 @@ TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 6.1 | sat
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -6.1 | saturday ago
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 6.1 | this saturday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -6.1 | this saturday ago
-TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.0 | last saturday
-TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / -6.0 | last saturday ago
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.1 | last saturday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   7D /   0H   0M   0S / -6.1 | last saturday ago
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 6.0 | first saturday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -6.0 | first saturday ago
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 6.0 | next saturday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -6.0 | next saturday ago
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  14D /   0H   0M   0S / 6.0 | third saturday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M -14D /   0H   0M   0S / -6.0 | third saturday ago
-TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.0 | previous saturday
+TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.1 | previous saturday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 0 weekday | this weekday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -1 weekday | last weekday
 TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 1 weekday | next weekday
