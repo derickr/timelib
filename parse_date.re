@@ -727,21 +727,25 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 		value -= tp->type * 3600;
 		*found = 1;
 	} else {
+		char *cpy = timelib_calloc(1, end - begin + 1);
 		char *pos = NULL;
-		if((pos = strrchr(word, '-')) == NULL){
-			*found = 0;
-		} else {
+
+		memcpy(cpy, word, end - begin);
+
+		while((pos = strrchr(cpy, '-')) != NULL){
 			*pos = '\0';
-			if((tp = abbr_search(word,-1,0))){
+			if((tp = abbr_search(cpy, -1, 0))){
 				value = tp->gmtoffset;
 				*dst = tp->type;
 				value -= tp->type * 3600;
 				*found = 1;
-				*ptr -= pos - word + 2;
-			} else {
-				*pos = '-';
+				*ptr = begin + (pos - cpy);
+				*tz_abbr = cpy;
+				timelib_free(word);
+				return value;
 			}
 		}
+		timelib_free(cpy);
 	}
 
 	*tz_abbr = word;
