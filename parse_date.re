@@ -707,6 +707,8 @@ static const timelib_tz_lookup_table* abbr_search(const char *word, timelib_long
 	return NULL;
 }
 
+#define TIMELIB_TP_VALUE(tp) tp->gmtoffset - (tp->type * 3600)
+
 static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, int *found)
 {
 	char *word;
@@ -722,9 +724,8 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 	memcpy(word, begin, end - begin);
 
 	if ((tp = abbr_search(word, -1, 0))) {
-		value = tp->gmtoffset;
+		value = TIMELIB_TP_VALUE(tp);
 		*dst = tp->type;
-		value -= tp->type * 3600;
 		*found = 1;
 	} else {
 		char *cpy = timelib_calloc(1, end - begin + 1);
@@ -735,9 +736,9 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 		while((pos = strrchr(cpy, '-')) != NULL){
 			*pos = '\0';
 			if((tp = abbr_search(cpy, -1, 0))){
-				value = tp->gmtoffset;
+				value = TIMELIB_TP_VALUE(tp);
 				*dst = tp->type;
-				value -= tp->type * 3600;
+
 				*found = 1;
 				*ptr = begin + (pos - cpy);
 				*tz_abbr = cpy;
