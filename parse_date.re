@@ -716,8 +716,11 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 	timelib_long  value = 0;
 	const timelib_tz_lookup_table *tp;
 
+	int has_dash = 0;
 	while (**ptr != '\0' && **ptr != ')' && **ptr != ' ') {
-		++*ptr;
+		if(*((*ptr)++) == '-'){
+			has_dash = 1;
+		}
 	}
 	end = *ptr;
 	word = timelib_calloc(1, end - begin + 1);
@@ -727,7 +730,7 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 		value = TIMELIB_TP_VALUE(tp);
 		*dst = tp->type;
 		*found = 1;
-	} else {
+	} else if(has_dash) {
 		char *cpy = timelib_calloc(1, end - begin + 1);
 		char *pos = NULL;
 
@@ -747,6 +750,8 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 			}
 		}
 		timelib_free(cpy);
+	} else {
+		*found = 0;
 	}
 
 	*tz_abbr = word;
