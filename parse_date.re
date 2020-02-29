@@ -750,6 +750,7 @@ static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, in
 			}
 		}
 		timelib_free(cpy);
+		*found = 0;
 	} else {
 		*found = 0;
 	}
