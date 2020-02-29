@@ -380,6 +380,7 @@ typedef enum _timelib_format_specifier_code {
 	TIMELIB_FORMAT_TEXTUAL_MONTH_3_LETTER,
 	TIMELIB_FORMAT_TEXTUAL_MONTH_FULL,
 	TIMELIB_FORMAT_TIMEZONE_OFFSET,
+	TIMELIB_FORMAT_TIMEZONE_ABBREV,
 	TIMELIB_FORMAT_TIMEZONE_OFFSET_MINUTES,
 	TIMELIB_FORMAT_WEEK_OF_YEAR_ISO,
 	TIMELIB_FORMAT_WEEK_OF_YEAR,
@@ -552,7 +553,7 @@ const timelib_tz_lookup_table *timelib_timezone_abbreviations_list(void);
 /**
  * DEPRECATED, but still used by PHP.
  */
-timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper);
+timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int is_abbrev, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper);
 
 /* From parse_iso_intervals.re */
 

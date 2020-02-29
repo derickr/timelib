@@ -709,48 +709,24 @@ static const timelib_tz_lookup_table* abbr_search(const char *word, timelib_long
 
 #define TIMELIB_TP_VALUE(tp) tp->gmtoffset - (tp->type * 3600)
 
-static timelib_long timelib_lookup_abbr(char **ptr, int *dst, char **tz_abbr, int *found)
+static timelib_long timelib_lookup_abbr(char **ptr, int *dst, int is_abbrev, char **tz_abbr, int *found)
 {
 	char *word;
 	char *begin = *ptr, *end;
 	timelib_long  value = 0;
 	const timelib_tz_lookup_table *tp;
-
-	int has_dash = 0;
-	while (**ptr != '\0' && **ptr != ')' && **ptr != ' ') {
-		if(*((*ptr)++) == '-'){
-			has_dash = 1;
-		}
+	while (**ptr != '\0' && **ptr != ')' && **ptr != ' ' && ((is_abbrev) ? **ptr != '-' : true)) {
+		++*ptr;
 	}
+
 	end = *ptr;
 	word = timelib_calloc(1, end - begin + 1);
 	memcpy(word, begin, end - begin);
 
-	if ((tp = abbr_search(word, -1, 0))) {
+	if ((tp = abbr_search(word, -1, 0)) && ((is_abbrev) ? tp->type == TIMELIB_ZONETYPE_ABBR : true)) {
 		value = TIMELIB_TP_VALUE(tp);
 		*dst = tp->type;
 		*found = 1;
-	} else if(has_dash) {
-		char *cpy = timelib_calloc(1, end - begin + 1);
-		char *pos = NULL;
-
-		memcpy(cpy, word, end - begin);
-
-		while((pos = strrchr(cpy, '-')) != NULL){
-			*pos = '\0';
-			if((tp = abbr_search(cpy, -1, 0))){
-				value = TIMELIB_TP_VALUE(tp);
-				*dst = tp->type;
-
-				*found = 1;
-				*ptr = begin + (pos - cpy);
-				*tz_abbr = cpy;
-				timelib_free(word);
-				return value;
-			}
-		}
-		timelib_free(cpy);
-		*found = 0;
 	} else {
 		*found = 0;
 	}
@@ -826,7 +802,7 @@ static timelib_long timelib_parse_tz_minutes(char **ptr, timelib_time *t)
 	return retval;
 }
 
-timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
+timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int is_abbrev, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
 {
 	timelib_tzinfo *res;
 	timelib_long            retval = 0;
@@ -863,7 +839,7 @@ timelib_long timelib_parse_zone(char **ptr, int *dst, timelib_time *t, int *tz_n
 		t->is_localtime = 1;
 
 		/* First, we lookup by abbreviation only */
-		offset = timelib_lookup_abbr(ptr, dst, &tz_abbr, &found);
+		offset = timelib_lookup_abbr(ptr, dst, is_abbrev, &tz_abbr, &found);
 		if (found) {
 			t->zone_type = TIMELIB_ZONETYPE_ABBR;
 			timelib_time_tz_abbr_update(t, tz_abbr);
@@ -1264,7 +1240,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		}
 
 		if (*ptr != '\0') {
-			s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+			s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 			if (tz_not_found) {
 				add_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database");
 			}
@@ -1330,7 +1306,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 		if (*ptr != '\0') {
-			s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+			s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 			if (tz_not_found) {
 				add_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database");
 			}
@@ -1544,7 +1520,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		if (*ptr == '.') {
 			s->time->us = timelib_get_frac_nr((char **) &ptr, 9);
 			if (*ptr) { /* timezone is optional */
-				s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+				s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 				if (tz_not_found) {
 					add_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database");
 				}
@@ -1647,7 +1623,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		s->time->h = timelib_get_nr((char **) &ptr, 2);
 		s->time->i = timelib_get_nr((char **) &ptr, 2);
 		s->time->s = timelib_get_nr((char **) &ptr, 2);
-		s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+		s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 		if (tz_not_found) {
 			add_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database");
 		}
@@ -1760,7 +1736,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		DEBUG_OUTPUT("tzcorrection | tz");
 		TIMELIB_INIT;
 		TIMELIB_HAVE_TZ();
-		s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+		s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 		if (tz_not_found) {
 			add_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database");
 		}
@@ -1813,7 +1789,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		}
 
 		if (*ptr != '\0') {
-			s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+			s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 			if (tz_not_found) {
 				add_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database");
 			}
@@ -2014,7 +1990,7 @@ static const timelib_format_specifier default_format_map[] = {
 	{'F', TIMELIB_FORMAT_TEXTUAL_MONTH_FULL},
 	{'e', TIMELIB_FORMAT_TIMEZONE_OFFSET},
 	{'P', TIMELIB_FORMAT_TIMEZONE_OFFSET},
-	{'T', TIMELIB_FORMAT_TIMEZONE_OFFSET},
+	{'T', TIMELIB_FORMAT_TIMEZONE_ABBREV},
 	{'O', TIMELIB_FORMAT_TIMEZONE_OFFSET},
 	{' ', TIMELIB_FORMAT_WHITESPACE},
 	{'y', TIMELIB_FORMAT_YEAR_TWO_DIGIT},
@@ -2353,11 +2329,21 @@ timelib_time *timelib_parse_from_format_with_map(char *format, char *string, siz
 					add_pbf_error(s, TIMELIB_ERR_INVALID_DAY_OF_WEEK, "Day of week must be between 1 and 7", string, begin);
 				}
 				break;
+			case TIMELIB_FORMAT_TIMEZONE_ABBREV: /* timezone (abbreviation) */
+				{
+					int tz_not_found;
+
+					s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 1, &tz_not_found, s->tzdb, tz_get_wrapper);
+					if (tz_not_found) {
+						add_pbf_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database", string, begin);
+					}
+				}
+				break;
 			case TIMELIB_FORMAT_TIMEZONE_OFFSET: /* timezone */
 				{
 					int tz_not_found;
 
-					s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
+					s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, 0, &tz_not_found, s->tzdb, tz_get_wrapper);
 					if (tz_not_found) {
 						add_pbf_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database", string, begin);
 					}

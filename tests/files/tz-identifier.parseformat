@@ -2,4 +2,4 @@ TS: 0 | -99999--99999--99999 01:00:03 0.123450 Europe/Amsterdam | H:i:s.u e | 01
 TS: 0 | -99999--99999--99999 01:00:03 0.123450 America/Indiana/Knox | H:i:s.u e | 01:00:03.12345 America/Indiana/Knox
 TS: 0 | 2005-07-14 22:30:41 America/Los_Angeles | Y-m-d H:i:s e | 2005-07-14 22:30:41 America/Los_Angeles
 TS: 0 | 2005-07-14 22:30:41 America/Los_Angeles | Y-m-d?H:i:s?e | 2005-07-14	22:30:41	America/Los_Angeles
-TS: 0 | 2020-02-25 10:21:25 CET 03600  0Y   0M   0D /   0H   0M   0S / 2.1 | D-M-d-H.i.s-T-Y | Tue-Feb-25-10.21.25-CET-2020
+TS: 0 | 2020-02-25 10:21:25 CET  0Y   0M   0D /   0H   0M   0S / 2.1 | D-M-d-H.i.s-T-Y | Tue-Feb-25-10.21.25-CET-2020
