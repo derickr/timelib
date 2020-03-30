@@ -123,7 +123,8 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 		return NULL;
 	}
 
-	fd = open(fname, O_RDONLY);
+	/* O_BINARY is required to properly read the file on windows */
+	fd = open(fname, O_BINARY);
 	free(fname);
 
 	if (fd == -1) {
