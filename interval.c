@@ -61,7 +61,7 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 	memcpy(&two_backup, two, sizeof(two_backup));
 
      /* Time to gmt when time offset is different */
-     timeOffset = (one->z + (one->dst * 3600)) = (two->z + (two->dst * 3600))
+     timeOffset = (one->z + (one->dst * 3600)) - (two->z + (two->dst * 3600));
     if (timeOffset!=0) {
         timelib_apply_localtime(one, 0);
         timelib_apply_localtime(two, 0);
