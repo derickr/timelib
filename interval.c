@@ -32,7 +32,7 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 	timelib_time *swp;
 	timelib_sll dst_corr = 0 ,dst_h_corr = 0, dst_m_corr = 0;
 	timelib_time one_backup, two_backup;
-
+	int timeOffset;
 	rt = timelib_rel_time_ctor();
 	rt->invert = 0;
 	if (
@@ -60,8 +60,12 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 	memcpy(&one_backup, one, sizeof(one_backup));
 	memcpy(&two_backup, two, sizeof(two_backup));
 
-    timelib_apply_localtime(one, 0);
-    timelib_apply_localtime(two, 0);
+     /* Time to gmt when time offset is different */
+     timeOffset = (one->z + (one->dst * 3600)) = (two->z + (two->dst * 3600))
+    if (timeOffset!=0) {
+        timelib_apply_localtime(one, 0);
+        timelib_apply_localtime(two, 0);
+    }
 
 	rt->y = two->y - one->y;
 	rt->m = two->m - one->m;
