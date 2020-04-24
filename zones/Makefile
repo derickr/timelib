@@ -1,8 +1,8 @@
 all: index
 
 download:
-	-@rm -f tzdata201*tar.gz
-	-@rm -f tzcode201*tar.gz
+	-@rm -f tzdata20[12]*tar.gz
+	-@rm -f tzcode20[12]*tar.gz
 	@echo "Downloading latest Olson TZDB release..."
 	$(eval VERSION := $(shell curl -s -o - https://www.iana.org/time-zones | grep \"version\" | sed 's/.*version">//' | sed 's/<\/span.*//'))
 	curl -s -o tzdata$(VERSION).tar.gz https://data.iana.org/time-zones/releases/tzdata$(VERSION).tar.gz
@@ -11,7 +11,7 @@ download:
 
 clean: release-php-clean
 	-rm -rf code
-	-rm -f timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt timezonedb-201*.tgz timezonedb.tgz timezonedb*.zip
+	-rm -f timezonedb.idx.php timezonedb.dta timezonedb.idx version-info.txt timezonedb-20[12]*.tgz timezonedb.tgz timezonedb*.zip
 
 tzdb: download
 	-@rm -rf code
@@ -37,7 +37,7 @@ timezonedb.dta: code/zone.tab
 timezonedb.idx: timezonedb.idx.php timezonedb.dta
 
 version-info.txt: download
-	find . -name tzdata*.tar.gz | sed 's/.*20/20/' | sed 's/\.tar.*//' > version-info.txt
+	find . -name tzdata*.tar.gz | sed 's/.*202/202/' | sed 's/\.tar.*//' > version-info.txt
 	find . -name tzdata*.tar.gz | sed -E "s/^.*(20[0-9]{2}).*$$/\1/" | tr -d '\n' >> version-info.txt
 	echo -n "." >> version-info.txt
 	find . -name tzdata*.tar.gz | sed -E "s/^.*20[0-9]{2}(\w).*$$/\1/" | sed "s/\\n//" | od -A n -t d1 -N 1 | awk '{printf "%s", $$1 - 96}' >> version-info.txt
