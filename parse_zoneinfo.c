@@ -123,7 +123,12 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 		return NULL;
 	}
 
+	/* O_BINARY is required to properly read the file on windows */
+#ifdef _WIN32
+	fd = open(fname, O_BINARY);
+#else
 	fd = open(fname, O_RDONLY);
+#endif
 	free(fname);
 
 	if (fd == -1) {
