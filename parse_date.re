@@ -2032,6 +2032,7 @@ timelib_time *timelib_parse_from_format_with_map(char *format, char *string, siz
 	int          iso_year = TIMELIB_UNSET;
 	int          iso_week_of_year = TIMELIB_UNSET;
 	int          iso_day_of_week = TIMELIB_UNSET;
+	int          day_of_year = TIMELIB_UNSET;
 	char         prefix_char = format_config->prefix_char;
 	const timelib_format_specifier *format_map = format_config->format_map;
 
@@ -2121,12 +2122,8 @@ timelib_time *timelib_parse_from_format_with_map(char *format, char *string, siz
 				break;
 			case TIMELIB_FORMAT_DAY_OF_YEAR: /* day of year - resets month (0 based) - also initializes everything else to !TIMELIB_UNSET */
 				TIMELIB_CHECK_NUMBER;
-				if ((tmp = timelib_get_nr((char **) &ptr, 3)) == TIMELIB_UNSET) {
+				if ((day_of_year = timelib_get_nr((char **) &ptr, 3)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_THREE_DIGIT_DAY_OF_YEAR, "A three digit day-of-year could not be found", string, begin);
-				} else {
-					s->time->m = 1;
-					s->time->d = tmp + 1;
-					timelib_do_normalize(s->time);
 				}
 				break;
 
@@ -2397,6 +2394,19 @@ timelib_time *timelib_parse_from_format_with_map(char *format, char *string, siz
 		}
 		if (s->time->us == TIMELIB_UNSET ) {
 			s->time->us = 0;
+		}
+	}
+
+	/* Handle day of year */
+	if ( day_of_year != TIMELIB_UNSET ) {
+		/* Check for mixing day-of-year with month or day-of-month */
+		if (s->time->m != TIMELIB_UNSET || s->time->d != TIMELIB_UNSET) {
+			add_pbf_error(s, TIMELIB_ERR_MIX_DAY_OF_YEAR_WITH_M_D, "Mixing of day-of-year with month or day is not allowed", string, ptr);
+		}
+		else {
+			s->time->m = 1;
+			s->time->d = day_of_year + 1;
+			timelib_do_normalize(s->time);
 		}
 	}
 
