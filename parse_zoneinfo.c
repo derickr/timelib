@@ -52,6 +52,8 @@
 # define TIMELIB_DIR_SEPARATOR "/"
 #endif
 
+# define TIMELIB_NAME_SEPARATOR "/"
+
 /* Filter out some non-tzdata files and the posix/right databases, if
  * present. */
 static int index_filter(const struct dirent *ent)
@@ -125,7 +127,7 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 
 	/* O_BINARY is required to properly read the file on windows */
 #ifdef _WIN32
-	fd = open(fname, O_BINARY);
+	fd = open(fname, O_RDONLY | O_BINARY);
 #else
 	fd = open(fname, O_RDONLY);
 #endif
@@ -262,7 +264,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 			struct stat st;
 			const char *leaf = ents[count - 1]->d_name;
 
-			snprintf(name, sizeof(name), "%s%s%s%s%s", directory, TIMELIB_DIR_SEPARATOR, top, TIMELIB_DIR_SEPARATOR, leaf);
+			snprintf(name, sizeof(name), "%s%s%s%s%s", directory, TIMELIB_NAME_SEPARATOR, top, TIMELIB_NAME_SEPARATOR, leaf);
 
 			if (strlen(name) && stat(name, &st) == 0) {
 				/* Name, relative to the zoneinfo prefix. */
@@ -272,7 +274,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 					root++;
 				}
 
-				snprintf(name, sizeof(name), "%s%s%s", root, *root ? TIMELIB_DIR_SEPARATOR : "", leaf);
+				snprintf(name, sizeof(name), "%s%s%s", root, *root ? TIMELIB_NAME_SEPARATOR : "", leaf);
 
 				if (S_ISDIR(st.st_mode)) {
 					if (dirstack_top == dirstack_size) {
