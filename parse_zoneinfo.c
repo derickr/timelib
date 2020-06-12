@@ -52,7 +52,7 @@
 # define TIMELIB_DIR_SEPARATOR "/"
 #endif
 
-# define TIMELIB_NAME_SEPARATOR "/"
+#define TIMELIB_NAME_SEPARATOR "/"
 
 /* Filter out some non-tzdata files and the posix/right databases, if
  * present. */
