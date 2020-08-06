@@ -176,7 +176,8 @@ std:
 
 /* */
 any = [\000-\377];
-number = [0-9]+;
+number_u = [0-9]+;
+number_s = "-"? [0-9]+;
 
 hour24lz = [01][0-9] | "2"[0-4];
 minutelz = [0-5][0-9];
@@ -191,10 +192,10 @@ weekofyear = "0"[1-9] | [1-4][0-9] | "5"[0-3];
 space = [ \t]+;
 datetimebasic  = year4 monthlz daylz "T" hour24lz minutelz secondlz "Z";
 datetimeextended  = year4 "-" monthlz "-" daylz "T" hour24lz ':' minutelz ':' secondlz "Z";
-period   = "P" (number "Y")? (number "M")? (number "W")? (number "D")? ("T" (number "H")? (number "M")? (number "S")?)?;
+period   = "-"? "P" (number_s "Y")? (number_s "M")? (number_s "W")? (number_s "D")? ("T" (number_s "H")? (number_s "M")? (number_s "S")?)?;
 combinedrep = "P" year4 "-" monthlzz "-" daylzz "T" hour24lz ':' minutelz ':' secondlz;
 
-recurrences = "R" number;
+recurrences = "R" number_u;
 
 isoweekday       = year4 "-"? "W" weekofyear "-"? [0-7];
 isoweek          = year4 "-"? "W" weekofyear;
@@ -244,6 +245,10 @@ isoweek          = year4 "-"? "W" weekofyear;
 		int         in_time = 0;
 		DEBUG_OUTPUT("period");
 		TIMELIB_INIT;
+		if ( *ptr == '-' ) {
+			s->period->invert = 1;
+			ptr++;
+		}
 		ptr++;
 		do {
 			if ( *ptr == 'T' ) {
