@@ -350,8 +350,8 @@ void timelib_dump_date(timelib_time *d, int options)
 
 void timelib_dump_rel_time(timelib_rel_time *d)
 {
-	printf("%3lldY %3lldM %3lldD / %3lldH %3lldM %3lldS (days: %lld)%s",
-		d->y, d->m, d->d, d->h, d->i, d->s, d->days, d->invert ? " inverted" : "");
+	printf("%3lldY %3lldM %3lldD / %3lldH %3lldM %3lld.%06lldS (days: %lld)%s",
+		d->y, d->m, d->d, d->h, d->i, d->s, d->us, d->days, d->invert ? " inverted" : "");
 	if (d->first_last_day_of != 0) {
 		switch (d->first_last_day_of) {
 			case 1:

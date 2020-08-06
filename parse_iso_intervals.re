@@ -26,6 +26,7 @@
 #include "timelib_private.h"
 
 #include <ctype.h>
+#include <math.h>
 
 #if defined(_MSC_VER)
 # define strtoll(s, f, b) _atoi64(s)
@@ -149,6 +150,31 @@ static timelib_ull timelib_get_unsigned_nr(char **ptr, int max_length)
 	return dir * timelib_get_nr(ptr, max_length);
 }
 
+static timelib_sll timelib_get_frac_nr(char **ptr, int max_length)
+{
+	char *begin, *end, *str;
+	double tmp_nr = TIMELIB_UNSET;
+	int len = 0;
+
+	while ((**ptr != '.') && ((**ptr < '0') || (**ptr > '9'))) {
+		if (**ptr == '\0') {
+			return TIMELIB_UNSET;
+		}
+		++*ptr;
+	}
+	begin = *ptr;
+	while (((**ptr == '.') || ((**ptr >= '0') && (**ptr <= '9'))) && len < max_length) {
+		++*ptr;
+		++len;
+	}
+	end = *ptr;
+	str = timelib_calloc(1, end - begin);
+	memcpy(str, begin + 1, end - begin - 1);
+	tmp_nr = strtod(str, NULL) * pow(10, 7 - (end - begin));
+	timelib_free(str);
+	return tmp_nr;
+}
+
 #define timelib_split_free(arg) {       \
 	int i;                         \
 	for (i = 0; i < arg.c; i++) {  \
@@ -177,6 +203,7 @@ std:
 /* */
 any = [\000-\377];
 number = [0-9]+;
+frac = "." [0-9]+;
 
 hour24lz = [01][0-9] | "2"[0-4];
 minutelz = [0-5][0-9];
@@ -191,8 +218,8 @@ weekofyear = "0"[1-9] | [1-4][0-9] | "5"[0-3];
 space = [ \t]+;
 datetimebasic  = year4 monthlz daylz "T" hour24lz minutelz secondlz "Z";
 datetimeextended  = year4 "-" monthlz "-" daylz "T" hour24lz ':' minutelz ':' secondlz "Z";
-period   = "P" (number "Y")? (number "M")? (number "W")? (number "D")? ("T" (number "H")? (number "M")? (number "S")?)?;
-combinedrep = "P" year4 "-" monthlzz "-" daylzz "T" hour24lz ':' minutelz ':' secondlz;
+period   = "P" (number "Y")? (number "M")? (number "W")? (number "D")? ("T" (number "H")? (number "M")? (number frac? "S")?)?;
+combinedrep = "P" year4 "-" monthlzz "-" daylzz "T" hour24lz ':' minutelz ':' secondlz frac?;
 
 recurrences = "R" number;
 
@@ -256,6 +283,9 @@ isoweek          = year4 "-"? "W" weekofyear;
 			}
 
 			nr = timelib_get_unsigned_nr((char **) &ptr, 12);
+			if (*ptr == '.') {
+				s->period->us = timelib_get_frac_nr((char **) &ptr, 8);
+			}
 			switch (*ptr) {
 				case 'Y': s->period->y = nr; break;
 				case 'W': s->period->d = nr * 7; break;
@@ -295,6 +325,9 @@ isoweek          = year4 "-"? "W" weekofyear;
 		s->period->i = timelib_get_unsigned_nr((char **) &ptr, 2);
 		ptr++;
 		s->period->s = timelib_get_unsigned_nr((char **) &ptr, 2);
+		if (*ptr == '.') {
+			s->period->us = timelib_get_frac_nr((char **) &ptr, 8);
+		}
 		s->have_period = 1;
 		TIMELIB_DEINIT;
 		return TIMELIB_PERIOD;
