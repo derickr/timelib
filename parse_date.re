@@ -2117,7 +2117,10 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				TIMELIB_CHECK_NUMBER;
 				if ((s->time->d = timelib_get_nr(&ptr, 2)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_DAY, "A two digit day could not be found", string, begin);
+					break;
 				}
+
+				s->time->have_date = 1;
 				break;
 			case TIMELIB_FORMAT_DAY_SUFFIX: /* day suffix, ignored, nor checked */
 				timelib_skip_day_suffix(&ptr);
@@ -2126,11 +2129,13 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				TIMELIB_CHECK_NUMBER;
 				if ((tmp = timelib_get_nr(&ptr, 3)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_THREE_DIGIT_DAY_OF_YEAR, "A three digit day-of-year could not be found", string, begin);
-				} else {
-					s->time->m = 1;
-					s->time->d = tmp + 1;
-					timelib_do_normalize(s->time);
+					break;
 				}
+
+				s->time->have_date = 1;
+				s->time->m = 1;
+				s->time->d = tmp + 1;
+				timelib_do_normalize(s->time);
 				break;
 
 			case TIMELIB_FORMAT_MONTH_TWO_DIGIT: /* two digit month, without leading zero */
@@ -2138,16 +2143,20 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				TIMELIB_CHECK_NUMBER;
 				if ((s->time->m = timelib_get_nr(&ptr, 2)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_MONTH, "A two digit month could not be found", string, begin);
+					break;
 				}
+				s->time->have_date = 1;
 				break;
 			case TIMELIB_FORMAT_TEXTUAL_MONTH_3_LETTER: /* three letter month */
 			case TIMELIB_FORMAT_TEXTUAL_MONTH_FULL: /* full month */
 				tmp = timelib_lookup_month(&ptr);
 				if (!tmp) {
 					add_pbf_error(s, TIMELIB_ERR_NO_TEXTUAL_MONTH, "A textual month could not be found", string, begin);
-				} else {
-					s->time->m = tmp;
+					break;
 				}
+
+				s->time->have_date = 1;
+				s->time->m = tmp;
 				break;
 			case TIMELIB_FORMAT_YEAR_TWO_DIGIT: /* two digit year */
 				{
@@ -2155,7 +2164,10 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					TIMELIB_CHECK_NUMBER;
 					if ((s->time->y = timelib_get_nr_ex(&ptr, 2, &length)) == TIMELIB_UNSET) {
 						add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_YEAR, "A two digit year could not be found", string, begin);
+						break;
 					}
+					
+					s->time->have_date = 1;
 					TIMELIB_PROCESS_YEAR(s->time->y, length);
 				}
 				break;
@@ -2163,33 +2175,47 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				TIMELIB_CHECK_NUMBER;
 				if ((s->time->y = timelib_get_nr(&ptr, 4)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_FOUR_DIGIT_YEAR, "A four digit year could not be found", string, begin);
+					break;
 				}
+
+				s->time->have_date = 1;
 				break;
 			case TIMELIB_FORMAT_HOUR_TWO_DIGIT_12_MAX: /* two digit hour, without leading zero */
 			case TIMELIB_FORMAT_HOUR_TWO_DIGIT_12_MAX_PADDED: /* two digit hour, with leading zero */
 				TIMELIB_CHECK_NUMBER;
 				if ((s->time->h = timelib_get_nr(&ptr, 2)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_HOUR, "A two digit hour could not be found", string, begin);
+					break;
 				}
 				if (s->time->h > 12) {
 					add_pbf_error(s, TIMELIB_ERR_HOUR_LARGER_THAN_12, "Hour can not be higher than 12", string, begin);
+					break;
 				}
+
+				s->time->have_time = 1;
 				break;
 			case TIMELIB_FORMAT_HOUR_TWO_DIGIT_24_MAX_PADDED: /* two digit hour, with leading zero */
 			case TIMELIB_FORMAT_HOUR_TWO_DIGIT_24_MAX: /* two digit hour, without leading zero */
 				TIMELIB_CHECK_NUMBER;
 				if ((s->time->h = timelib_get_nr(&ptr, 2)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_HOUR, "A two digit hour could not be found", string, begin);
+					break;
 				}
+
+				s->time->have_time = 1;
 				break;
 			case TIMELIB_FORMAT_MERIDIAN: /* am/pm/a.m./p.m. AM/PM/A.M./P.M. */
 				if (s->time->h == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_MERIDIAN_BEFORE_HOUR, "Meridian can only come after an hour has been found", string, begin);
-				} else if ((tmp = timelib_meridian_with_check(&ptr, s->time->h)) == TIMELIB_UNSET) {
-					add_pbf_error(s, TIMELIB_ERR_NO_MERIDIAN, "A meridian could not be found", string, begin);
-				} else {
-					s->time->h += tmp;
+					break;
 				}
+				if ((tmp = timelib_meridian_with_check(&ptr, s->time->h)) == TIMELIB_UNSET) {
+					add_pbf_error(s, TIMELIB_ERR_NO_MERIDIAN, "A meridian could not be found", string, begin);
+					break;
+				}
+
+				s->time->have_time = 1;
+				s->time->h += tmp;
 				break;
 			case TIMELIB_FORMAT_MINUTE_TWO_DIGIT: /* two digit minute, with leading zero */
 				{
@@ -2200,9 +2226,11 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					min = timelib_get_nr_ex(&ptr, 2, &length);
 					if (min == TIMELIB_UNSET || length != 2) {
 						add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_MINUTE, "A two digit minute could not be found", string, begin);
-					} else {
-						s->time->i = min;
+						break;
 					}
+
+					s->time->have_time = 1;
+					s->time->i = min;
 				}
 				break;
 			case TIMELIB_FORMAT_SECOND_TWO_DIGIT: /* two digit second, with leading zero */
@@ -2214,9 +2242,11 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					sec = timelib_get_nr_ex(&ptr, 2, &length);
 					if (sec == TIMELIB_UNSET || length != 2) {
 						add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_SECOND, "A two digit second could not be found", string, begin);
-					} else {
-						s->time->s = sec;
+						break;
 					}
+
+					s->time->have_time = 1;
+					s->time->s = sec;
 				}
 				break;
 			case TIMELIB_FORMAT_MICROSECOND_SIX_DIGIT: /* up to six digit microsecond */
@@ -2228,9 +2258,10 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					tptr = ptr;
 					if ((f = timelib_get_nr(&ptr, 6)) == TIMELIB_UNSET || (ptr - tptr < 1)) {
 						add_pbf_error(s, TIMELIB_ERR_NO_SIX_DIGIT_MICROSECOND, "A six digit microsecond could not be found", string, begin);
-					} else {
-						s->time->us = (f * pow(10, 6 - (ptr - tptr)));
+						break;
 					}
+
+					s->time->us = (f * pow(10, 6 - (ptr - tptr)));
 				}
 				break;
 			case TIMELIB_FORMAT_MILLISECOND_THREE_DIGIT: /* up to three digit millisecond */
@@ -2242,9 +2273,10 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					tptr = ptr;
 					if ((f = timelib_get_nr(&ptr, 3)) == TIMELIB_UNSET || (ptr - tptr < 1)) {
 						add_pbf_error(s, TIMELIB_ERR_NO_THREE_DIGIT_MILLISECOND, "A three digit millisecond could not be found", string, begin);
-					} else {
-						s->time->us = (f * pow(10, 3 - (ptr - tptr)) * 1000);
+						break;
 					}
+					
+					s->time->us = (f * pow(10, 3 - (ptr - tptr)) * 1000);
 				}
 				break;
 			case TIMELIB_FORMAT_WHITESPACE: /* any sort of whitespace (' ' and \t) */
@@ -2253,6 +2285,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 			case TIMELIB_FORMAT_EPOCH_SECONDS: /* epoch seconds */
 				TIMELIB_CHECK_SIGNED_NUMBER;
 				tmp = timelib_get_unsigned_nr(&ptr, 24);
+				s->time->have_zone = 1;
 				s->time->sse = tmp;
 				s->time->is_localtime = 1;
 				s->time->zone_type = TIMELIB_ZONETYPE_OFFSET;
@@ -2262,19 +2295,21 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				break;
 
 			case TIMELIB_FORMAT_ANY_SEPARATOR: /* separation symbol */
-				if (timelib_lookup_format(*ptr, format_map) == TIMELIB_FORMAT_SEPARATOR) {
-					++ptr;
-				} else {
+				if (timelib_lookup_format(*ptr, format_map) != TIMELIB_FORMAT_SEPARATOR) {
 					add_pbf_error(s, TIMELIB_ERR_NO_SEP_SYMBOL, "The separation symbol ([;:/.,-]) could not be found", string, begin);
+					break;
 				}
+				
+				++ptr;
 				break;
 
 			case TIMELIB_FORMAT_SEPARATOR:
-				if (*ptr == *fptr) {
-					++ptr;
-				} else {
+				if (*ptr != *fptr) {
 					add_pbf_error(s, TIMELIB_ERR_NO_SEP_SYMBOL, "The separation symbol could not be found", string, begin);
+					break;
 				}
+
+				++ptr;
 				break;
 
 			case TIMELIB_FORMAT_RESET_ALL: /* reset all fields to default */
@@ -2290,16 +2325,17 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				break;
 
 			case TIMELIB_FORMAT_ESCAPE: /* escaped char */
-				if(!fptr[1]) {
+				if (!fptr[1]) {
 					add_pbf_error(s, TIMELIB_ERR_EXPECTED_ESCAPE_CHAR, "Escaped character expected", string, begin);
 					break;
 				}
 				fptr++;
-				if (*ptr == *fptr) {
-					++ptr;
-				} else {
+				if (*ptr != *fptr) {
 					add_pbf_error(s, TIMELIB_ERR_NO_ESCAPED_CHAR, "The escaped character could not be found", string, begin);
+					break;
 				}
+
+				++ptr;
 				break;
 
 			case TIMELIB_FORMAT_SKIP_TO_SEPARATOR: /* random chars until a separator or number ([ \t.,:;/-0123456789]) */
@@ -2312,24 +2348,35 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 			case TIMELIB_FORMAT_YEAR_ISO:
 				if ((iso_year = timelib_get_nr(&ptr, 4)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_FOUR_DIGIT_YEAR_ISO, "A four digit ISO year could not be found", string, begin);
+					break;
 				}
+
+				s->time->have_date = 1;
 				break;
 			case TIMELIB_FORMAT_WEEK_OF_YEAR_ISO:
 				if ((iso_week_of_year = timelib_get_nr(&ptr, 2)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_WEEK, "A two digit ISO week could not be found", string, begin);
+					break;
 				}
 				/* Range is 1 - 53  for ISO week of year */
 				if (iso_week_of_year < 1 || iso_week_of_year > 53) {
 					add_pbf_error(s, TIMELIB_ERR_INVALID_WEEK, "ISO Week must be between 1 and 53", string, begin);
+					break;
 				}
+
+				s->time->have_date = 1;
 				break;
 			case TIMELIB_FORMAT_DAY_OF_WEEK_ISO:
 				if ((iso_day_of_week = timelib_get_nr(&ptr, 1)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_DAY_OF_WEEK, "A single digit day of week could not be found", string, begin);
+					break;
 				}
 				if (iso_day_of_week < 1 || iso_day_of_week > 7) {
 					add_pbf_error(s, TIMELIB_ERR_INVALID_DAY_OF_WEEK, "Day of week must be between 1 and 7", string, begin);
+					break;
 				}
+
+				s->time->have_date = 1;
 				break;
 			case TIMELIB_FORMAT_TIMEZONE_OFFSET: /* timezone */
 				{
@@ -2338,14 +2385,20 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					s->time->z = timelib_parse_zone(&ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
 					if (tz_not_found) {
 						add_pbf_error(s, TIMELIB_ERR_TZID_NOT_FOUND, "The timezone could not be found in the database", string, begin);
+						break;
 					}
+
+					s->time->have_zone = 1;
 				}
 				break;
 			case TIMELIB_FORMAT_TIMEZONE_OFFSET_MINUTES: /* timezone format +/-mmm */
 				s->time->z = timelib_parse_tz_minutes(&ptr, s->time);
 				if (s->time->z == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_INVALID_TZ_OFFSET, "Invalid timezone offset in minutes", string, begin);
+					break;
 				}
+
+				s->time->have_zone = 1;
 				break;
 			case TIMELIB_FORMAT_LITERAL:
 			default:
