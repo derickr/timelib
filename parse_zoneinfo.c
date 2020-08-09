@@ -119,9 +119,9 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 	}
 
 	fname_len = strlen(directory) + strlen(TIMELIB_DIR_SEPARATOR) + strlen(timezone) + 1;
-	fname = malloc(fname_len);
+	fname = timelib_malloc(fname_len);
 	if (snprintf(fname, fname_len, "%s%s%s", directory, TIMELIB_DIR_SEPARATOR, timezone) < 0) {
-		free(fname);
+		timelib_free(fname);
 		return NULL;
 	}
 
@@ -131,7 +131,7 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 #else
 	fd = open(fname, O_RDONLY);
 #endif
-	free(fname);
+	timelib_free(fname);
 
 	if (fd == -1) {
 		return NULL;
@@ -142,7 +142,7 @@ static char *read_tzfile(const char *directory, const char *timezone, size_t *le
 
 	*length = st.st_size;
 
-	buffer = calloc(1, *length + 1);
+	buffer = timelib_calloc(1, *length + 1);
 	read_bytes = read(fd, buffer, *length);
 	close(fd);
 
@@ -186,7 +186,7 @@ static int timelib_scandir(const char *directory_name, struct dirent ***namelist
 				entries_size *= 2;
 			}
 
-			new_entries = (struct dirent **) realloc(entries, entries_size * sizeof(struct dirent *));
+			new_entries = (struct dirent **) timelib_realloc(entries, entries_size * sizeof(struct dirent *));
 			if (!new_entries) {
 				return -1;
 			}
@@ -195,7 +195,7 @@ static int timelib_scandir(const char *directory_name, struct dirent ***namelist
 
 		/* Add our new entry to the list */
 		new_entry_size = sizeof(struct dirent) + (strlen(entry->d_name) + 1);
-		new_entry = (struct dirent *) malloc(new_entry_size);
+		new_entry = (struct dirent *) timelib_malloc(new_entry_size);
 
 		if (new_entry == NULL) {
 			goto cleanup;
@@ -216,9 +216,9 @@ static int timelib_scandir(const char *directory_name, struct dirent ***namelist
 
 cleanup:
 	while (entries_count-- > 0) {
-		free(entries[entries_count]);
+		timelib_free(entries[entries_count]);
 	}
-	free(entries);
+	timelib_free(entries);
 	return -1;
 }
 
@@ -235,13 +235,13 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 	/* LIFO stack to hold directory entries to scan; each slot is a
 	 * directory name relative to the zoneinfo prefix. */
 	dirstack_size = 32;
-	dirstack = malloc(dirstack_size * sizeof(*dirstack));
+	dirstack = timelib_malloc(dirstack_size * sizeof(*dirstack));
 	dirstack_top = 1;
-	dirstack[0] = strdup("");
+	dirstack[0] = timelib_strdup("");
 
 	/* Index array. */
 	index_size = 64;
-	db_index = malloc(index_size * sizeof(timelib_tzdb_index_entry));
+	db_index = timelib_malloc(index_size * sizeof(timelib_tzdb_index_entry));
 	index_next = 0;
 
 	do {
@@ -255,8 +255,8 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 
 		count = timelib_scandir(name, &ents, index_filter, timelib_alphasort);
 		if (count == -1) {
-			free(dirstack);
-			free(db_index);
+			timelib_free(dirstack);
+			timelib_free(db_index);
 			return -errno;
 		}
 
@@ -279,43 +279,43 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 				if (S_ISDIR(st.st_mode)) {
 					if (dirstack_top == dirstack_size) {
 						dirstack_size *= 2;
-						dirstack = realloc(dirstack, dirstack_size * sizeof(*dirstack));
+						dirstack = timelib_realloc(dirstack, dirstack_size * sizeof(*dirstack));
 					}
-					dirstack[dirstack_top++] = strdup(name);
+					dirstack[dirstack_top++] = timelib_strdup(name);
 				} else {
 					if (index_next == index_size) {
 						index_size *= 2;
-						db_index = realloc(db_index, index_size * sizeof(timelib_tzdb_index_entry));
+						db_index = timelib_realloc(db_index, index_size * sizeof(timelib_tzdb_index_entry));
 					}
 
-					db_index[index_next].id = strdup(name);
+					db_index[index_next].id = timelib_strdup(name);
 
 					{
 						size_t length;
 						char *tzfile_data = read_tzfile(directory, name, &length);
 
 						if (tzfile_data) {
-							tmp_data = realloc(tmp_data, data_size + length);
+							tmp_data = timelib_realloc(tmp_data, data_size + length);
 							memcpy(tmp_data + data_size, tzfile_data, length);
 							db_index[index_next].pos = data_size;
 							data_size += length;
-							free(tzfile_data);
+							timelib_free(tzfile_data);
 
 							index_next++;
 						} else {
-							free(db_index[index_next].id);
+							timelib_free(db_index[index_next].id);
 						}
 					}
 				}
 			}
 
-			free(ents[--count]);
+			timelib_free(ents[--count]);
 		}
 
 		if (count != -1) {
-			free(ents);
+			timelib_free(ents);
 		}
-		free(top);
+		timelib_free(top);
 	} while (dirstack_top);
 
 	qsort(db_index, index_next, sizeof(*db_index), sysdbcmp);
@@ -324,19 +324,19 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 	db->index_size = index_next;
 	db->data = tmp_data;
 
-	free(dirstack);
+	timelib_free(dirstack);
 
 	return 0;
 }
 
 timelib_tzdb *timelib_zoneinfo(const char *directory)
 {
-	timelib_tzdb *tmp = malloc(sizeof(timelib_tzdb));
+	timelib_tzdb *tmp = timelib_malloc(sizeof(timelib_tzdb));
 
 	tmp->version = "0.system";
 	tmp->data = NULL;
 	if (create_zone_index(directory, tmp) < 0) {
-		free(tmp);
+		timelib_free(tmp);
 		return NULL;
 	}
 	return tmp;
@@ -347,9 +347,9 @@ void timelib_zoneinfo_dtor(timelib_tzdb *tzdb)
 	int i;
 
 	for (i = 0; i < tzdb->index_size; i++) {
-		free(tzdb->index[i].id);
+		timelib_free(tzdb->index[i].id);
 	}
-	free((timelib_tzdb_index_entry*) tzdb->index);
-	free((char*) tzdb->data);
-	free(tzdb);
+	timelib_free((timelib_tzdb_index_entry*) tzdb->index);
+	timelib_free((char*) tzdb->data);
+	timelib_free(tzdb);
 }
