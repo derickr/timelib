@@ -42,6 +42,7 @@ static const timelib_format_specifier default_format_map[] = {
 	{'F', TIMELIB_FORMAT_TEXTUAL_MONTH_FULL},
 	{'e', TIMELIB_FORMAT_TIMEZONE_OFFSET},
 	{'P', TIMELIB_FORMAT_TIMEZONE_OFFSET},
+	{'p', TIMELIB_FORMAT_TIMEZONE_OFFSET},
 	{'T', TIMELIB_FORMAT_TIMEZONE_OFFSET},
 	{'O', TIMELIB_FORMAT_TIMEZONE_OFFSET},
 	{' ', TIMELIB_FORMAT_WHITESPACE},
@@ -174,6 +175,27 @@ TEST(parse_date_from_format, tzOffsetMinutes)
 	LONGS_EQUAL(0, errors->warning_count);
 	LONGS_EQUAL(0, errors->error_count);
 	LONGS_EQUAL(285 * 60, t->z);
+}
+
+TEST(parse_date_from_format, tzOffsetHours)
+{
+	test_parse("2018/01/26 +02:00", "Y/m/d P");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(2 * 60 * 60, t->z);
+
+	test_parse("2018/01/26 +02:00", "Y/m/d p");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(2 * 60 * 60, t->z);
+}
+
+TEST(parse_date_from_format, tzUtc)
+{
+	test_parse("2018/01/26 13:20:00Z", "Y/m/d H:i:sp");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(0, t->z);
 }
 
 TEST(parse_date_from_format, cannotMixISOWithNatural)
