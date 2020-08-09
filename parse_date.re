@@ -990,7 +990,7 @@ clf              = day "/" monthabbr "/" year4 ":" hour24lz ":" minutelz ":" sec
 
 /* Timestamp format: @1126396800 */
 timestamp        = "@" "-"? [0-9]+;
-timestampms      = "@" "-"? [0-9]+ "." [0-9]{6};
+timestampms      = "@" "-"? [0-9]+ "." [0-9]{0,6};
 
 /* To fix some ambiguities */
 dateshortwithtimeshort12  = datenoyear timeshort12;
@@ -1101,6 +1101,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 	timestampms
 	{
 		timelib_ull i, us;
+		const char *ptr_before;
 
 		TIMELIB_INIT;
 		TIMELIB_HAVE_RELATIVE();
@@ -1109,7 +1110,11 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		TIMELIB_HAVE_TZ();
 
 		i = timelib_get_unsigned_nr(&ptr, 24);
-		us = timelib_get_unsigned_nr(&ptr, 24);
+
+		ptr_before = ptr;
+		us = timelib_get_unsigned_nr(&ptr, 6);
+		us = us * pow(10, 7 - (ptr - ptr_before));
+
 		s->time->y = 1970;
 		s->time->m = 1;
 		s->time->d = 1;
