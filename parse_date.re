@@ -486,7 +486,7 @@ static void timelib_skip_day_suffix(const char **ptr)
 	}
 }
 
-static timelib_sll timelib_get_frac_nr(const char **ptr, int max_length)
+static timelib_sll timelib_get_frac_nr(const char **ptr)
 {
 	const char *begin, *end;
 	char *str;
@@ -500,7 +500,7 @@ static timelib_sll timelib_get_frac_nr(const char **ptr, int max_length)
 		++*ptr;
 	}
 	begin = *ptr;
-	while (((**ptr == '.') || (**ptr == ':') || ((**ptr >= '0') && (**ptr <= '9'))) && len < max_length) {
+	while ((**ptr == '.') || (**ptr == ':') || ((**ptr >= '0') && (**ptr <= '9'))) {
 		++*ptr;
 		++len;
 	}
@@ -1221,7 +1221,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr(&ptr, 2);
 
 			if (*ptr == ':' || *ptr == '.') {
-				s->time->us = timelib_get_frac_nr(&ptr, 8);
+				s->time->us = timelib_get_frac_nr(&ptr);
 			}
 		}
 		timelib_eat_spaces(&ptr);
@@ -1242,7 +1242,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr(&ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr(&ptr, 8);
+				s->time->us = timelib_get_frac_nr(&ptr);
 			}
 		}
 
@@ -1525,7 +1525,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		s->time->i = timelib_get_nr(&ptr, 2);
 		s->time->s = timelib_get_nr(&ptr, 2);
 		if (*ptr == '.') {
-			s->time->us = timelib_get_frac_nr(&ptr, 9);
+			s->time->us = timelib_get_frac_nr(&ptr);
 			if (*ptr) { /* timezone is optional */
 				s->time->z = timelib_parse_zone(&ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
 				if (tz_not_found) {
@@ -1766,7 +1766,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr(&ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr(&ptr, 8);
+				s->time->us = timelib_get_frac_nr(&ptr);
 			}
 		}
 
@@ -1791,7 +1791,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr(&ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr(&ptr, 8);
+				s->time->us = timelib_get_frac_nr(&ptr);
 			}
 		}
 

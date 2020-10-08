@@ -475,3 +475,28 @@ TEST(issues, issue0069)
 	timelib_time_dtor(t2);
 	timelib_tzinfo_dtor(tzi);
 }
+
+TEST(issues, issue0093_test1)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	timelib_error_container *error = NULL;
+	char            str[] = "2006-01-02T15:04:05.123456789Z";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), &error, timelib_builtin_db(), timelib_parse_tzfile);
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_update_ts(t, tzi);
+
+	LONGS_EQUAL(0, error->error_count);
+	LONGS_EQUAL(2006, t->y);
+	LONGS_EQUAL(1, t->m);
+	LONGS_EQUAL(2, t->d);
+	LONGS_EQUAL(15, t->h);
+	LONGS_EQUAL(4, t->i);
+	LONGS_EQUAL(5, t->s);
+	LONGS_EQUAL(123456, t->us);
+
+	timelib_time_dtor(t);
+	timelib_tzinfo_dtor(tzi);
+	timelib_error_container_dtor(error);
+}
+
