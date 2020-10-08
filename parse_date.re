@@ -485,7 +485,7 @@ static void timelib_skip_day_suffix(char **ptr)
 	}
 }
 
-static timelib_sll timelib_get_frac_nr(char **ptr, int max_length)
+static timelib_sll timelib_get_frac_nr(char **ptr)
 {
 	char *begin, *end, *str;
 	double tmp_nr = TIMELIB_UNSET;
@@ -498,7 +498,7 @@ static timelib_sll timelib_get_frac_nr(char **ptr, int max_length)
 		++*ptr;
 	}
 	begin = *ptr;
-	while (((**ptr == '.') || (**ptr == ':') || ((**ptr >= '0') && (**ptr <= '9'))) && len < max_length) {
+	while ((**ptr == '.') || (**ptr == ':') || ((**ptr >= '0') && (**ptr <= '9'))) {
 		++*ptr;
 		++len;
 	}
@@ -1211,7 +1211,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == ':' || *ptr == '.') {
-				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr);
 			}
 		}
 		timelib_eat_spaces((char **) &ptr);
@@ -1232,7 +1232,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr);
 			}
 		}
 
@@ -1503,7 +1503,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		s->time->i = timelib_get_nr((char **) &ptr, 2);
 		s->time->s = timelib_get_nr((char **) &ptr, 2);
 		if (*ptr == '.') {
-			s->time->us = timelib_get_frac_nr((char **) &ptr, 9);
+			s->time->us = timelib_get_frac_nr((char **) &ptr);
 			if (*ptr) { /* timezone is optional */
 				s->time->z = timelib_parse_zone((char **) &ptr, &s->time->dst, s->time, &tz_not_found, s->tzdb, tz_get_wrapper);
 				if (tz_not_found) {
@@ -1744,7 +1744,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr);
 			}
 		}
 
@@ -1769,7 +1769,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 			s->time->s = timelib_get_nr((char **) &ptr, 2);
 
 			if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr((char **) &ptr, 8);
+				s->time->us = timelib_get_frac_nr((char **) &ptr);
 			}
 		}
 
