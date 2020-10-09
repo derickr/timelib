@@ -476,6 +476,18 @@ TEST(issues, issue0069)
 	timelib_tzinfo_dtor(tzi);
 }
 
+TEST(issues, issue0092)
+{
+	timelib_error_container *error = NULL;
+	char            str[] = "@7.";
+	timelib_time   *t     = timelib_strtotime(str, sizeof(str), &error, timelib_builtin_db(), timelib_parse_tzfile);
+
+	LONGS_EQUAL(1, error->error_count);
+
+	timelib_time_dtor(t);
+	timelib_error_container_dtor(error);
+}
+
 TEST(issues, issue0093_test1)
 {
 	int             dummy_error;

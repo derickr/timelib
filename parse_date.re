@@ -512,13 +512,14 @@ static timelib_sll timelib_get_frac_nr(const char **ptr)
 	return tmp_nr;
 }
 
-static timelib_ull timelib_get_unsigned_nr(const char **ptr, int max_length)
+static timelib_ull timelib_get_signed_nr(Scanner *s, const char **ptr, int max_length)
 {
 	timelib_ull dir = 1;
 
 	while (((**ptr < '0') || (**ptr > '9')) && (**ptr != '+') && (**ptr != '-')) {
 		if (**ptr == '\0') {
-			return TIMELIB_UNSET;
+			add_error(s, TIMELIB_ERR_UNEXPECTED_DATA, "Found unexpected data");
+			return 0;
 		}
 		++*ptr;
 	}
@@ -1082,7 +1083,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		TIMELIB_UNHAVE_TIME();
 		TIMELIB_HAVE_TZ();
 
-		i = timelib_get_unsigned_nr(&ptr, 24);
+		i = timelib_get_signed_nr(s, &ptr, 24);
 		s->time->y = 1970;
 		s->time->m = 1;
 		s->time->d = 1;
@@ -1109,10 +1110,10 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		TIMELIB_UNHAVE_TIME();
 		TIMELIB_HAVE_TZ();
 
-		i = timelib_get_unsigned_nr(&ptr, 24);
+		i = timelib_get_signed_nr(s, &ptr, 24);
 
 		ptr_before = ptr;
-		us = timelib_get_unsigned_nr(&ptr, 6);
+		us = timelib_get_signed_nr(s, &ptr, 6);
 		us = us * pow(10, 7 - (ptr - ptr_before));
 
 		s->time->y = 1970;
@@ -1343,7 +1344,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		DEBUG_OUTPUT("iso8601date4 | iso8601date2 | iso8601dateslash | dateslash");
 		TIMELIB_INIT;
 		TIMELIB_HAVE_DATE();
-		s->time->y = timelib_get_unsigned_nr(&ptr, 4);
+		s->time->y = timelib_get_signed_nr(s, &ptr, 4);
 		s->time->m = timelib_get_nr(&ptr, 2);
 		s->time->d = timelib_get_nr(&ptr, 2);
 		TIMELIB_DEINIT;
@@ -1369,7 +1370,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		DEBUG_OUTPUT("iso8601datex");
 		TIMELIB_INIT;
 		TIMELIB_HAVE_DATE();
-		s->time->y = timelib_get_unsigned_nr(&ptr, 19);
+		s->time->y = timelib_get_signed_nr(s, &ptr, 19);
 		s->time->m = timelib_get_nr(&ptr, 2);
 		s->time->d = timelib_get_nr(&ptr, 2);
 		TIMELIB_DEINIT;
@@ -1813,7 +1814,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		TIMELIB_HAVE_RELATIVE();
 
 		while(*ptr) {
-			i = timelib_get_unsigned_nr(&ptr, 24);
+			i = timelib_get_signed_nr(s, &ptr, 24);
 			timelib_eat_spaces(&ptr);
 			timelib_set_relative(&ptr, i, 1, s);
 		}
@@ -2290,7 +2291,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				break;
 			case TIMELIB_FORMAT_EPOCH_SECONDS: /* epoch seconds */
 				TIMELIB_CHECK_SIGNED_NUMBER;
-				tmp = timelib_get_unsigned_nr(&ptr, 24);
+				tmp = timelib_get_signed_nr(s, &ptr, 24);
 				s->time->have_zone = 1;
 				s->time->sse = tmp;
 				s->time->is_localtime = 1;
