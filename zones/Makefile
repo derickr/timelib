@@ -1,8 +1,8 @@
 all: index
 
 download:
-	-@rm -f tzdata20[12]*tar.gz
-	-@rm -f tzcode20[12]*tar.gz
+	-@rm -f tzdata20*tar.gz
+	-@rm -f tzcode20*tar.gz
 	@echo "Downloading latest Olson TZDB release..."
 	$(eval VERSION := $(shell curl -s -o - https://www.iana.org/time-zones | grep \"version\" | sed 's/.*version">//' | sed 's/<\/span.*//'))
 	curl -s -o tzdata$(VERSION).tar.gz https://data.iana.org/time-zones/releases/tzdata$(VERSION).tar.gz
@@ -74,9 +74,9 @@ release-docs: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	pecl upgrade -f timezonedb.tgz
-	cd ~/dev/php/phpdoc/en/reference/datetime/; svn up
-	cd ~/dev/php/phpdoc/en/reference/datetime/; php -dextension=timezonedb.so ../../../doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
-	cd ~/dev/php/phpdoc/en/reference/datetime/; svn commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezones.xml
+	cd ~/dev/php/php-doc-en; git pull
+	cd ~/dev/php/php-doc-en/reference/datetime/; php -dextension=timezonedb.so ../../../php-doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
+	cd ~/dev/php/php-doc-en/reference/datetime/; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezones.xml && git push
 
 release-php-clean:
 	-rm -rf /tmp/tz-tmp
