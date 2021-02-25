@@ -20,7 +20,7 @@ AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 	tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo
 C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour.cpp \
 	tests/c/timelib_juliandate.cpp tests/c/issues.cpp tests/c/astro_rise_set_altitude.cpp \
-	tests/c/parse_date_from_format_test.cpp
+	tests/c/parse_date_from_format_test.cpp tests/c/warn_on_slim.cpp
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
 EXAMPLE_BINARIES=docs/date-from-iso-parts docs/date-from-parts docs/date-from-string \
