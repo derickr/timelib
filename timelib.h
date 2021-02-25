@@ -754,7 +754,7 @@ const timelib_tzdb_index_entry *timelib_timezone_identifiers_list(const timelib_
  * Unlike 'timelib_builtin_db', the return value of this function must be freed
  * with the 'timelib_zoneinfo_dtor' function.
  */
-timelib_tzdb *timelib_zoneinfo(char *directory);
+timelib_tzdb *timelib_zoneinfo(const char *directory);
 
 /**
  * Frees up the resources as created through 'timelib_zoneinfo'.

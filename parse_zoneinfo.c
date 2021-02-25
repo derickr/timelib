@@ -329,7 +329,7 @@ static int create_zone_index(const char *directory, timelib_tzdb *db)
 	return 0;
 }
 
-timelib_tzdb *timelib_zoneinfo(char *directory)
+timelib_tzdb *timelib_zoneinfo(const char *directory)
 {
 	timelib_tzdb *tmp = malloc(sizeof(timelib_tzdb));
 
