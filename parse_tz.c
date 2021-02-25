@@ -242,7 +242,7 @@ static int read_64bit_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	memcpy(buffer, *tzf, sizeof(unsigned char) * 6 * tz->bit64.typecnt);
 	*tzf += sizeof(unsigned char) * 6 * tz->bit64.typecnt;
 
-	tz->type = (ttinfo*) timelib_malloc(tz->bit64.typecnt * sizeof(ttinfo));
+	tz->type = (ttinfo*) timelib_calloc(1, tz->bit64.typecnt * sizeof(ttinfo));
 	if (!tz->type) {
 		timelib_free(buffer);
 		return TIMELIB_ERROR_CANNOT_ALLOCATE;
