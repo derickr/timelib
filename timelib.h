@@ -341,6 +341,7 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_CORRUPT_NO_ABBREVIATION             0x04
 #define TIMELIB_ERROR_UNSUPPORTED_VERSION                 0x05
 #define TIMELIB_ERROR_NO_SUCH_TIMEZONE                    0x06
+#define TIMELIB_ERROR_SLIM_FILE                           0x07
 
 #ifdef __cplusplus
 extern "C" {
@@ -669,14 +670,26 @@ int timelib_timezone_id_is_valid(const char *timezone, const timelib_tzdb *tzdb)
 
 /**
  * Converts the binary stored time zone information from 'tzdb' for the time
- * zone 'timeozne' into a structure the library can use for calculations.
+ * zone 'timezone' into a structure the library can use for calculations.
  *
  * The function can be used on both timelib_builtin_db as well as a time zone
  * db as opened by timelib_zoneinfo.
+ *
+ * 'error_code' must not be a null pointer, and will always be written to. If
+ * the value is TIMELIB_ERROR_NO_ERROR then the file was parsed without
+ * problems.
+ *
  * The function will return null upon failure, and also set an error code
- * through 'error_code'. 'error_code' must not be a null pointer. The error
- * code is one of the TIMELIB_ERROR_* constants as listed above. These error
- * constants can be converted into a string by timelib_get_error_message.
+ * through 'error_code'.
+ *
+ * The error code is one of the TIMELIB_ERROR_* constants as listed above.
+ * These error constants can be converted into a string by
+ * timelib_get_error_message.
+ *
+ * If the function returns not-null, the 'error_code' might have a non-null
+ * value that can be used to detect incompatibilities. The only one that is
+ * currently detected is whether the file is a 'slim' file, in which case
+ * 'error_code' will be set to TIMELIB_ERROR_SLIM_FILE.
  *
  * This function allocates memory for the new time zone structure, which must
  * be freed after use. Although it is recommended that a cache of each used
