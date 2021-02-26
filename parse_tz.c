@@ -349,16 +349,23 @@ static void skip_32bit_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	}
 }
 
-static void skip_posix_string(const unsigned char **tzf, timelib_tzinfo *tz)
+static void read_posix_string(const unsigned char **tzf, timelib_tzinfo *tz)
 {
-	int n_count = 0;
+	const unsigned char *begin;
 
-	do {
-		if (*tzf[0] == '\n') {
-			n_count++;
-		}
+	// POSIX string is delimited by \n
+	(*tzf)++;
+	begin = *tzf;
+
+	while (*tzf[0] != '\n') {
 		(*tzf)++;
-	} while (n_count < 2);
+	}
+
+	tz->posix_string = timelib_calloc(1, *tzf - begin + 1);
+	memcpy(tz->posix_string, begin, *tzf - begin);
+
+	// skip over closing \n
+	(*tzf)++;
 }
 
 static void read_location(const unsigned char **tzf, timelib_tzinfo *tz)
@@ -398,6 +405,7 @@ void timelib_dump_tzinfo(timelib_tzinfo *tz)
 	printf("Comments:\n%s\n",          tz->location.comments);
 	printf("BC:                %s\n",  tz->bc ? "" : "yes");
 	printf("Slim File:         %s\n",  detect_slim_file(tz) ? "yes" : "no");
+	printf("POSIX string:      %s\n",  tz->posix_string);
 
 	printf("\n64-bit:\n");
 	printf("UTC/Local count:   " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->bit64.ttisgmtcnt);
@@ -561,7 +569,7 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 			timelib_tzinfo_dtor(tmp);
 			return NULL;
 		}
-		skip_posix_string(&tzf, tmp);
+		read_posix_string(&tzf, tmp);
 
 		if (type == TIMELIB_TZINFO_PHP) {
 			read_location(&tzf, tmp);
@@ -585,6 +593,7 @@ void timelib_tzinfo_dtor(timelib_tzinfo *tz)
 	TIMELIB_TIME_FREE(tz->timezone_abbr);
 	TIMELIB_TIME_FREE(tz->leap_times);
 	TIMELIB_TIME_FREE(tz->location.comments);
+	TIMELIB_TIME_FREE(tz->posix_string);
 	TIMELIB_TIME_FREE(tz);
 	tz = NULL;
 }
@@ -621,6 +630,10 @@ timelib_tzinfo *timelib_tzinfo_clone(timelib_tzinfo *tz)
 	if (tz->bit64.leapcnt) {
 		tmp->leap_times = (tlinfo*) timelib_malloc(tz->bit64.leapcnt * sizeof(tlinfo));
 		memcpy(tmp->leap_times, tz->leap_times, tz->bit64.leapcnt * sizeof(tlinfo));
+	}
+
+	if (tz->posix_string) {
+		tmp->posix_string = timelib_strdup(tz->posix_string);
 	}
 
 	return tmp;

@@ -202,6 +202,8 @@ typedef struct _timelib_tzinfo
 	tlinfo  *leap_times;
 	unsigned char bc;
 	tlocinfo location;
+
+	char    *posix_string;
 } timelib_tzinfo;
 
 typedef struct _timelib_rel_time {
