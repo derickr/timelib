@@ -182,3 +182,19 @@ PARSE_TEST_STD_DST(full_3,
 	TYPE_MWD, -1, 10, 1, 0, 7200,
 	TYPE_MWD, -1,  4, 1, 0, 7200
 )
+
+// Asia/Tehran
+PARSE_TEST_STD_DST(full_4,
+	"<+0330>-3:30<+0430>,J79/24,J263/24",
+	"+0330", "+0430", +12600, +16200,
+	TYPE_JD,  79, -1, -1, -1, 86400,
+	TYPE_JD, 263, -1, -1, -1, 86400
+)
+
+// Asia/Tehran variant without J (not actually in use)
+PARSE_TEST_STD_DST(full_5,
+	"<+0330>-3:30<+0430>,79/24,263/24",
+	"+0330", "+0430", +12600, +16200,
+	TYPE_D,  79, -1, -1, -1, 86400,
+	TYPE_D, 263, -1, -1, -1, 86400
+)
