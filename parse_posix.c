@@ -63,7 +63,7 @@ static char *read_description_abbr(char **ptr)
 	const char *begin = *ptr;
 
 	// Find the end
-	while (**ptr >= 'A' && **ptr <= 'Z') {
+	while ((**ptr >= 'A' && **ptr <= 'Z') || (**ptr >= 'a' && **ptr <= 'z')) {
 		(*ptr)++;
 	}
 
