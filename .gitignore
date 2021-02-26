@@ -7,6 +7,7 @@ parse_date.o
 parse_date.c
 parse_iso_intervals.o
 parse_iso_intervals.c
+parse_posix.o
 parse_tz.o
 parse_zoneinfo.o
 svn-commit.tmp

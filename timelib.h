@@ -144,6 +144,14 @@ typedef struct _tlocinfo
 	char *comments;
 } tlocinfo;
 
+typedef struct _timelib_posix_str
+{
+	char        *std;
+	timelib_sll  std_offset;
+	char        *dst;
+	timelib_sll  dst_offset;
+} timelib_posix_str;
+
 typedef struct _timelib_tzinfo
 {
 	char    *name;
@@ -319,6 +327,7 @@ typedef struct _timelib_tzdb {
 # define timelib_realloc realloc
 # define timelib_calloc  calloc
 # define timelib_strdup  strdup
+# define timelib_strndup strndup
 # define timelib_free    free
 #endif
 
@@ -972,6 +981,12 @@ timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
  * workday".
  */
 timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
+
+/* from parse_posix.c */
+
+void timelib_posix_str_dtor(timelib_posix_str *ps);
+
+timelib_posix_str* timelib_parse_posix_str(const char *posix);
 
 #ifdef __cplusplus
 } /* extern "C" */
