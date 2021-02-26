@@ -25,8 +25,12 @@
 #include "timelib.h"
 #include "timelib_private.h"
 
+/* Forwards declrations */
+static timelib_posix_trans_info *timelib_posix_trans_info_ctor(void);
+static void timelib_posix_trans_info_dtor(timelib_posix_trans_info* ts);
+
 /* "<" [+-]? .+? ">" */
-char *read_description_numeric_abbr(char **ptr)
+static char *read_description_numeric_abbr(char **ptr)
 {
 	const char *begin = *ptr + 1;
 
@@ -54,7 +58,7 @@ char *read_description_numeric_abbr(char **ptr)
 }
 
 /* [A-Z]+ */
-char *read_description_abbr(char **ptr)
+static char *read_description_abbr(char **ptr)
 {
 	const char *begin = *ptr;
 
@@ -72,7 +76,7 @@ char *read_description_abbr(char **ptr)
 }
 
 /* "<" [+-]? .+? ">" | [A-Z]+ */
-char *read_description(char **ptr)
+static char *read_description(char **ptr)
 {
 	if (**ptr == '<') {
 		return read_description_numeric_abbr(ptr);
@@ -82,7 +86,7 @@ char *read_description(char **ptr)
 }
 
 /* [+-]? */
-int read_sign(char **ptr)
+static int read_sign(char **ptr)
 {
 	int bias = 1;
 
@@ -97,7 +101,7 @@ int read_sign(char **ptr)
 }
 
 /* [0-9]+ */
-timelib_sll read_number(char **ptr)
+static timelib_sll read_number(char **ptr)
 {
 	const char *begin = *ptr;
 	int acc = 0;
@@ -121,7 +125,7 @@ timelib_sll read_number(char **ptr)
 }
 
 /* [+-]? [0-9]+ ( ":" [0-9]+ ( ":" [0-9]+ )? )? */
-timelib_sll read_offset(char **ptr)
+static timelib_sll read_offset(char **ptr)
 {
 	const char *begin;
 	int bias = read_sign(ptr);
@@ -164,10 +168,122 @@ timelib_sll read_offset(char **ptr)
 	return -1 * bias * (hours * 3600 + minutes * 60 + seconds);
 }
 
+
+// Mw.m.d
+static timelib_posix_trans_info* read_trans_spec_mwd(char **ptr)
+{
+	timelib_posix_trans_info *tmp = timelib_posix_trans_info_ctor();
+
+	tmp->type = TIMELIB_POSIX_TRANS_TYPE_MWD;
+
+	// Skip 'M'
+	(*ptr)++;
+
+	tmp->mwd.month = read_number(ptr);
+	if (tmp->mwd.month == TIMELIB_UNSET) {
+		goto fail;
+	}
+
+	// check for '.' and skip it
+	if (**ptr != '.') {
+		goto fail;
+	}
+	(*ptr)++;
+
+	tmp->mwd.week = read_number(ptr);
+	if (tmp->mwd.week == TIMELIB_UNSET) {
+		goto fail;
+	}
+
+	// check for '.' and skip it
+	if (**ptr != '.') {
+		goto fail;
+	}
+	(*ptr)++;
+
+	tmp->mwd.dow = read_number(ptr);
+	if (tmp->mwd.dow == TIMELIB_UNSET) {
+		goto fail;
+	}
+
+	return tmp;
+
+fail:
+	timelib_posix_trans_info_dtor(tmp);
+	return NULL;
+}
+
+// (Jn | n | Mw.m.d) ( /time )?
+static timelib_posix_trans_info* read_transition_spec(char **ptr)
+{
+	timelib_posix_trans_info *tmp;
+
+	if (**ptr == 'M') {
+		tmp = read_trans_spec_mwd(ptr);
+		if (!tmp) {
+			return NULL;
+		}
+	} else {
+		tmp = timelib_posix_trans_info_ctor();
+
+		if (**ptr == 'J') {
+			tmp->type = TIMELIB_POSIX_TRANS_TYPE_JULIAN_NO_FEB29;
+			(*ptr)++;
+		}
+
+		tmp->days = read_number(ptr);
+		if (tmp->days == TIMELIB_UNSET) {
+			goto fail;
+		}
+	}
+
+	// Check for the optional hour
+	if (**ptr == '/') {
+		(*ptr)++;
+		tmp->hour = read_offset(ptr);
+		if (tmp->hour == TIMELIB_UNSET) {
+			goto fail;
+		}
+		// as the bias for normal offsets = -1, we need to reverse it here
+		tmp->hour = -tmp->hour;
+	}
+
+	return tmp;
+
+fail:
+	timelib_posix_trans_info_dtor(tmp);
+	return NULL;
+}
+
+static timelib_posix_trans_info* timelib_posix_trans_info_ctor(void)
+{
+	timelib_posix_trans_info *tmp;
+
+	tmp = timelib_calloc(1, sizeof(timelib_posix_trans_info));
+	tmp->type = TIMELIB_POSIX_TRANS_TYPE_JULIAN_FEB29;
+	tmp->hour = 2 * 3600;
+
+	return tmp;
+}
+
+static void timelib_posix_trans_info_dtor(timelib_posix_trans_info* ts)
+{
+	timelib_free(ts);
+}
+
 void timelib_posix_str_dtor(timelib_posix_str *ps)
 {
 	if (ps->std) {
 		timelib_free(ps->std);
+	}
+	if (ps->dst) {
+		timelib_free(ps->dst);
+	}
+	if (ps->dst_begin) {
+		timelib_posix_trans_info_dtor(ps->dst_begin);
+	}
+	if (ps->dst_end) {
+		timelib_posix_trans_info_dtor(ps->dst_end);
 	}
 
 	timelib_free(ps);
@@ -188,6 +304,63 @@ timelib_posix_str* timelib_parse_posix_str(const char *posix)
 	// read required offset
 	tmp->std_offset = read_offset(&ptr);
 	if (tmp->std_offset == TIMELIB_UNSET) {
+		timelib_posix_str_dtor(tmp);
+		return NULL;
+	}
+
+	// if we're at the end return, otherwise we'll continue to try to parse
+	// the dst abbreviation and spec
+	if (*ptr == '\0') {
+		return tmp;
+	}
+
+	// assume dst is there, and initialise offset
+	tmp->dst_offset = tmp->std_offset + 3600;
+
+	tmp->dst = read_description(&ptr);
+	if (!tmp->dst) {
+		timelib_posix_str_dtor(tmp);
+		return NULL;
+	}
+
+	// if we have a "," here, then the dst offset is the standard offset +
+	// 3600 seconds, otherwise, try to parse the dst offset
+	if (*ptr != ',' && *ptr != '\0') {
+		tmp->dst_offset = read_offset(&ptr);
+		if (tmp->dst_offset == TIMELIB_UNSET) {
+			timelib_posix_str_dtor(tmp);
+			return NULL;
+		}
+	}
+
+	// if we *don't* have a "," here, we're missing the dst transitions
+	// ,start[/time],end[/time]
+	if (*ptr != ',') {
+		timelib_posix_str_dtor(tmp);
+		return NULL;
+	}
+
+	ptr++; // skip ','
+
+	// start[/time]
+	tmp->dst_begin = read_transition_spec(&ptr);
+	if (!tmp->dst_begin) {
+		timelib_posix_str_dtor(tmp);
+		return NULL;
+	}
+
+	// if we *don't* have a "," here, we're missing the dst end transition
+	// ,end[/time]
+	if (*ptr != ',') {
+		timelib_posix_str_dtor(tmp);
+		return NULL;
+	}
+
+	ptr++; // skip ','
+
+	// end[/time]
+	tmp->dst_end = read_transition_spec(&ptr);
+	if (!tmp->dst_end) {
 		timelib_posix_str_dtor(tmp);
 		return NULL;
 	}

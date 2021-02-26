@@ -144,12 +144,33 @@ typedef struct _tlocinfo
 	char *comments;
 } tlocinfo;
 
+#define TIMELIB_POSIX_TRANS_TYPE_JULIAN_NO_FEB29   1
+#define TIMELIB_POSIX_TRANS_TYPE_JULIAN_FEB29      2
+#define TIMELIB_POSIX_TRANS_TYPE_MWD               3
+
+typedef struct _timelib_posix_trans_info
+{
+	int type; // 1=Jn, 2=n, 3=Mm.w.d
+	union {
+		int days;
+		struct {
+			int month;
+			int week;
+			int dow;
+		} mwd;
+	};
+	int hour;
+} timelib_posix_trans_info;
+
 typedef struct _timelib_posix_str
 {
 	char        *std;
 	timelib_sll  std_offset;
 	char        *dst;
 	timelib_sll  dst_offset;
+
+	timelib_posix_trans_info *dst_begin;
+	timelib_posix_trans_info *dst_end;
 } timelib_posix_str;
 
 typedef struct _timelib_tzinfo
