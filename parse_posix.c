@@ -30,7 +30,7 @@ char *read_description_numeric_abbr(char **ptr)
 {
 	const char *begin = *ptr + 1;
 
-	/* skip '<' */
+	// skip '<'
 	(*ptr)++;
 
 	while (**ptr != '\0' && **ptr != '>') {
@@ -96,6 +96,30 @@ int read_sign(char **ptr)
 	return bias;
 }
 
+/* [0-9]+ */
+timelib_sll read_number(char **ptr)
+{
+	const char *begin = *ptr;
+	int acc = 0;
+
+	// skip leading 0's
+	while (**ptr == '0') {
+		(*ptr)++;
+	}
+
+	while (**ptr >= '0' && **ptr <= '9') {
+		acc = acc * 10;
+		acc += (**ptr) - '0';
+		(*ptr)++;
+	}
+
+	if (begin == *ptr) {
+		return TIMELIB_UNSET;
+	}
+
+	return acc;
+}
+
 /* [+-]? [0-9]+ ( ":" [0-9]+ ( ":" [0-9]+ )? )? */
 timelib_sll read_offset(char **ptr)
 {
@@ -107,16 +131,28 @@ timelib_sll read_offset(char **ptr)
 
 	begin = *ptr;
 
-	// skip leading 0's
-	while (**ptr == '0') {
-		(*ptr)++;
+	// read through to : or non-digit for hours
+	hours = read_number(ptr);
+	if (hours == TIMELIB_UNSET) {
+		return hours;
 	}
 
-	// read through to : or non-digit for hours
-	while (**ptr >= '0' && **ptr <= '9') {
-		hours = hours * 10;
-		hours += (**ptr) - '0';
-		(*ptr)++;
+	// check for optional minutes
+	if (**ptr == ':') {
+		(*ptr)++; // skip ':'
+		minutes = read_number(ptr);
+		if (minutes == TIMELIB_UNSET) {
+			return minutes;
+		}
+	}
+
+	// check for optional seconds
+	if (**ptr == ':') {
+		(*ptr)++; // skip ':'
+		seconds = read_number(ptr);
+		if (seconds == TIMELIB_UNSET) {
+			return seconds;
+		}
 	}
 
 	if (begin == *ptr) {
@@ -142,16 +178,22 @@ timelib_posix_str* timelib_parse_posix_str(const char *posix)
 	timelib_posix_str *tmp = timelib_calloc(1, sizeof(timelib_posix_str));
 	char *ptr = (char*) posix;
 
-	/* read standard description (ie. EST or <-03>) */
+	// read standard description (ie. EST or <-03>)
 	tmp->std = read_description(&ptr);
 	if (!tmp->std) {
 		timelib_posix_str_dtor(tmp);
 		return NULL;
 	}
 
-	/* read required offset */
+	// read required offset
 	tmp->std_offset = read_offset(&ptr);
 	if (tmp->std_offset == TIMELIB_UNSET) {
+		timelib_posix_str_dtor(tmp);
+		return NULL;
+	}
+
+	// make sure there is no trailing data
+	if (*ptr != '\0') {
 		timelib_posix_str_dtor(tmp);
 		return NULL;
 	}
