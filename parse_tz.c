@@ -628,7 +628,7 @@ timelib_tzinfo *timelib_tzinfo_clone(timelib_tzinfo *tz)
 
 static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib_sll *transition_time)
 {
-	uint32_t i;
+	uint32_t left, right;
 
 	/* If there is no transition time, we pick the first one, if that doesn't
 	 * exist we return NULL */
@@ -649,16 +649,28 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 		return &(tz->type[0]);
 	}
 
+	/* If the TS is greater than the last transition time, we pick the last one */
+	if (ts >= tz->trans[tz->bit64.timecnt - 1]) {
+		*transition_time = tz->trans[tz->bit64.timecnt - 1];
+		return &(tz->type[tz->trans_idx[tz->bit64.timecnt - 1]]);
+	}
+
 	/* In all other cases we loop through the available transition times to find
 	 * the correct entry */
-	for (i = 0; i < tz->bit64.timecnt; i++) {
-		if (ts < tz->trans[i]) {
-			*transition_time = tz->trans[i - 1];
-			return &(tz->type[tz->trans_idx[i - 1]]);
+	left = 0;
+	right = tz->bit64.timecnt - 1;
+
+	while (right - left > 1) {
+		uint32_t mid = (left + right) >> 1;
+
+		if (ts < tz->trans[mid]) {
+			right = mid;
+		} else {
+			left = mid;
 		}
 	}
-	*transition_time = tz->trans[tz->bit64.timecnt - 1];
-	return &(tz->type[tz->trans_idx[tz->bit64.timecnt - 1]]);
+	*transition_time = tz->trans[left];
+	return &(tz->type[tz->trans_idx[left]]);
 }
 
 static tlinfo* fetch_leaptime_offset(timelib_tzinfo *tz, timelib_sll ts)
