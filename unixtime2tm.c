@@ -25,76 +25,146 @@
 #include "timelib.h"
 #include "timelib_private.h"
 
-static int month_tab_leap[12] = { -1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+static int month_tab_leap[12] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
 static int month_tab[12] =      { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
 
 /* Converts a Unix timestamp value into broken down time, in GMT */
 void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
 {
-	timelib_sll days, remainder, tmp_days;
-	timelib_sll cur_year = 1970;
+	timelib_sll days, remainder, year;
 	timelib_sll i;
 	timelib_sll hours, minutes, seconds;
 	int *months;
 
 	days = ts / SECS_PER_DAY;
 	remainder = ts - (days * SECS_PER_DAY);
-	if (ts < 0 && remainder == 0) {
-		days++;
-		remainder -= SECS_PER_DAY;
+	if (remainder < 0) {
+		days--;
+		remainder += SECS_PER_DAY;
 	}
 	TIMELIB_DEBUG(printf("days=%lld, rem=%lld\n", days, remainder););
 
-	if (ts >= 0) {
-		tmp_days = days + 1;
-	} else {
-		tmp_days = days;
-	}
-
-	if (tmp_days > DAYS_PER_LYEAR_PERIOD || tmp_days <= -DAYS_PER_LYEAR_PERIOD) {
-		cur_year += YEARS_PER_LYEAR_PERIOD * (tmp_days / DAYS_PER_LYEAR_PERIOD);
-		tmp_days -= DAYS_PER_LYEAR_PERIOD * (tmp_days / DAYS_PER_LYEAR_PERIOD);
-	}
-	TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
-
-	if (ts >= 0) {
-		while (tmp_days >= DAYS_PER_LYEAR) {
-			cur_year++;
-			if (timelib_is_leap(cur_year)) {
-				tmp_days -= DAYS_PER_LYEAR;
-			} else {
-				tmp_days -= DAYS_PER_YEAR;
+	if (days >= INT32_MIN && days <= INT32_MAX) {
+		/* Use 32-bit types and math instructions (32-bit division is faster) */
+		int32_t tmp_days = days;
+		int32_t guess_year, cur_year = 1970;
+		int32_t guess_leap_days, leap_days;
+		
+		if (days >= 0) {
+			while (tmp_days >= (timelib_is_leap(cur_year) ? DAYS_PER_LYEAR : DAYS_PER_YEAR)) {
+				guess_year = cur_year + tmp_days / DAYS_PER_YEAR;
+				guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+				leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+				tmp_days -=
+					(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+				cur_year = guess_year;
+				while (tmp_days < 0) {
+					guess_year = cur_year + tmp_days / DAYS_PER_YEAR - 1;
+					guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+					leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+					tmp_days -=
+						(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+					cur_year = guess_year;
+				}
 			}
-			TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
-		}
-	} else {
-		while (tmp_days <= 0) {
-			cur_year--;
-			if (timelib_is_leap(cur_year)) {
-				tmp_days += DAYS_PER_LYEAR;
-			} else {
-				tmp_days += DAYS_PER_YEAR;
+		} else {
+			while (tmp_days < 0) {
+				guess_year = cur_year + tmp_days / DAYS_PER_YEAR - 1;
+				guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+				leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+				if (guess_year <= 0 && !timelib_is_leap(guess_year - 1)) {
+					guess_leap_days--;
+				}
+				if (cur_year <= 0 && !timelib_is_leap(cur_year - 1)) {
+					leap_days--;
+				}
+				tmp_days -=
+					(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+				cur_year = guess_year;
+				while (tmp_days >= (timelib_is_leap(cur_year) ? DAYS_PER_LYEAR : DAYS_PER_YEAR)) {
+					guess_year = cur_year + tmp_days / DAYS_PER_YEAR;
+					guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+					leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+					if (guess_year <= 0 && !timelib_is_leap(guess_year - 1)) {
+						guess_leap_days--;
+					}
+					if (cur_year <= 0 && !timelib_is_leap(cur_year - 1)) {
+						leap_days--;
+					}
+					tmp_days -=
+						(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+					cur_year = guess_year;
+				}
 			}
-			TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
 		}
-		remainder += SECS_PER_DAY;
-	}
-	TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
+		days = tmp_days;
+		year = cur_year;
+	} else {
+		timelib_sll tmp_days = days;
+		timelib_sll guess_year, cur_year = 1970;
+		timelib_sll guess_leap_days, leap_days;
 
-	months = timelib_is_leap(cur_year) ? month_tab_leap : month_tab;
-	if (timelib_is_leap(cur_year) && cur_year < 1970) {
-		tmp_days--;
+		if (days >= 0) {
+			while (tmp_days >= (timelib_is_leap(cur_year) ? DAYS_PER_LYEAR : DAYS_PER_YEAR)) {
+				guess_year = cur_year + tmp_days / DAYS_PER_YEAR;
+				guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+				leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+				tmp_days -=
+					(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+				cur_year = guess_year;
+				while (tmp_days < 0) {
+					guess_year = cur_year + tmp_days / DAYS_PER_YEAR - 1;
+					guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+					leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+					tmp_days -=
+						(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+					cur_year = guess_year;
+				}
+			}
+		} else {
+			while (tmp_days < 0) {
+				guess_year = cur_year + tmp_days / DAYS_PER_YEAR - 1;
+				guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+				leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+				if (guess_year <= 0 && !timelib_is_leap(guess_year - 1)) {
+					guess_leap_days--;
+				}
+				if (cur_year <= 0 && !timelib_is_leap(cur_year - 1)) {
+					leap_days--;
+				}
+				tmp_days -=
+					(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+				cur_year = guess_year;
+				while (tmp_days >= (timelib_is_leap(cur_year) ? DAYS_PER_LYEAR : DAYS_PER_YEAR)) {
+					guess_year = cur_year + tmp_days / DAYS_PER_YEAR;
+					guess_leap_days = (guess_year - 1) / 4 - (guess_year - 1) / 100 + (guess_year - 1) / 400;
+					leap_days = (cur_year - 1) / 4 - (cur_year - 1) / 100 + (cur_year - 1) / 400;
+					if (guess_year <= 0 && !timelib_is_leap(guess_year - 1)) {
+						guess_leap_days--;
+					}
+					if (cur_year <= 0 && !timelib_is_leap(cur_year - 1)) {
+						leap_days--;
+					}
+					tmp_days -=
+						(guess_year - cur_year) * DAYS_PER_YEAR + guess_leap_days - leap_days;
+					cur_year = guess_year;
+				}
+			}
+		}
+		days = tmp_days;
+		year = cur_year;
 	}
+	
+	TIMELIB_DEBUG(printf("days=%lld, year=%lld\n", days, year););
+
+	months = timelib_is_leap(year) ? month_tab_leap : month_tab;
 	i = 11;
-	while (i > 0) {
+	while (days < months[i]) {
 		TIMELIB_DEBUG(printf("month=%lld (%d)\n", i, months[i]););
-		if (tmp_days > months[i]) {
-			break;
-		}
 		i--;
 	}
-	TIMELIB_DEBUG(printf("A: ts=%lld, year=%lld, month=%lld, day=%lld,", ts, cur_year, i + 1, tmp_days - months[i]););
+	TIMELIB_DEBUG(printf("A: ts=%lld, year=%lld, month=%lld, day=%lld,", ts, year, i + 1, days - months[i] + 1););
 
 	/* That was the date, now we do the time */
 	hours = remainder / 3600;
@@ -102,9 +172,9 @@ void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
 	seconds = remainder % 60;
 	TIMELIB_DEBUG(printf(" hour=%lld, minute=%lld, second=%lld\n", hours, minutes, seconds););
 
-	tm->y = cur_year;
+	tm->y = year;
 	tm->m = i + 1;
-	tm->d = tmp_days - months[i];
+	tm->d = days - months[i] + 1;
 	tm->h = hours;
 	tm->i = minutes;
 	tm->s = seconds;
