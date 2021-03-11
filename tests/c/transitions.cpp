@@ -63,3 +63,20 @@ TEST_TRANSITION(ams_10, "Europe/Amsterdam",   846378001, "CET",   3600)
 TEST_TRANSITION(ams_11, "Europe/Amsterdam",   859683599, "CET",   3600)
 TEST_TRANSITION(ams_12, "Europe/Amsterdam",   859683600, "CEST",  7200)
 TEST_TRANSITION(ams_13, "Europe/Amsterdam",   859683600, "CEST",  7200)
+
+TEST_EXISTS(can_00, "Australia/Canberra")
+TEST_TRANSITION(can_01, "Australia/Canberra",   1193500799, "AEST", 36000)
+TEST_TRANSITION(can_02, "Australia/Canberra",   1193500800, "AEDT", 39600)
+TEST_TRANSITION(can_03, "Australia/Canberra",   1193500801, "AEDT", 39600)
+
+TEST_TRANSITION(can_04, "Australia/Canberra",   1207411199, "AEDT", 39600)
+TEST_TRANSITION(can_05, "Australia/Canberra",   1207411200, "AEST", 36000)
+TEST_TRANSITION(can_06, "Australia/Canberra",   1207411201, "AEST", 36000)
+
+TEST_TRANSITION(can_07, "Australia/Canberra",   1223135999, "AEST", 36000)
+TEST_TRANSITION(can_08, "Australia/Canberra",   1223136000, "AEDT", 39600)
+TEST_TRANSITION(can_09, "Australia/Canberra",   1223136001, "AEDT", 39600)
+
+TEST_TRANSITION(can_10, "Australia/Canberra",   1238860799, "AEDT", 39600)
+TEST_TRANSITION(can_11, "Australia/Canberra",   1238860800, "AEST", 36000)
+TEST_TRANSITION(can_12, "Australia/Canberra",   1238860801, "AEST", 36000)

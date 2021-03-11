@@ -488,10 +488,17 @@ static void calc_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, posi
 	trans_end += tz->posix_info->dst_end->hour;
 	trans_end -= tz->posix_info->dst_offset;
 
-	transitions->times[transitions->count  ] = trans_begin;
-	transitions->times[transitions->count+1] = trans_end;
-	transitions->types[transitions->count  ] = tz->posix_info->type_index_dst_type;
-	transitions->types[transitions->count+1] = tz->posix_info->type_index_std_type;
+	if (trans_begin < trans_end) {
+		transitions->times[transitions->count  ] = trans_begin;
+		transitions->times[transitions->count+1] = trans_end;
+		transitions->types[transitions->count  ] = tz->posix_info->type_index_dst_type;
+		transitions->types[transitions->count+1] = tz->posix_info->type_index_std_type;
+	} else {
+		transitions->times[transitions->count+1] = trans_begin;
+		transitions->times[transitions->count  ] = trans_end;
+		transitions->types[transitions->count+1] = tz->posix_info->type_index_dst_type;
+		transitions->types[transitions->count  ] = tz->posix_info->type_index_std_type;
+	}
 
 	transitions->count += 2;
 }

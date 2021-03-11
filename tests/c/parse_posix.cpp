@@ -200,6 +200,14 @@ PARSE_TEST_STD_DST(full_5,
 	TYPE_D, 263, -1, -1, -1, 86400
 )
 
+// Australia/Canberra
+PARSE_TEST_STD_DST(full_6,
+	"AEST-10AEDT,M10.1.0,M4.1.0/3",
+	"AEST", "AEDT", 36000, 39600,
+	TYPE_MWD, -1, 10, 1, 0,  7200,
+	TYPE_MWD, -1,  4, 1, 0, 10800
+)
+
 /* Test whether all the used ones can be parsed */
 #define PARSE_TEST_SUCCESS(n,p) \
 	TEST(posix, n) { \
