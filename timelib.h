@@ -171,6 +171,9 @@ typedef struct _timelib_posix_str
 
 	timelib_posix_trans_info *dst_begin;
 	timelib_posix_trans_info *dst_end;
+
+	int type_index_std_type;  // index into tz->type
+	int type_index_dst_type;  // index into tz->type
 } timelib_posix_str;
 
 typedef struct _timelib_tzinfo
@@ -203,7 +206,8 @@ typedef struct _timelib_tzinfo
 	unsigned char bc;
 	tlocinfo location;
 
-	char    *posix_string;
+	char              *posix_string;
+	timelib_posix_str *posix_info;
 } timelib_tzinfo;
 
 typedef struct _timelib_rel_time {
@@ -374,6 +378,7 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_UNSUPPORTED_VERSION                 0x05
 #define TIMELIB_ERROR_NO_SUCH_TIMEZONE                    0x06
 #define TIMELIB_ERROR_SLIM_FILE                           0x07
+#define TIMELIB_ERROR_POSIX_MISSING_TTINFO                0x08
 
 #ifdef __cplusplus
 extern "C" {

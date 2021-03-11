@@ -373,3 +373,164 @@ timelib_posix_str* timelib_parse_posix_str(const char *posix)
 
 	return tmp;
 }
+
+typedef struct _posix_transitions {
+	size_t      count;
+	timelib_sll times[6];
+	timelib_sll types[6];
+} posix_transitions;
+
+static const int month_lengths[2][MONTHS_PER_YEAR] = {
+	{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }, // normal year
+	{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }  // leap year
+};
+
+/* This function is adapted from the 'localtime.c' function 'transtime' as bundled with the 'tzcode' project
+ * from IANA, and is public domain licensed. */
+static timelib_sll calc_transition(timelib_posix_trans_info *psi, timelib_sll year)
+{
+	int leap_year = timelib_is_leap(year);
+
+	switch (psi->type) {
+		case TIMELIB_POSIX_TRANS_TYPE_JULIAN_NO_FEB29: {
+			timelib_sll value = (psi->days - 1);
+
+			if (leap_year && psi->days >= 60) {
+				value++;
+			}
+
+			return value * SECS_PER_DAY;
+		}
+
+		case TIMELIB_POSIX_TRANS_TYPE_JULIAN_FEB29: {
+			return psi->days * SECS_PER_DAY;
+		}
+
+		case TIMELIB_POSIX_TRANS_TYPE_MWD: {
+			/*
+			 * Mm.n.d - nth "dth day" of month m.
+			 */
+
+			int i, d, m1, yy0, yy1, yy2, dow;
+			timelib_sll value = 0;
+
+			/* Use Zeller's Congruence to get day-of-week of first day of
+			 * month. */
+			m1 = (psi->mwd.month + 9) % 12 + 1;
+			yy0 = (psi->mwd.month <= 2) ? (year - 1) : year;
+			yy1 = yy0 / 100;
+			yy2 = yy0 % 100;
+			dow = ((26 * m1 - 2) / 10 + 1 + yy2 + yy2 / 4 + yy1 / 4 - 2 * yy1) % 7;
+			if (dow < 0) {
+				dow += DAYS_PER_WEEK;
+			}
+
+			/* "dow" is the day-of-week of the first day of the month. Get the
+			 * day-of-month (zero-origin) of the first "dow" day of the month. */
+			d = psi->mwd.dow - dow;
+			if (d < 0) {
+				d += DAYS_PER_WEEK;
+			}
+			for (i = 1; i < psi->mwd.week; ++i) {
+				if (d + DAYS_PER_WEEK >= month_lengths[leap_year][psi->mwd.month - 1]) {
+					break;
+				}
+				d += DAYS_PER_WEEK;
+			}
+
+			/* "d" is the day-of-month (zero-origin) of the day we want. */
+			value = d * SECS_PER_DAY;
+			for (i = 0; i < psi->mwd.month - 1; ++i) {
+				value += month_lengths[leap_year][i] * SECS_PER_DAY;
+			}
+
+			return value;
+		} break;
+	}
+
+	return 0;
+}
+
+static timelib_sll count_leap_years(timelib_sll y)
+{
+	/* Because we want this for Jan 1, the leap day hasn't happend yet, so
+	 * subtract one of year before we calculate */
+	y--;
+
+	return (y/4) - (y/100) + (y/400);
+}
+
+timelib_sll timelib_ts_at_start_of_year(timelib_sll year)
+{
+	timelib_sll epoch_leap_years = count_leap_years(1970);
+	timelib_sll current_leap_years = count_leap_years(year);
+
+	return SECS_PER_DAY * (
+		((year-1970) * DAYS_PER_YEAR)
+		+ current_leap_years
+		- epoch_leap_years
+	);
+}
+
+static void calc_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, posix_transitions *transitions)
+{
+	timelib_sll trans_begin; /* Since start of the year */
+	timelib_sll trans_end;
+	timelib_sll year_begin_ts = timelib_ts_at_start_of_year(year);
+
+	trans_begin = year_begin_ts;
+	trans_begin += calc_transition(tz->posix_info->dst_begin, year);
+	trans_begin += tz->posix_info->dst_begin->hour;
+	trans_begin -= tz->posix_info->std_offset;
+
+	trans_end = year_begin_ts;
+	trans_end += calc_transition(tz->posix_info->dst_end, year);
+	trans_end += tz->posix_info->dst_end->hour;
+	trans_end -= tz->posix_info->dst_offset;
+
+	transitions->times[transitions->count  ] = trans_begin;
+	transitions->times[transitions->count+1] = trans_end;
+	transitions->types[transitions->count  ] = tz->posix_info->type_index_dst_type;
+	transitions->types[transitions->count+1] = tz->posix_info->type_index_std_type;
+
+	transitions->count += 2;
+}
+
+ttinfo* timelib_fetch_posix_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib_sll *transition_time)
+{
+	timelib_sll       year, year_begin_ts;
+	timelib_time      dummy;
+	posix_transitions transitions = { 0 };
+	size_t            i;
+
+	/* Find 'year' (UTC) for 'ts' */
+	timelib_unixtime2gmt(&dummy, ts);
+	year = dummy.y;
+	year_begin_ts = timelib_ts_at_start_of_year(year);
+
+	/* If there is no second (dst_end) information, the UTC offset is valid for the whole year, so no need to
+	 * do clever logic */
+	if (!tz->posix_info->dst_end) {
+		if (transition_time) {
+			*transition_time = year_begin_ts;
+		}
+		return &(tz->type[tz->posix_info->type_index_std_type]);
+	}
+
+	/* Calculate transition times for 'year-1', 'year', and 'year+1' */
+	calc_transitions_for_year(tz, year - 1, &transitions);
+	calc_transitions_for_year(tz, year,     &transitions);
+	calc_transitions_for_year(tz, year + 1, &transitions);
+
+	/* Check where the 'ts' falls in the 4 transitions */
+	for (i = 1; i < transitions.count; i++) {
+		if (ts < transitions.times[i]) {
+			if (transition_time) {
+				*transition_time = transitions.times[i - 1];
+			}
+			return &(tz->type[transitions.types[i - 1]]);
+		}
+	}
+
+	return NULL;
+}

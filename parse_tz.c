@@ -368,6 +368,48 @@ static void read_posix_string(const unsigned char **tzf, timelib_tzinfo *tz)
 	(*tzf)++;
 }
 
+static signed int find_ttinfo_index(timelib_tzinfo *tz, int32_t offset, int isdst, char *abbr)
+{
+	uint64_t i;
+
+	for (i = 0; i < tz->bit64.typecnt; i++) {
+		if (
+			(offset == tz->type[i].offset) &&
+			(isdst == tz->type[i].isdst) &&
+			(strcmp(abbr, &tz->timezone_abbr[tz->type[i].abbr_idx]) == 0)
+		) {
+			return i;
+		}
+	}
+
+	return TIMELIB_UNSET;
+}
+
+static int integrate_posix_string(timelib_tzinfo *tz)
+{
+	tz->posix_info = timelib_parse_posix_str(tz->posix_string);
+	if (!tz->posix_info) {
+		return 0;
+	}
+
+	tz->posix_info->type_index_std_type = find_ttinfo_index(tz, tz->posix_info->std_offset, 0, tz->posix_info->std);
+	if (tz->posix_info->type_index_std_type == TIMELIB_UNSET) {
+		return 0;
+	}
+
+	/* If there is no DST set for this zone, return */
+	if (!tz->posix_info->dst) {
+		return 1;
+	}
+
+	tz->posix_info->type_index_dst_type = find_ttinfo_index(tz, tz->posix_info->dst_offset, 1, tz->posix_info->dst);
+	if (tz->posix_info->type_index_dst_type == TIMELIB_UNSET) {
+		return 0;
+	}
+
+	return 1;
+}
+
 static void read_location(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	uint32_t buffer[3];
@@ -569,7 +611,13 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 			timelib_tzinfo_dtor(tmp);
 			return NULL;
 		}
+
 		read_posix_string(&tzf, tmp);
+		if (!integrate_posix_string(tmp)) {
+			*error_code = TIMELIB_ERROR_POSIX_MISSING_TTINFO;
+			timelib_tzinfo_dtor(tmp);
+			return NULL;
+		}
 
 		if (type == TIMELIB_TZINFO_PHP) {
 			read_location(&tzf, tmp);
@@ -594,6 +642,9 @@ void timelib_tzinfo_dtor(timelib_tzinfo *tz)
 	TIMELIB_TIME_FREE(tz->leap_times);
 	TIMELIB_TIME_FREE(tz->location.comments);
 	TIMELIB_TIME_FREE(tz->posix_string);
+	if (tz->posix_info) {
+		timelib_posix_str_dtor(tz->posix_info);
+	}
 	TIMELIB_TIME_FREE(tz);
 	tz = NULL;
 }
@@ -639,13 +690,26 @@ timelib_tzinfo *timelib_tzinfo_clone(timelib_tzinfo *tz)
 	return tmp;
 }
 
-static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib_sll *transition_time)
+/**
+ * Algorithm From RFC 8536, Section 3.2
+ * https://tools.ietf.org/html/rfc8536#section-3.2
+ */
+ttinfo* timelib_fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib_sll *transition_time)
 {
 	uint32_t left, right;
 
-	/* If there is no transition time, we pick the first one, if that doesn't
-	 * exist we return NULL */
+	/* RFC 8536: If there are no transitions, local time for all timestamps is specified
+	 * by the TZ string in the footer if present and nonempty; otherwise, it is specified
+	 * by time type 0.
+	 *
+	 * timelib: If there is also no time type 0, return NULL.
+	 */
 	if (!tz->bit64.timecnt || !tz->trans) {
+		if (tz->posix_info) {
+			*transition_time = INT64_MIN;
+			return timelib_fetch_posix_timezone_offset(tz, ts, NULL);
+		}
+
 		if (tz->bit64.typecnt == 1) {
 			*transition_time = INT64_MIN;
 			return &(tz->type[0]);
@@ -653,23 +717,31 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 		return NULL;
 	}
 
-	/* If the TS is lower than the first transition time, then we scan over
-	 * all the transition times to find the first non-DST one, or the first
-	 * one in case there are only DST entries. Not sure which smartass came up
-	 * with this idea in the first though :) */
+	/* RFC 8536: Local time for timestamps before the first transition is specified by
+	 * the first time type (time type 0). */
 	if (ts < tz->trans[0]) {
 		*transition_time = INT64_MIN;
 		return &(tz->type[0]);
 	}
 
-	/* If the TS is greater than the last transition time, we pick the last one */
+	/* RFC 8536: Local time for timestamps on or after the last transition is specified
+	 * by the TZ string in the footer (Section 3.3) if present and nonempty; otherwise,
+	 * it is unspecified.
+	 *
+	 * timelib: For 'unspecified', timelib assumes the last transition
+	 */
 	if (ts >= tz->trans[tz->bit64.timecnt - 1]) {
+		if (tz->posix_info) {
+			return timelib_fetch_posix_timezone_offset(tz, ts, transition_time);
+		}
+
 		*transition_time = tz->trans[tz->bit64.timecnt - 1];
 		return &(tz->type[tz->trans_idx[tz->bit64.timecnt - 1]]);
 	}
 
-	/* In all other cases we loop through the available transition times to find
-	 * the correct entry */
+	/* RFC 8536: The type corresponding to a transition time specifies local time for
+	 * timestamps starting at the given transition time and continuing up to, but not
+	 * including, the next transition time. */
 	left = 0;
 	right = tz->bit64.timecnt - 1;
 
@@ -707,7 +779,7 @@ int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz)
 	ttinfo *to;
 	timelib_sll dummy;
 
-	if ((to = fetch_timezone_offset(tz, ts, &dummy))) {
+	if ((to = timelib_fetch_timezone_offset(tz, ts, &dummy))) {
 		return to->isdst;
 	}
 	return -1;
@@ -722,7 +794,7 @@ timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *
 	timelib_time_offset *tmp = timelib_time_offset_ctor();
 	timelib_sll                transition_time;
 
-	if ((to = fetch_timezone_offset(tz, ts, &transition_time))) {
+	if ((to = timelib_fetch_timezone_offset(tz, ts, &transition_time))) {
 		offset = to->offset;
 		abbr = &(tz->timezone_abbr[to->abbr_idx]);
 		tmp->is_dst = to->isdst;
