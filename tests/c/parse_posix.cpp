@@ -208,6 +208,14 @@ PARSE_TEST_STD_DST(full_6,
 	TYPE_MWD, -1,  4, 1, 0, 10800
 )
 
+// Pacific/Fiji
+PARSE_TEST_STD_DST(full_7,
+	"<+12>-12<+13>,M11.2.0,M1.2.3/99",
+	"+12", "+13", 43200, 46800,
+	TYPE_MWD, -1, 11, 2, 0,   7200,
+	TYPE_MWD, -1,  1, 2, 3, 356400
+)
+
 /* Test whether all the used ones can be parsed */
 #define PARSE_TEST_SUCCESS(n,p) \
 	TEST(posix, n) { \

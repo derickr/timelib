@@ -81,6 +81,7 @@ TEST_TRANSITION(can_10, "Australia/Canberra",   1238860799, "AEDT", 39600)
 TEST_TRANSITION(can_11, "Australia/Canberra",   1238860800, "AEST", 36000)
 TEST_TRANSITION(can_12, "Australia/Canberra",   1238860801, "AEST", 36000)
 
+
 TEST_EXISTS(lh_00, "Australia/Lord_Howe")
 TEST_TRANSITION(lh_01, "Australia/Lord_Howe", 1207407599, "+11",   39600)
 TEST_TRANSITION(lh_02, "Australia/Lord_Howe", 1207407600, "+1030", 37800)
@@ -103,3 +104,48 @@ TEST_TRANSITION(lh_12, "Australia/Lord_Howe", 1293800401, "+11",   39600)
 TEST_TRANSITION(lh_13, "Australia/Lord_Howe", 1293839999, "+11",   39600)
 TEST_TRANSITION(lh_14, "Australia/Lord_Howe", 1293840000, "+11",   39600)
 TEST_TRANSITION(lh_15, "Australia/Lord_Howe", 1293840001, "+11",   39600)
+
+
+// Fiji has a large time-of-effect hour of 99
+TEST_EXISTS(fiji_00, "Pacific/Fiji")
+TEST_TRANSITION(fiji_01, "Pacific/Fiji", 1608386399, "+12", 43200)
+TEST_TRANSITION(fiji_02, "Pacific/Fiji", 1608386400, "+13", 46800)
+TEST_TRANSITION(fiji_03, "Pacific/Fiji", 1608386401, "+13", 46800)
+
+
+// Asia/Tehran is the only one using J, and only for 2088, but still test it
+TEST_EXISTS(teh_00, "Asia/Tehran")
+TEST_TRANSITION(teh_01, "Asia/Tehran", 3746546999, "+0430", 16200)
+TEST_TRANSITION(teh_02, "Asia/Tehran", 3746547000, "+0330", 12600)
+TEST_TRANSITION(teh_03, "Asia/Tehran", 3746547001, "+0330", 12600)
+
+
+// Has a switch at a non-hour barrier
+TEST_EXISTS(chat_00, "Pacific/Chatham")
+TEST_TRANSITION(chat_01, "Pacific/Chatham", 1821880799, "+1245", 45900)
+TEST_TRANSITION(chat_02, "Pacific/Chatham", 1821880800, "+1345", 49500)
+TEST_TRANSITION(chat_03, "Pacific/Chatham", 1821880801, "+1345", 49500)
+
+
+#define TEST_TRANSITION_FROM_TEST_DIR(n,tz,ts,eab,eoff) \
+	TEST(transitions, n) { \
+		int error; \
+		timelib_time_offset *tto; \
+		timelib_tzdb *test_directory = timelib_zoneinfo("tests/c/files"); \
+		CHECK(test_directory != NULL); \
+		timelib_tzinfo *tzi = timelib_parse_tzfile(tz, test_directory, &error); \
+		CHECK(tzi != NULL); \
+		tto = timelib_get_time_zone_info((ts), tzi); \
+		CHECK(tto != NULL); \
+		LONGS_EQUAL((eoff), tto->offset); \
+		STRCMP_EQUAL((eab), tto->abbr); \
+		timelib_time_offset_dtor(tto); \
+		timelib_tzinfo_dtor(tzi); \
+		timelib_zoneinfo_dtor(test_directory); \
+	}
+
+// With a fake NY file, where I've modified the POSIX string to full year DST
+TEST_TRANSITION_FROM_TEST_DIR(ny_01, "New_York_mod_Full_Year_DST", 1615483094, "EDT", -14400)
+TEST_TRANSITION_FROM_TEST_DIR(ny_02, "New_York_mod_Full_Year_DST", 1609477199, "EDT", -14400)
+TEST_TRANSITION_FROM_TEST_DIR(ny_03, "New_York_mod_Full_Year_DST", 1609477200, "EDT", -14400)
+TEST_TRANSITION_FROM_TEST_DIR(ny_04, "New_York_mod_Full_Year_DST", 1609477201, "EDT", -14400)
