@@ -80,3 +80,26 @@ TEST_TRANSITION(can_09, "Australia/Canberra",   1223136001, "AEDT", 39600)
 TEST_TRANSITION(can_10, "Australia/Canberra",   1238860799, "AEDT", 39600)
 TEST_TRANSITION(can_11, "Australia/Canberra",   1238860800, "AEST", 36000)
 TEST_TRANSITION(can_12, "Australia/Canberra",   1238860801, "AEST", 36000)
+
+TEST_EXISTS(lh_00, "Australia/Lord_Howe")
+TEST_TRANSITION(lh_01, "Australia/Lord_Howe", 1207407599, "+11",   39600)
+TEST_TRANSITION(lh_02, "Australia/Lord_Howe", 1207407600, "+1030", 37800)
+TEST_TRANSITION(lh_03, "Australia/Lord_Howe", 1207407601, "+1030", 37800)
+
+TEST_TRANSITION(lh_04, "Australia/Lord_Howe", 1317482999, "+1030", 37800)
+TEST_TRANSITION(lh_05, "Australia/Lord_Howe", 1317483000, "+11",   39600)
+TEST_TRANSITION(lh_06, "Australia/Lord_Howe", 1317483001, "+11",   39600)
+
+TEST_TRANSITION(lh_07, "Australia/Lord_Howe", 1365260399, "+11",   39600)
+TEST_TRANSITION(lh_08, "Australia/Lord_Howe", 1365260400, "+1030", 37800)
+TEST_TRANSITION(lh_09, "Australia/Lord_Howe", 1365260401, "+1030", 37800)
+
+// local new year 2011
+TEST_TRANSITION(lh_10, "Australia/Lord_Howe", 1293800399, "+11",   39600)
+TEST_TRANSITION(lh_11, "Australia/Lord_Howe", 1293800400, "+11",   39600)
+TEST_TRANSITION(lh_12, "Australia/Lord_Howe", 1293800401, "+11",   39600)
+
+// UT new year 2011
+TEST_TRANSITION(lh_13, "Australia/Lord_Howe", 1293839999, "+11",   39600)
+TEST_TRANSITION(lh_14, "Australia/Lord_Howe", 1293840000, "+11",   39600)
+TEST_TRANSITION(lh_15, "Australia/Lord_Howe", 1293840001, "+11",   39600)
