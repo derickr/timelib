@@ -590,10 +590,6 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 		skip_32bit_transitions(&tzf, tmp);
 		skip_32bit_types(&tzf, tmp);
 
-		if (detect_slim_file(tmp)) {
-			*error_code = TIMELIB_ERROR_SLIM_FILE;
-		}
-
 		if (!skip_64bit_preamble(&tzf, tmp)) {
 			/* 64 bit preamble is not in place */
 			*error_code = TIMELIB_ERROR_CORRUPT_NO_64BIT_PREAMBLE;
