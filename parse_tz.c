@@ -446,7 +446,7 @@ void timelib_dump_tzinfo(timelib_tzinfo *tz)
 	printf("Country Code:      %s\n", tz->location.country_code);
 	printf("Geo Location:      %f,%f\n", tz->location.latitude, tz->location.longitude);
 	printf("Comments:\n%s\n",          tz->location.comments);
-	printf("BC:                %s\n",  tz->bc ? "" : "yes");
+	printf("BC:                %s\n",  tz->bc ? "no" : "yes");
 	printf("Slim File:         %s\n",  detect_slim_file(tz) ? "yes" : "no");
 	printf("POSIX string:      %s\n",  tz->posix_string);
 
