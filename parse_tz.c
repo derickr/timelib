@@ -27,6 +27,7 @@
 #include "timelib_private.h"
 
 #define TIMELIB_SUPPORTS_V2DATA
+#define TIMELIB_SUPPORT_SLIM_FILE
 #include "timezonedb.h"
 
 #if (defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__BIG_ENDIAN__) || defined(__LITTLE_ENDIAN__))
