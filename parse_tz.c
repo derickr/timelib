@@ -129,6 +129,9 @@ static int read_tzif_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 		case '3':
 			version = 3;
 			break;
+		case '4':
+			version = 4;
+			break;
 		default:
 			return -1;
 	}
@@ -537,6 +540,9 @@ static int skip_64bit_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 	} else if (memcmp(*tzf, "TZif3", 5) == 0) {
 		*tzf += 20;
 		return 1;
+	} else if (memcmp(*tzf, "TZif4", 5) == 0) {
+		*tzf += 20;
+		return 1;
 	} else {
 		return 0;
 	}
@@ -579,7 +585,7 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 		tmp = timelib_tzinfo_ctor(timezone);
 
 		version = read_preamble(&tzf, tmp, &type);
-		if (version < 2 || version > 3) {
+		if (version < 2 || version > 4) {
 			*error_code = TIMELIB_ERROR_UNSUPPORTED_VERSION;
 			timelib_tzinfo_dtor(tmp);
 			return NULL;
