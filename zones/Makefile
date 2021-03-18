@@ -25,16 +25,9 @@ code/zone.tab: tzdb
 	@echo "Compiling tzdata files..."
 	@for i in africa antarctica australasia asia etcetera europe factory northamerica southamerica backward; do \
 		cat code/$$i | ./code/zic -b fat -d code/data -; \
+		cat code/$$i | ./code/zic -b slim -d code/data-slim -; \
 		echo "- $$i"; \
 	done;
-
-timezonedb.idx.php: code/zone.tab
-	php build-idx.php
-
-timezonedb.dta: code/zone.tab
-	php build-idx.php
-
-timezonedb.idx: timezonedb.idx.php timezonedb.dta
 
 version-info.txt: download
 	find . -name tzdata*.tar.gz | sed 's/.*202/202/' | sed 's/\.tar.*//' > version-info.txt
@@ -49,8 +42,8 @@ timezonedb.zip: code/zone.tab version-info.txt
 	@cp timezonedb.zip timezonedb-$(VERSION).zip
 	@echo " done"
 
-timezonedb.h: timezonedb.idx version-info.txt create_dot_h_file.php
-	php create_dot_h_file.php
+timezonedb.h: code/zone.tab version-info.txt create-timezonedb.php
+	php create-timezonedb.php
 	cp timezonedb.h ..
 
 index: timezonedb.h

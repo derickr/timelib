@@ -15,7 +15,7 @@ TEST(warn_on_slim, warn_on_slim_001)
 
 	tzi = timelib_parse_tzfile((char*) "New_York_Slim", test_directory, &error_code);
 
-	LONGS_EQUAL(TIMELIB_ERROR_SLIM_FILE, error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 
 	timelib_tzinfo_dtor(tzi);
 	timelib_zoneinfo_dtor(test_directory);

@@ -144,6 +144,38 @@ typedef struct _tlocinfo
 	char *comments;
 } tlocinfo;
 
+#define TIMELIB_POSIX_TRANS_TYPE_JULIAN_NO_FEB29   1
+#define TIMELIB_POSIX_TRANS_TYPE_JULIAN_FEB29      2
+#define TIMELIB_POSIX_TRANS_TYPE_MWD               3
+
+typedef struct _timelib_posix_trans_info
+{
+	int type; // 1=Jn, 2=n, 3=Mm.w.d
+	union {
+		int days;
+		struct {
+			int month;
+			int week;
+			int dow;
+		} mwd;
+	};
+	int hour;
+} timelib_posix_trans_info;
+
+typedef struct _timelib_posix_str
+{
+	char        *std;
+	timelib_sll  std_offset;
+	char        *dst;
+	timelib_sll  dst_offset;
+
+	timelib_posix_trans_info *dst_begin;
+	timelib_posix_trans_info *dst_end;
+
+	int type_index_std_type;  // index into tz->type
+	int type_index_dst_type;  // index into tz->type
+} timelib_posix_str;
+
 typedef struct _timelib_tzinfo
 {
 	char    *name;
@@ -173,6 +205,9 @@ typedef struct _timelib_tzinfo
 	tlinfo  *leap_times;
 	unsigned char bc;
 	tlocinfo location;
+
+	char              *posix_string;
+	timelib_posix_str *posix_info;
 } timelib_tzinfo;
 
 typedef struct _timelib_rel_time {
@@ -319,6 +354,7 @@ typedef struct _timelib_tzdb {
 # define timelib_realloc realloc
 # define timelib_calloc  calloc
 # define timelib_strdup  strdup
+# define timelib_strndup strndup
 # define timelib_free    free
 #endif
 
@@ -342,6 +378,7 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_UNSUPPORTED_VERSION                 0x05
 #define TIMELIB_ERROR_NO_SUCH_TIMEZONE                    0x06
 #define TIMELIB_ERROR_SLIM_FILE                           0x07
+#define TIMELIB_ERROR_POSIX_MISSING_TTINFO                0x08
 
 #ifdef __cplusplus
 extern "C" {
@@ -972,6 +1009,12 @@ timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
  * workday".
  */
 timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
+
+/* from parse_posix.c */
+
+void timelib_posix_str_dtor(timelib_posix_str *ps);
+
+timelib_posix_str* timelib_parse_posix_str(const char *posix);
 
 #ifdef __cplusplus
 } /* extern "C" */

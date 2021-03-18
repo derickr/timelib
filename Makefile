@@ -23,7 +23,9 @@ AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour.cpp \
 	tests/c/timelib_juliandate.cpp tests/c/issues.cpp tests/c/astro_rise_set_altitude.cpp \
 	tests/c/parse_date_from_format_test.cpp tests/c/parse_intervals.cpp \
-	tests/c/warn_on_slim.cpp
+	tests/c/warn_on_slim.cpp tests/c/parse_posix.cpp tests/c/transitions.cpp \
+	tests/c/parse_tz.cpp
+
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
 EXAMPLE_BINARIES=docs/date-from-iso-parts docs/date-from-parts docs/date-from-string \
@@ -38,8 +40,8 @@ parse_date.c: timezonemap.h parse_date.re
 parse_iso_intervals.c: parse_iso_intervals.re
 	re2c -d -b parse_iso_intervals.re > parse_iso_intervals.c
 
-timelib.a: parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o
-	ar -rc timelib.a parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o
+timelib.a: parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o
+	ar -rc timelib.a parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o
 
 tests/tester-diff: timelib.a tests/tester-diff.c
 	$(CC) $(CFLAGS) -o tests/tester-diff tests/tester-diff.c timelib.a $(LDFLAGS)
