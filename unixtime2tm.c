@@ -29,22 +29,20 @@ static int month_tab_leap[12] = { -1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 
 static int month_tab[12] =      { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
 
-/* Converts a Unix timestamp value into broken down time, in GMT */
-void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
+void timelib_unixtime2date(timelib_time* tm, timelib_sll ts, timelib_sll *remainder)
 {
-	timelib_sll days, remainder, tmp_days;
+	timelib_sll days, tmp_days;
 	timelib_sll cur_year = 1970;
 	timelib_sll i;
-	timelib_sll hours, minutes, seconds;
 	int *months;
 
 	days = ts / SECS_PER_DAY;
-	remainder = ts - (days * SECS_PER_DAY);
-	if (ts < 0 && remainder == 0) {
+	*remainder = ts - (days * SECS_PER_DAY);
+	if (ts < 0 && *remainder == 0) {
 		days++;
-		remainder -= SECS_PER_DAY;
+		*remainder -= SECS_PER_DAY;
 	}
-	TIMELIB_DEBUG(printf("days=%lld, rem=%lld\n", days, remainder););
+	TIMELIB_DEBUG(printf("days=%lld, rem=%lld\n", days, *remainder););
 
 	if (ts >= 0) {
 		tmp_days = days + 1;
@@ -78,7 +76,7 @@ void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
 			}
 			TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
 		}
-		remainder += SECS_PER_DAY;
+		*remainder += SECS_PER_DAY;
 	}
 	TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
 
@@ -96,15 +94,25 @@ void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
 	}
 	TIMELIB_DEBUG(printf("A: ts=%lld, year=%lld, month=%lld, day=%lld,", ts, cur_year, i + 1, tmp_days - months[i]););
 
+	tm->y = cur_year;
+	tm->m = i + 1;
+	tm->d = tmp_days - months[i];
+}
+
+/* Converts a Unix timestamp value into broken down time, in GMT */
+void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
+{
+	timelib_sll remainder;
+	timelib_sll hours, minutes, seconds;
+
+	timelib_unixtime2date(tm, ts, &remainder);
+
 	/* That was the date, now we do the time */
 	hours = remainder / 3600;
 	minutes = (remainder - hours * 3600) / 60;
 	seconds = remainder % 60;
 	TIMELIB_DEBUG(printf(" hour=%lld, minute=%lld, second=%lld\n", hours, minutes, seconds););
 
-	tm->y = cur_year;
-	tm->m = i + 1;
-	tm->d = tmp_days - months[i];
 	tm->h = hours;
 	tm->i = minutes;
 	tm->s = seconds;
