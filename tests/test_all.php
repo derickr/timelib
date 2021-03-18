@@ -30,7 +30,6 @@ $format = array('OKAY' => '[32m', 'FAIL' => '[31m', 'NORM' => '[m');
 
 $tests = array(
 	'test_parser' => '.parse',
-	'test_create' => '.ts',
 	'test_parse_format' => '.parseformat',
 );
 

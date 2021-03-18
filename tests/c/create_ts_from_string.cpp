@@ -1,0 +1,853 @@
+#include "CppUTest/TestHarness.h"
+#include "timelib.h"
+#include <string.h>
+
+extern timelib_tzdb *zoneinfo;
+
+TEST_GROUP(create_ts)
+{
+};
+
+#define TEST_CREATE_TS_FROM_STRINGS(n,e,s,r,tzid) \
+	TEST(create_ts, n) { \
+		int dummy_error; \
+		timelib_time *t = timelib_strtotime(s, strlen(s), NULL, timelib_builtin_db(), timelib_parse_tzfile); \
+		CHECK(t != NULL); \
+		timelib_time *now = timelib_strtotime(r, strlen(r), NULL, timelib_builtin_db(), timelib_parse_tzfile); \
+		CHECK(now != NULL); \
+		timelib_tzinfo *tzi = timelib_parse_tzfile(tzid, timelib_builtin_db(), &dummy_error); \
+		\
+		timelib_fill_holes(t, now, TIMELIB_OVERRIDE_TIME); \
+		if (now->tz_info && (now->tz_info != tzi)) { \
+			timelib_tzinfo_dtor(now->tz_info); \
+		} \
+		timelib_time_dtor(now); \
+		timelib_update_ts(t, tzi); \
+		\
+		LONGS_EQUAL(e, t->sse); \
+		if (t->tz_info && (t->tz_info != tzi)) { \
+			timelib_tzinfo_dtor(t->tz_info); \
+		} \
+		timelib_time_dtor(t); \
+		if (tzi) { \
+			timelib_tzinfo_dtor(tzi); \
+		} \
+	}
+
+/* from bug24910.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug24910_00, 1076824799, "2004-04-07 00:00:00 -2 months +7 days +23 hours +59 minutes +59 seconds", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_01, 1076824800, "2004-04-07 00:00:00 -2 months +7 days +23 hours +59 minutes +60 seconds", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_02, 1076824801, "2004-04-07 00:00:00 -2 months +7 days +23 hours +59 minutes +61 seconds", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_03, 1079503200, "2004-04-07 00:00:00 -21 days", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_04, 1080367200, "2004-04-07 00:00:00 11 days ago", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_05, 1080460800, "2004-04-07 00:00:00 -10 day +2 hours", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_06, 1081227600, "2004-04-07 00:00:00 -1 day", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_07, 1081314000, "2004-04-07 00:00:00", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_08, 1081317600, "2004-04-07 00:00:00 +1 hour", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_09, 1081321200, "2004-04-07 00:00:00 +2 hour", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_10, 1081400400, "2004-04-07 00:00:00 +1 day", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_11, 1081400400, "2004-04-07 00:00:00 1 day", "", "America/Chicago") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_12, 1083128400, "2004-04-07 00:00:00 +21 days", "", "America/Chicago") // Bug #27780
+
+TEST_CREATE_TS_FROM_STRINGS(bug24910_13, 1080432000, "2004-03-28 00:00:00", "", "GMT")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_14, 1080428400, "2004-03-28 00:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_15, 1080432000, "2004-03-28 01:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_16, 1080435540, "2004-03-28 01:59:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_17, 1080435600, "2004-03-28 02:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_18, 1080435660, "2004-03-28 02:01:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_19, 1080435600, "2004-03-28 03:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_20, 1080435660, "2004-03-28 03:01:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_21, 1080428400, "2004-04-07 00:00:00 -10 day", "", "Europe/Amsterdam") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_22, 1080432000, "2004-04-07 00:00:00 -10 day +1 hour", "", "Europe/Amsterdam") // Bug #27780
+TEST_CREATE_TS_FROM_STRINGS(bug24910_23, 1080435600, "2004-04-07 00:00:00 -10 day +2 hours", "", "Europe/Amsterdam") // Bug #27780
+
+TEST_CREATE_TS_FROM_STRINGS(bug24910_24, 1130626800, "2005-10-30 01:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_25, 1130634000, "2005-10-30 02:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_26, 1130637600, "2005-10-30 03:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_27, 1130641200, "2005-10-30 04:00:00", "", "Europe/Amsterdam")
+
+TEST_CREATE_TS_FROM_STRINGS(bug24910_28, 1081288800, "2004-04-07 00:00:00", "", "Asia/Jerusalem")
+TEST_CREATE_TS_FROM_STRINGS(bug24910_29, 1081292400, "2004-04-07 00:00:00 +1 hour", "", "Asia/Jerusalem")
+
+
+/* from bug28024.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug28024_00, 1072976400, "17:00 2004-01-01", "", "Europe/London") // Bug #28024
+
+
+/* from bug30190.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug30190_00, 946684800, "2000-01-01", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug30190_01, 946598400, "2000-01-00", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug30190_02, 943920000, "2000-00-00", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug30190_03, -62167219200, "0000-01-01", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug30190_04, -62167305600, "0000-01-00", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug30190_05, -62169984000, "0000-00-00", "00:00:00 GMT", "")
+
+
+/* from bug30532.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug30532_00, 1099195200, "2004-10-31 +0 hours", "00:00:00", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug30532_01, 1099198800, "2004-10-31 +1 hours", "00:00:00", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug30532_02, 1099206000, "2004-10-31 +2 hours", "00:00:00", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug30532_03, 1099195200, "+0 hours", "2004-10-31 00:00:00", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug30532_04, 1099198800, "+1 hours", "2004-10-31 00:00:00", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug30532_05, 1099206000, "+2 hours", "2004-10-31 00:00:00", "America/New_York")
+
+
+/* from bug32086.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug32086_00, 1099278000, "2004-11-01 00:00", "", "America/Sao_Paulo") // Bug #32086
+TEST_CREATE_TS_FROM_STRINGS(bug32086_01, 1099360800, "2004-11-01 23:00", "", "America/Sao_Paulo") // Bug #32086
+TEST_CREATE_TS_FROM_STRINGS(bug32086_02, 1099364400, "2004-11-01 00:00 +1 day", "", "America/Sao_Paulo") // Bug #32086
+TEST_CREATE_TS_FROM_STRINGS(bug32086_03, 1099364400, "2004-11-02 00:00", "", "America/Sao_Paulo") // Doesn't really exist
+TEST_CREATE_TS_FROM_STRINGS(bug32086_04, 1099364400, "2004-11-02 01:00", "", "America/Sao_Paulo") // Bug #32086
+TEST_CREATE_TS_FROM_STRINGS(bug32086_05, 1108778400, "2005-02-19 00:00", "", "America/Sao_Paulo") // Bug #32086
+TEST_CREATE_TS_FROM_STRINGS(bug32086_06, 1108868400, "2005-02-19 00:00 +1 day", "", "America/Sao_Paulo") // Bug #32086
+TEST_CREATE_TS_FROM_STRINGS(bug32086_07, 1108868400, "2005-02-20 00:00", "", "America/Sao_Paulo") // Bug #32086
+
+
+/* from bug32270.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug32270_00, -2145888000, "01/01/1902 00:00:00", "", "America/Los_Angeles") // Bug #32270
+TEST_CREATE_TS_FROM_STRINGS(bug32270_01, -631123200, "01/01/1950 00:00:00", "", "America/Los_Angeles") // Bug #32270
+TEST_CREATE_TS_FROM_STRINGS(bug32270_02, 946713600, "Sat 01 Jan 2000 08:00:00 AM GMT", "", "") // Bug #32270
+TEST_CREATE_TS_FROM_STRINGS(bug32270_03, 946713600, "01/01/2000 08:00:00 GMT", "", "") // Bug #32270
+TEST_CREATE_TS_FROM_STRINGS(bug32270_04, 946713600, "01/01/2000 00:00:00", "", "America/Los_Angeles") // Bug #32270
+TEST_CREATE_TS_FROM_STRINGS(bug32270_05, 946713600, "01/01/2000 00:00:00 PST", "", "America/Los_Angeles") // Bug #32270
+
+
+/* from bug32555.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug32555_00, 1112427000, "2005-04-02 02:30", "", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug32555_01, 1112427000, "2005-04-02 02:30 now", "", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug32555_02, 1112418000, "2005-04-02 02:30 today", "", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(bug32555_03, 1112504400, "2005-04-02 02:30 tomorrow", "", "America/New_York")
+
+
+/* from bug32588.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug32588_00, 1112400000, "last saturday", "2005/04/05/08:15:48 GMT", "") // Bug #32588
+TEST_CREATE_TS_FROM_STRINGS(bug32588_01, 1112400000, "0 secs", "2005/04/02/00:00:00 GMT", "") // Bug #32588
+
+TEST_CREATE_TS_FROM_STRINGS(bug32588_02, 1112486400, "last sunday", "2005/04/05/08:15:48 GMT", "") // Bug #32588
+TEST_CREATE_TS_FROM_STRINGS(bug32588_03, 1112486400, "0 secs", "2005/04/03/00:00:00 GMT", "") // Bug #32588
+
+TEST_CREATE_TS_FROM_STRINGS(bug32588_04, 1112572800, "last monday", "2005/04/05/08:15:48 GMT", "") // Bug #32588
+TEST_CREATE_TS_FROM_STRINGS(bug32588_05, 1112572800, "0 secs", "2005/04/04/00:00:00 GMT", "") // Bug #32588
+
+TEST_CREATE_TS_FROM_STRINGS(bug32588_06, 1112688948, "0 secs", "2005/04/05/08:15:48 GMT", "") // Bug #32588
+TEST_CREATE_TS_FROM_STRINGS(bug32588_07, 1112659200, "0 secs", "2005/04/05/00:00:00 GMT", "") // Bug #32588
+
+
+/* from bug33056.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug33056_00, 1116406800, "20050518t090000Z", "", "") // Bug #33056
+TEST_CREATE_TS_FROM_STRINGS(bug33056_01, 1116407554, "20050518t091234Z", "", "") // Bug #33056
+TEST_CREATE_TS_FROM_STRINGS(bug33056_02, 1116443554, "20050518t191234Z", "", "") // Bug #33056
+TEST_CREATE_TS_FROM_STRINGS(bug33056_03, 1116403200, "20050518t090000", "", "Europe/London") // Bug #33056
+TEST_CREATE_TS_FROM_STRINGS(bug33056_04, 1116403954, "20050518t091234", "", "Europe/London") // Bug #33056
+TEST_CREATE_TS_FROM_STRINGS(bug33056_05, 1116439954, "20050518t191234", "", "Europe/London") // Bug #33056
+
+
+/* from bug34874.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug34874_00, 1130284800, "", "2005-10-26 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_01, 1130284800, "first wednesday", "2005-10-19 15:05", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_02, 1130284800, "next wednesday", "2005-10-19 15:05", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_03, 1129680000, "wednesday", "2005-10-19 15:05", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_04, 1129680000, "this wednesday", "2005-10-19 15:05", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_05, 1129680000, "", "2005-10-19 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_06, 1129734300, "", "2005-10-19 15:05", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(bug34874_07, 1130198400, "tuesday", "2005-10-19 15:05", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_08, 1129680000, "wednesday", "2005-10-19 15:05", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug34874_09, 1129766400, "thursday", "2005-10-19 15:05", "UTC")
+
+
+/* from bug37017.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug37017_00, 1147453201, "2006-05-12 13:00:01 America/New_York", "", "")
+TEST_CREATE_TS_FROM_STRINGS(bug37017_01, 1147453200, "2006-05-12 13:00:00 America/New_York", "", "")
+TEST_CREATE_TS_FROM_STRINGS(bug37017_02, 1147453199, "2006-05-12 12:59:59 America/New_York", "", "")
+TEST_CREATE_TS_FROM_STRINGS(bug37017_03, 1147438799, "2006-05-12 12:59:59 GMT", "", "")
+
+
+/* from bug40290.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug40290_00, 1170159900, "Tue, 30 Jan 2007 12:27:00 +0002", "", "Pacific/Auckland") // Bug #40290
+TEST_CREATE_TS_FROM_STRINGS(bug40290_01, 1170159960, "Tue, 30 Jan 2007 12:27:00 +0001", "", "Pacific/Auckland") // Bug #40290
+TEST_CREATE_TS_FROM_STRINGS(bug40290_02, 1170160020, "Tue, 30 Jan 2007 12:27:00 +0000", "", "Pacific/Auckland") // Bug #40290
+TEST_CREATE_TS_FROM_STRINGS(bug40290_03, 1170160080, "Tue, 30 Jan 2007 12:27:00 -0001", "", "Pacific/Auckland") // Bug #40290
+TEST_CREATE_TS_FROM_STRINGS(bug40290_04, 1170160140, "Tue, 30 Jan 2007 12:27:00 -0002", "", "Pacific/Auckland") // Bug #40290
+
+
+/* from bug41709.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug41709_00, 946684800, "01.01.2000", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug41709_01, 946598400, "00.01.2000", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug41709_02, 943920000, "00.00.2000", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug41709_03, -62167219200, "01.01.0000", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug41709_04, -62167305600, "00.01.0000", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(bug41709_05, -62169984000, "00.00.0000", "00:00:00 GMT", "")
+
+
+/* from bug63470.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug63470_00, 1435536000, "this week", "2015-07-04 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_01, 1435536000, "this week", "2015-07-05 00:00", "UTC") // Sunday
+TEST_CREATE_TS_FROM_STRINGS(bug63470_02, 1436140800, "this week", "2015-07-06 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_03, 1436140800, "this week", "2015-07-11 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_04, 1436140800, "this week", "2015-07-12 00:00", "UTC") // Sunday
+TEST_CREATE_TS_FROM_STRINGS(bug63470_05, 1436745600, "this week", "2015-07-13 00:00", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(bug63470_06, 1209254400, "", "2008-04-27 00:00", "UTC") // Thursday
+TEST_CREATE_TS_FROM_STRINGS(bug63470_07, 1209254400, "this week sunday", "2008-04-25 00:00", "UTC") // Thursday
+
+TEST_CREATE_TS_FROM_STRINGS(bug63470_08, 1208822400, "", "2008-04-22 00:00", "UTC") // Thursday
+TEST_CREATE_TS_FROM_STRINGS(bug63470_09, 1208822400, "this week tuesday", "2008-04-25 00:00", "UTC") // Thursday
+
+TEST_CREATE_TS_FROM_STRINGS(bug63470_10, 1482710400, "", "2016-12-26 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_11, 1482710400, "monday this week", "2017-01-01 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_12, 1483315200, "", "2017-01-02 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_13, 1483315200, "monday this week", "2017-01-02 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_14, 1483315200, "monday this week", "2017-01-03 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_15, 1483315200, "monday this week", "2017-01-04 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_16, 1483315200, "monday this week", "2017-01-05 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_17, 1483315200, "monday this week", "2017-01-06 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_18, 1483315200, "monday this week", "2017-01-07 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_19, 1483315200, "monday this week", "2017-01-08 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_20, 1483920000, "", "2017-01-09 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_21, 1483920000, "monday this week", "2017-01-09 00:00", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(bug63470_22, 1483056000, "", "2016-12-30 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_23, 1483056000, "friday this week", "2017-01-01 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_24, 1483660800, "", "2017-01-06 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_25, 1483660800, "friday this week", "2017-01-02 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_26, 1483660800, "friday this week", "2017-01-03 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_27, 1483660800, "friday this week", "2017-01-04 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_28, 1483660800, "friday this week", "2017-01-05 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_29, 1483660800, "friday this week", "2017-01-06 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_30, 1483660800, "friday this week", "2017-01-07 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_31, 1483660800, "friday this week", "2017-01-08 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_32, 1484265600, "", "2017-01-13 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_33, 1484265600, "friday this week", "2017-01-09 00:00", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(bug63470_34, 1483142400, "", "2016-12-31 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_35, 1483142400, "saturday this week", "2017-01-01 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_36, 1483747200, "", "2017-01-07 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_37, 1483747200, "saturday this week", "2017-01-02 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_38, 1483747200, "saturday this week", "2017-01-03 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_39, 1483747200, "saturday this week", "2017-01-04 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_40, 1483747200, "saturday this week", "2017-01-05 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_41, 1483747200, "saturday this week", "2017-01-06 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_42, 1483747200, "saturday this week", "2017-01-07 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_43, 1483747200, "saturday this week", "2017-01-08 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_44, 1484352000, "", "2017-01-14 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_45, 1484352000, "saturday this week", "2017-01-09 00:00", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(bug63470_46, 1483228800, "", "2017-01-01 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_47, 1483228800, "sunday this week", "2017-01-01 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_48, 1483833600, "", "2017-01-08 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_49, 1483833600, "sunday this week", "2017-01-02 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_50, 1483833600, "sunday this week", "2017-01-03 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_51, 1483833600, "sunday this week", "2017-01-04 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_52, 1483833600, "sunday this week", "2017-01-05 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_53, 1483833600, "sunday this week", "2017-01-06 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_54, 1483833600, "sunday this week", "2017-01-07 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_55, 1483833600, "sunday this week", "2017-01-08 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_56, 1484438400, "", "2017-01-15 00:00", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug63470_57, 1484438400, "sunday this week", "2017-01-09 00:00", "UTC")
+
+
+/* from bug73294.ts */
+TEST_CREATE_TS_FROM_STRINGS(bug73294_00, -122110502400, "-1900-06-22", "", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(bug73294_01, -122615337600, "-1916-06-22", "", "UTC")
+
+
+/* from first_transition.ts */
+TEST_CREATE_TS_FROM_STRINGS(first_transition_00, -2695022427, "1884-08-06 06:39:33", "", "America/Los_Angeles")
+TEST_CREATE_TS_FROM_STRINGS(first_transition_01, -2190187227, "1900-08-06 06:39:33", "", "America/Los_Angeles")
+TEST_CREATE_TS_FROM_STRINGS(first_transition_02, -2158651227, "1901-08-06 06:39:33", "", "America/Los_Angeles")
+TEST_CREATE_TS_FROM_STRINGS(first_transition_03, -2127115227, "1902-08-06 06:39:33", "", "America/Los_Angeles")
+TEST_CREATE_TS_FROM_STRINGS(first_transition_04, -1637832027, "1918-02-06 06:39:33", "", "America/Los_Angeles")
+TEST_CREATE_TS_FROM_STRINGS(first_transition_05, -1622197227, "1918-08-06 06:39:33", "", "America/Los_Angeles")
+
+
+/* from full.ts */
+TEST_CREATE_TS_FROM_STRINGS(full_00, 1126396800, "9/11", "2005-09-11 00:00:00", "") // We have no timezone at all -> GMT
+TEST_CREATE_TS_FROM_STRINGS(full_01, 1126396800, "9/11", "2005-09-11 00:00:00 GMT", "") // The filler specified a timezone -> GMT
+TEST_CREATE_TS_FROM_STRINGS(full_02, 1126396800, "9/11", "2005-09-11 00:00:00", "GMT") // Global timezone is set -> GMT
+TEST_CREATE_TS_FROM_STRINGS(full_03, 1126396800, "9/11 GMT", "2005-09-11 00:00:00", "") // String to be parsed contains timezone -> GMT
+
+TEST_CREATE_TS_FROM_STRINGS(full_04, 1126393200, "9/11", "2005-09-11 00:00:00 CET", "") // Timezone specified -> CET, no DST (GMT+1)
+TEST_CREATE_TS_FROM_STRINGS(full_05, 1126389600, "9/11", "2005-09-11 00:00:00 CEST", "") // Timezone specified -> CEST, with DST (GMT+2)
+
+TEST_CREATE_TS_FROM_STRINGS(full_06, 1126393200, "9/11 CET", "2005-09-11 00:00:00", "") // Timezone specified -> CET, no DST (GMT+1)
+TEST_CREATE_TS_FROM_STRINGS(full_07, 1126389600, "9/11 CEST", "2005-09-11 00:00:00", "") // Timezone specified -> CEST, with DST (GMT+2)
+
+TEST_CREATE_TS_FROM_STRINGS(full_08, 1126389600, "9/11", "2005-09-11 00:00:00", "Europe/Amsterdam") // Zone identifier specified -> use it (CEST, GMT+2)
+TEST_CREATE_TS_FROM_STRINGS(full_09, 1126393200, "9/11", "2005-09-11 00:00:00 CET", "Europe/Amsterdam") // Timezone specified (wrong) and Zone ID specified -> adjust (GMT+1)
+TEST_CREATE_TS_FROM_STRINGS(full_10, 1126389600, "9/11", "2005-09-11 00:00:00 CEST", "Europe/Amsterdam") // Timezone specified and Zone ID specified -> (GMT+2)
+
+TEST_CREATE_TS_FROM_STRINGS(full_11, 1105401600, "1/11", "2005-01-11 00:00:00 GMT", "") // Timezone specified -> GMT
+TEST_CREATE_TS_FROM_STRINGS(full_12, 1105398000, "1/11", "2005-01-11 00:00:00 CET", "") // Timezone specified -> CET
+TEST_CREATE_TS_FROM_STRINGS(full_13, 1105394400, "1/11", "2005-01-11 00:00:00 CEST", "") // Timezone specified -> CEST (doesn't actually exist)
+
+TEST_CREATE_TS_FROM_STRINGS(full_14, 1105398000, "1/11", "2005-01-11 00:00:00", "Europe/Amsterdam") // Zone identifier specified -> use it (CST, GMT+1)
+TEST_CREATE_TS_FROM_STRINGS(full_15, 1105398000, "1/11", "2005-01-11 00:00:00 CET", "Europe/Amsterdam") // Timezone specified and Zone ID specified -> adjust (GMT+1)
+TEST_CREATE_TS_FROM_STRINGS(full_16, 1105394400, "1/11", "2005-01-11 00:00:00 CEST", "Europe/Amsterdam") // Timezone specified (wrong) and Zone ID specified -> (GMT+2)
+
+TEST_CREATE_TS_FROM_STRINGS(full_17, 283132800, "1978-12-22", "00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(full_18, 283147200, "1978-12-22", "00:00:00 EDT", "")
+TEST_CREATE_TS_FROM_STRINGS(full_19, 1113861600, "2005-04-19", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(full_20, 1113886800, "2005-04-19", "", "America/Chicago")
+TEST_CREATE_TS_FROM_STRINGS(full_21, 1113883200, "2005-04-19", "", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(full_22, 1113883200, "2005-04-19", "00:00:00", "America/New_York")
+TEST_CREATE_TS_FROM_STRINGS(full_23, 1113918120, "2005-04-19", "09:42:00", "America/New_York")
+
+
+/* from last_day_of.ts */
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_00, 1203724800, "last saturday of feb 2008", "2008-05-04 22:28:27", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_01, 1227571200, "last tue of 2008-11", "2008-05-04 22:28:27", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_02, 1222560000, "last sunday of sept", "2008-05-04 22:28:27", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_03, 1212192000, "last saturday of this month", "2008-05-04 22:28:27", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_04, 1208995200, "last thursday of last month", "2008-05-04 22:28:27", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_05, 1222214400, "last wed of fourth month", "2008-05-04 22:28:27", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(last_day_of_06, 1201219200, "last friday of next month", "2007-12-13", "UTC")
+
+
+/* from month.ts */
+TEST_CREATE_TS_FROM_STRINGS(month_00, 1141410805, "march", "2006-05-03 18:33:25", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(month_01, 1159900405, "OCT", "2006-05-03 18:33:25", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(month_02, 1157308405, "September", "2006-05-03 18:33:25", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(month_03, 1165170805, "deCEMber", "2006-05-03 18:33:25", "UTC")
+
+
+/* from relative.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_00, 1116457202, "+2 sec", "2005-05-18 23:00 GMT", "GMT")
+TEST_CREATE_TS_FROM_STRINGS(relative_01, 1116457198, "2 secs ago", "2005-05-18 23:00 GMT", "GMT")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_02, 1116630000, "+2 days", "2005-05-18 23:00 GMT", "GMT")
+TEST_CREATE_TS_FROM_STRINGS(relative_03, 1116630000, "", "2005-05-20 23:00 GMT", "GMT") // should be the same
+
+TEST_CREATE_TS_FROM_STRINGS(relative_04, 1116284400, "+2 days ago", "2005-05-18 23:00 GMT", "GMT")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_05, 1112828400, "-3 forthnight", "2005-05-18 23:00 GMT", "GMT")
+TEST_CREATE_TS_FROM_STRINGS(relative_06, 1112828400, "", "2005-04-06 23:00 GMT", "GMT")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_07, 1123714800, "+12 weeks", "2005-05-18 23:00 GMT", "GMT")
+TEST_CREATE_TS_FROM_STRINGS(relative_08, 1123714800, "", "2005-08-10 23:00 GMT", "GMT")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_09, 1128938400, "0 secs", "2005-10-10 12:00", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_10, 1128942000, "0 secs", "2005-10-10 12:00 CET", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_11, 1128938400, "0 secs", "2005-10-10 12:00 CEST", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_12, 1131620400, "0 secs", "2005-11-10 12:00", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_13, 1131620400, "0 secs", "2005-11-10 12:00 CET", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_14, 1131616800, "0 secs", "2005-11-10 12:00 CEST", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_15, 1131620400, "+31 days", "2005-10-10 12:00", "Europe/Amsterdam")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_16, 1099648800, "6 month 2004-05-05 12:00:00 CEST", "", "")
+TEST_CREATE_TS_FROM_STRINGS(relative_17, 1099648800, "2004-11-05 12:00:00 CEST", "", "")
+TEST_CREATE_TS_FROM_STRINGS(relative_18, 1099648800, "2004-05-05 12:00:00 CEST 6 months", "", "")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_19, 1099648800, "6 month 2004-05-05 12:00:00 CEST", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_20, 1099648800, "2004-11-05 12:00:00 CEST", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_21, 1099648800, "2004-05-05 12:00:00 CEST 6 months", "", "Europe/Amsterdam")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_22, 1099652400, "6 month 2004-05-05 12:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_23, 1099652400, "2004-11-05 12:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_24, 1099652400, "2004-05-05 12:00:00 6 months", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_25, 1083751200, "2004-05-05 12:00:00", "", "Europe/Amsterdam")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_26, 1068027323, "2003-11-05 12:15:23 CEST", "", "")
+TEST_CREATE_TS_FROM_STRINGS(relative_27, 1068027323, "2004-05-05 12:15:23 CEST 6 months ago", "", "")
+TEST_CREATE_TS_FROM_STRINGS(relative_28, 1068372923, "2003-11-09 12:15:23 CEST", "", "")
+TEST_CREATE_TS_FROM_STRINGS(relative_29, 1068372923, "2004-05-05 12:15:23 CEST 6 months ago 4 days", "", "")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_30, 1145570400, "21-04-2006", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_31, 1145570400, "this weekday", "21-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_32, 1145484000, "last weekday", "21-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_33, 1145570400, "last weekday", "22-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_34, 1145570400, "last weekday", "23-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_35, 1145397600, "13 weekdays ago", "07-05-2006", "Europe/Amsterdam")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_36, 1145570400, "21-04-2006", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_37, 1145570400, "this weekday", "21-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_38, 1145829600, "24-04-2006", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_39, 1145829600, "this weekday", "22-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_40, 1145829600, "this weekday", "23-04-2006", "Europe/Amsterdam")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_41, 1145829600, "24-04-2006", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_42, 1145829600, "first weekday", "21-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_43, 1145829600, "first weekday", "22-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_44, 1145829600, "first weekday", "23-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_45, 1145916000, "25-04-2006", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_46, 1145916000, "first weekday", "24-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_47, 1146002400, "26-04-2006", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_48, 1146002400, "8 weekday", "15-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_49, 1146002400, "eight weekday", "15-04-2006", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(relative_50, 1149700004, "Mon, 08 May 2006 13:06:44 -0400 +30 days", "", "Europe/Amsterdam")
+
+
+/* from relative_weekday_1.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_00, 1216598400, "1 monday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_01, 1216684800, "1 tuesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_02, 1216771200, "1 wednesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_03, 1216857600, "1 thursday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_04, 1216944000, "1 friday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_05, 1217030400, "1 saturday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_06, 1217116800, "1 sunday", "2008-07-21 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_07, 1217203200, "1 monday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_08, 1216684800, "1 tuesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_09, 1216771200, "1 wednesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_10, 1216857600, "1 thursday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_11, 1216944000, "1 friday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_12, 1217030400, "1 saturday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_13, 1217116800, "1 sunday", "2008-07-22 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_14, 1217203200, "1 monday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_15, 1217289600, "1 tuesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_16, 1216771200, "1 wednesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_17, 1216857600, "1 thursday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_18, 1216944000, "1 friday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_19, 1217030400, "1 saturday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_20, 1217116800, "1 sunday", "2008-07-23 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_21, 1217203200, "1 monday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_22, 1217289600, "1 tuesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_23, 1217376000, "1 wednesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_24, 1216857600, "1 thursday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_25, 1216944000, "1 friday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_26, 1217030400, "1 saturday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_27, 1217116800, "1 sunday", "2008-07-24 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_28, 1217203200, "1 monday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_29, 1217289600, "1 tuesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_30, 1217376000, "1 wednesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_31, 1217462400, "1 thursday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_32, 1216944000, "1 friday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_33, 1217030400, "1 saturday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_34, 1217116800, "1 sunday", "2008-07-25 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_35, 1217203200, "1 monday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_36, 1217289600, "1 tuesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_37, 1217376000, "1 wednesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_38, 1217462400, "1 thursday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_39, 1217548800, "1 friday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_40, 1217030400, "1 saturday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_41, 1217116800, "1 sunday", "2008-07-26 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_42, 1217203200, "1 monday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_43, 1217289600, "1 tuesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_44, 1217376000, "1 wednesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_45, 1217462400, "1 thursday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_46, 1217548800, "1 friday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_47, 1217635200, "1 saturday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_1_48, 1217116800, "1 sunday", "2008-07-27 00:00 UTC", "UTC")
+
+
+/* from relative_weekday_2.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_00, 1217203200, "+1 week monday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_01, 1217289600, "+1 week tuesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_02, 1217376000, "+1 week wednesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_03, 1217462400, "+1 week thursday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_04, 1217548800, "+1 week friday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_05, 1217635200, "+1 week saturday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_06, 1217721600, "+1 week sunday", "2008-07-21 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_07, 1217808000, "+1 week monday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_08, 1217289600, "+1 week tuesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_09, 1217376000, "+1 week wednesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_10, 1217462400, "+1 week thursday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_11, 1217548800, "+1 week friday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_12, 1217635200, "+1 week saturday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_13, 1217721600, "+1 week sunday", "2008-07-22 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_14, 1217808000, "+1 week monday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_15, 1217894400, "+1 week tuesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_16, 1217376000, "+1 week wednesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_17, 1217462400, "+1 week thursday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_18, 1217548800, "+1 week friday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_19, 1217635200, "+1 week saturday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_20, 1217721600, "+1 week sunday", "2008-07-23 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_21, 1217808000, "+1 week monday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_22, 1217894400, "+1 week tuesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_23, 1217980800, "+1 week wednesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_24, 1217462400, "+1 week thursday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_25, 1217548800, "+1 week friday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_26, 1217635200, "+1 week saturday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_27, 1217721600, "+1 week sunday", "2008-07-24 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_28, 1217808000, "+1 week monday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_29, 1217894400, "+1 week tuesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_30, 1217980800, "+1 week wednesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_31, 1218067200, "+1 week thursday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_32, 1217548800, "+1 week friday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_33, 1217635200, "+1 week saturday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_34, 1217721600, "+1 week sunday", "2008-07-25 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_35, 1217808000, "+1 week monday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_36, 1217894400, "+1 week tuesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_37, 1217980800, "+1 week wednesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_38, 1218067200, "+1 week thursday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_39, 1218153600, "+1 week friday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_40, 1217635200, "+1 week saturday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_41, 1217721600, "+1 week sunday", "2008-07-26 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_42, 1217808000, "+1 week monday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_43, 1217894400, "+1 week tuesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_44, 1217980800, "+1 week wednesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_45, 1218067200, "+1 week thursday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_46, 1218153600, "+1 week friday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_47, 1218240000, "+1 week saturday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_2_48, 1217721600, "+1 week sunday", "2008-07-27 00:00 UTC", "UTC")
+
+
+/* from relative_weekday_first.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_00, 1217203200, "first monday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_01, 1216684800, "first tuesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_02, 1216771200, "first wednesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_03, 1216857600, "first thursday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_04, 1216944000, "first friday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_05, 1217030400, "first saturday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_06, 1217116800, "first sunday", "2008-07-21 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_07, 1217203200, "first monday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_08, 1217289600, "first tuesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_09, 1216771200, "first wednesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_10, 1216857600, "first thursday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_11, 1216944000, "first friday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_12, 1217030400, "first saturday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_13, 1217116800, "first sunday", "2008-07-22 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_14, 1217203200, "first monday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_15, 1217289600, "first tuesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_16, 1217376000, "first wednesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_17, 1216857600, "first thursday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_18, 1216944000, "first friday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_19, 1217030400, "first saturday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_20, 1217116800, "first sunday", "2008-07-23 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_21, 1217203200, "first monday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_22, 1217289600, "first tuesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_23, 1217376000, "first wednesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_24, 1217462400, "first thursday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_25, 1216944000, "first friday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_26, 1217030400, "first saturday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_27, 1217116800, "first sunday", "2008-07-24 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_28, 1217203200, "first monday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_29, 1217289600, "first tuesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_30, 1217376000, "first wednesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_31, 1217462400, "first thursday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_32, 1217548800, "first friday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_33, 1217030400, "first saturday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_34, 1217116800, "first sunday", "2008-07-25 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_35, 1217203200, "first monday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_36, 1217289600, "first tuesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_37, 1217376000, "first wednesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_38, 1217462400, "first thursday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_39, 1217548800, "first friday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_40, 1217635200, "first saturday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_41, 1217116800, "first sunday", "2008-07-26 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_42, 1217203200, "first monday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_43, 1217289600, "first tuesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_44, 1217376000, "first wednesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_45, 1217462400, "first thursday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_46, 1217548800, "first friday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_47, 1217635200, "first saturday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_first_48, 1217721600, "first sunday", "2008-07-27 00:00 UTC", "UTC")
+
+
+/* from relative_weekday_second.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_00, 1217808000, "second monday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_01, 1217289600, "second tuesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_02, 1217376000, "second wednesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_03, 1217462400, "second thursday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_04, 1217548800, "second friday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_05, 1217635200, "second saturday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_06, 1217721600, "second sunday", "2008-07-21 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_07, 1217808000, "second monday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_08, 1217894400, "second tuesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_09, 1217376000, "second wednesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_10, 1217462400, "second thursday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_11, 1217548800, "second friday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_12, 1217635200, "second saturday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_13, 1217721600, "second sunday", "2008-07-22 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_14, 1217808000, "second monday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_15, 1217894400, "second tuesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_16, 1217980800, "second wednesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_17, 1217462400, "second thursday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_18, 1217548800, "second friday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_19, 1217635200, "second saturday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_20, 1217721600, "second sunday", "2008-07-23 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_21, 1217808000, "second monday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_22, 1217894400, "second tuesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_23, 1217980800, "second wednesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_24, 1218067200, "second thursday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_25, 1217548800, "second friday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_26, 1217635200, "second saturday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_27, 1217721600, "second sunday", "2008-07-24 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_28, 1217808000, "second monday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_29, 1217894400, "second tuesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_30, 1217980800, "second wednesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_31, 1218067200, "second thursday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_32, 1218153600, "second friday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_33, 1217635200, "second saturday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_34, 1217721600, "second sunday", "2008-07-25 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_35, 1217808000, "second monday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_36, 1217894400, "second tuesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_37, 1217980800, "second wednesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_38, 1218067200, "second thursday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_39, 1218153600, "second friday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_40, 1218240000, "second saturday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_41, 1217721600, "second sunday", "2008-07-26 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_42, 1217808000, "second monday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_43, 1217894400, "second tuesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_44, 1217980800, "second wednesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_45, 1218067200, "second thursday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_46, 1218153600, "second friday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_47, 1218240000, "second saturday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_second_48, 1218326400, "second sunday", "2008-07-27 00:00 UTC", "UTC")
+
+
+/* from relative_weekday.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_00, 1216598400, "monday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_01, 1216684800, "tuesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_02, 1216771200, "wednesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_03, 1216857600, "thursday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_04, 1216944000, "friday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_05, 1217030400, "saturday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_06, 1217116800, "sunday", "2008-07-21 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_07, 1217203200, "monday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_08, 1216684800, "tuesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_09, 1216771200, "wednesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_10, 1216857600, "thursday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_11, 1216944000, "friday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_12, 1217030400, "saturday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_13, 1217116800, "sunday", "2008-07-22 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_14, 1217203200, "monday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_15, 1217289600, "tuesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_16, 1216771200, "wednesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_17, 1216857600, "thursday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_18, 1216944000, "friday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_19, 1217030400, "saturday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_20, 1217116800, "sunday", "2008-07-23 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_21, 1217203200, "monday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_22, 1217289600, "tuesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_23, 1217376000, "wednesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_24, 1216857600, "thursday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_25, 1216944000, "friday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_26, 1217030400, "saturday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_27, 1217116800, "sunday", "2008-07-24 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_28, 1217203200, "monday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_29, 1217289600, "tuesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_30, 1217376000, "wednesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_31, 1217462400, "thursday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_32, 1216944000, "friday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_33, 1217030400, "saturday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_34, 1217116800, "sunday", "2008-07-25 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_35, 1217203200, "monday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_36, 1217289600, "tuesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_37, 1217376000, "wednesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_38, 1217462400, "thursday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_39, 1217548800, "friday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_40, 1217030400, "saturday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_41, 1217116800, "sunday", "2008-07-26 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_42, 1217203200, "monday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_43, 1217289600, "tuesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_44, 1217376000, "wednesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_45, 1217462400, "thursday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_46, 1217548800, "friday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_47, 1217635200, "saturday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_48, 1217116800, "sunday", "2008-07-27 00:00 UTC", "UTC")
+
+
+/* from relative_weekday_week1.ts */
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_00, 1217203200, "+1 week monday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_01, 1217289600, "+1 week tuesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_02, 1217376000, "+1 week wednesday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_03, 1217462400, "+1 week thursday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_04, 1217548800, "+1 week friday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_05, 1217635200, "+1 week saturday", "2008-07-21 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_06, 1217721600, "+1 week sunday", "2008-07-21 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_07, 1217808000, "+1 week monday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_08, 1217289600, "+1 week tuesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_09, 1217376000, "+1 week wednesday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_10, 1217462400, "+1 week thursday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_11, 1217548800, "+1 week friday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_12, 1217635200, "+1 week saturday", "2008-07-22 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_13, 1217721600, "+1 week sunday", "2008-07-22 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_14, 1217808000, "+1 week monday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_15, 1217894400, "+1 week tuesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_16, 1217376000, "+1 week wednesday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_17, 1217462400, "+1 week thursday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_18, 1217548800, "+1 week friday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_19, 1217635200, "+1 week saturday", "2008-07-23 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_20, 1217721600, "+1 week sunday", "2008-07-23 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_21, 1217808000, "+1 week monday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_22, 1217894400, "+1 week tuesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_23, 1217980800, "+1 week wednesday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_24, 1217462400, "+1 week thursday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_25, 1217548800, "+1 week friday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_26, 1217635200, "+1 week saturday", "2008-07-24 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_27, 1217721600, "+1 week sunday", "2008-07-24 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_28, 1217808000, "+1 week monday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_29, 1217894400, "+1 week tuesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_30, 1217980800, "+1 week wednesday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_31, 1218067200, "+1 week thursday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_32, 1217548800, "+1 week friday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_33, 1217635200, "+1 week saturday", "2008-07-25 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_34, 1217721600, "+1 week sunday", "2008-07-25 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_35, 1217808000, "+1 week monday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_36, 1217894400, "+1 week tuesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_37, 1217980800, "+1 week wednesday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_38, 1218067200, "+1 week thursday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_39, 1218153600, "+1 week friday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_40, 1217635200, "+1 week saturday", "2008-07-26 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_41, 1217721600, "+1 week sunday", "2008-07-26 00:00 UTC", "UTC")
+
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_42, 1217808000, "+1 week monday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_43, 1217894400, "+1 week tuesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_44, 1217980800, "+1 week wednesday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_45, 1218067200, "+1 week thursday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_46, 1218153600, "+1 week friday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_47, 1218240000, "+1 week saturday", "2008-07-27 00:00 UTC", "UTC")
+TEST_CREATE_TS_FROM_STRINGS(relative_weekday_week1_48, 1217721600, "+1 week sunday", "2008-07-27 00:00 UTC", "UTC")
+
+
+/* from strange.ts */
+TEST_CREATE_TS_FROM_STRINGS(strange_00, 1126396800, "+1126396800 secs", "1970-01-01 00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_01, 1118016000, "2005-06-06 00:00:00", "", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_02, 1126396800, "@1126396800", "1970-01-01 00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_03, -126396800, "@-126396800", "1970-01-01 00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_04, 1126396800, "@1126396800 +0200", "1970-01-01 00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_05, -126396800, "@-126396800 Europe/Oslo", "1970-01-01 00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_06, 0, "@0", "1970-01-01 00:00:00 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_07, 1118008800, "2005-06-06 00:00:00 CEST", "", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_08, 1118008800, "2005-06-06 00:00:00 +0200", "", "")
+TEST_CREATE_TS_FROM_STRINGS(strange_09, 1126398132, "@1126398132.712315", "1970-01-01 00:00:00 GMT", "")
+
+
+/* from thisweek.ts */
+TEST_CREATE_TS_FROM_STRINGS(thisweek_00, 1116547200, "today", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_01, 1116547200, "00:00:00", "2005-05-20 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(thisweek_02, 1116590400, "2005-05-20 noon", "", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_03, 1116590400, "today noon", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_04, 1116590400, "12:00:00", "2005-05-20 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(thisweek_05, 1116460800, "yesterday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_06, 1116460800, "00:00:00", "2005-05-19 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(thisweek_07, 1116201600, "last monday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_08, 1116288000, "last tuesday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_09, 1116374400, "last wednesday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_10, 1116460800, "last thursday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_11, 1115942400, "last friday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_12, 1116028800, "last saturday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_13, 1116115200, "last sunday", "2005-05-20 21:08:14 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(thisweek_14, 1116806400, "next monday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_15, 1116892800, "next tuesday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_16, 1116979200, "next wednesday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_17, 1117065600, "next thursday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_18, 1117152000, "next friday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_19, 1116633600, "next saturday", "2005-05-20 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(thisweek_20, 1116720000, "next sunday", "2005-05-20 21:08:14 GMT", "")
+
+
+/* from transition.ts */
+TEST_CREATE_TS_FROM_STRINGS(transition_00, 1206835200, "2008-03-30 01:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(transition_01, 1206838799, "2008-03-30 01:59:59", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(transition_02, 1206838800, "2008-03-30 02:00:00", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(transition_03, 1206842399, "2008-03-30 02:59:59", "", "Europe/Amsterdam")
+TEST_CREATE_TS_FROM_STRINGS(transition_04, 1206838800, "2008-03-30 03:00:00", "", "Europe/Amsterdam")
+
+
+/* from weekdays.ts */
+TEST_CREATE_TS_FROM_STRINGS(weekdays_00, 1116633600, "this saturday", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_01, 1116633600, "00:00:00", "2005-05-21 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_02, 1116028800, "this saturday ago", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_03, 1116028800, "00:00:00", "2005-05-14 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_04, 1116028800, "last saturday", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_05, 1116028800, "00:00:00", "2005-05-14 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_06, 1116633600, "last saturday ago", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_07, 1116633600, "00:00:00", "2005-05-21 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_08, 1116633600, "first saturday", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_09, 1116633600, "00:00:00", "2005-05-21 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_10, 1116028800, "first saturday ago", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_11, 1116028800, "00:00:00", "2005-05-14 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_12, 1116633600, "next saturday", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_13, 1116633600, "00:00:00", "2005-05-21 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_14, 1116028800, "next saturday ago", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_15, 1116028800, "00:00:00", "2005-05-14 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_16, 1117843200, "third saturday", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_17, 1117843200, "00:00:00", "2005-06-04 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_18, 1114819200, "third saturday ago", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_19, 1114819200, "00:00:00", "2005-04-30 00:00:00 GMT", "")
+
+TEST_CREATE_TS_FROM_STRINGS(weekdays_20, 1116028800, "previous saturday", "2005-05-19 21:08:14 GMT", "")
+TEST_CREATE_TS_FROM_STRINGS(weekdays_21, 1116028800, "00:00:00", "2005-05-14 00:00:00 GMT", "")
+
+
+/* from week.ts */
+TEST_CREATE_TS_FROM_STRINGS(week_00, 1208728800, "this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_01, 1208728800, "this week monday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_02, 1208815200, "this week tuesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_03, 1208901600, "this week wednesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_04, 1208988000, "this week thursday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_05, 1209074400, "this week friday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_06, 1209160800, "this week saturday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_07, 1209247200, "this week sunday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_08, 1208728800, "monday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_09, 1208815200, "tuesday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_10, 1208901600, "wednesday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_11, 1208988000, "thursday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_12, 1209074400, "friday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_13, 1209160800, "saturday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_14, 1209247200, "sunday this week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_15, 1208124000, "last week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_16, 1208124000, "last week monday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_17, 1208210400, "last week tuesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_18, 1208296800, "last week wednesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_19, 1208383200, "thursday last week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_20, 1208469600, "friday last week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_21, 1208556000, "saturday last week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_22, 1208642400, "sunday last week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_23, 1208124000, "previous week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_24, 1208124000, "previous week monday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_25, 1208210400, "previous week tuesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_26, 1208296800, "previous week wednesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_27, 1208383200, "thursday previous week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_28, 1208469600, "friday previous week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_29, 1208556000, "saturday previous week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_30, 1208642400, "sunday previous week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_31, 1209333600, "next week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_32, 1209333600, "next week monday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_33, 1209420000, "next week tuesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_34, 1209506400, "next week wednesday", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_35, 1209592800, "thursday next week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_36, 1209679200, "friday next week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_37, 1209765600, "saturday next week", "2008-04-25", "Europe/Oslo")
+TEST_CREATE_TS_FROM_STRINGS(week_38, 1209852000, "sunday next week", "2008-04-25", "Europe/Oslo")
+
+
