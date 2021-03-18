@@ -649,6 +649,14 @@ void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt);
 /* From unixtime2tm.c */
 
 /**
+ * Takes the unix timestamp in seconds from 'ts', and calculates y, m, and d,
+ * in the proleptic Gregorian calendar.
+ *
+ * It uses the algorithm from howardhinnant.github.io/date_algorithms.html
+ */
+void timelib_unixtime2date(timelib_sll ts, timelib_sll *y, timelib_sll *m, timelib_sll *d);
+
+/**
  * Takes the unix timestamp in seconds from 'ts' and populates the y/m/d/h/i/s
  * fields of 'tm' without taking time zones into account
  */

@@ -113,9 +113,9 @@ static int do_range_limit_days(timelib_sll *y, timelib_sll *m, timelib_sll *d)
 	timelib_sll days_last_month;
 
 	/* can jump an entire leap year period quickly */
-	if (*d >= DAYS_PER_LYEAR_PERIOD || *d <= -DAYS_PER_LYEAR_PERIOD) {
-		*y += YEARS_PER_LYEAR_PERIOD * (*d / DAYS_PER_LYEAR_PERIOD);
-		*d -= DAYS_PER_LYEAR_PERIOD * (*d / DAYS_PER_LYEAR_PERIOD);
+	if (*d >= DAYS_PER_ERA || *d <= -DAYS_PER_ERA) {
+		*y += YEARS_PER_ERA * (*d / DAYS_PER_ERA);
+		*d -= DAYS_PER_ERA * (*d / DAYS_PER_ERA);
 	}
 
 	do_range_limit(1, 13, 12, m, y);
@@ -192,8 +192,6 @@ void timelib_do_rel_normalize(timelib_time *base, timelib_rel_time *rt)
 	do_range_limit(0, 12, 12, &rt->m, &rt->y);
 }
 
-#define EPOCH_DAY 719468
-
 static void magic_date_calc(timelib_time *time)
 {
 	timelib_sll y, ddd, mi, mm, dd, g;
@@ -203,7 +201,7 @@ static void magic_date_calc(timelib_time *time)
 		return;
 	}
 
-	g = time->d + EPOCH_DAY - 1;
+	g = time->d + HINNANT_EPOCH_SHIFT - 1;
 
 	y = (10000 * g + 14780) / 3652425;
 	ddd = g - ((365*y) + (y/4) - (y/100) + (y/400));

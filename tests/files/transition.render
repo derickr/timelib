@@ -1,6 +1,0 @@
-Expected:                                                          | Timestamp: | Timezone:
-TYPE: 0 TS: 1206835200 | 2008-03-30 01:00:00 CET Europe/Amsterdam  | 1206835200 | Europe/Amsterdam
-TYPE: 0 TS: 1206838799 | 2008-03-30 01:59:59 CET Europe/Amsterdam  | 1206838799 | Europe/Amsterdam
-TYPE: 0 TS: 1206838800 | 2008-03-30 03:00:00 CEST Europe/Amsterdam | 1206838800 | Europe/Amsterdam
-TYPE: 0 TS: 1206842399 | 2008-03-30 03:59:59 CEST Europe/Amsterdam | 1206842399 | Europe/Amsterdam
-TYPE: 0 TS: 1206838800 | 2008-03-30 03:00:00 CEST Europe/Amsterdam | 1206838800 | Europe/Amsterdam
