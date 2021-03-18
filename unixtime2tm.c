@@ -1,7 +1,8 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2019 Derick Rethans
+ * Copyright (c) 2015-2021 Derick Rethans
+ * Copyright (c) 2021 MongoDB
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,76 +26,31 @@
 #include "timelib.h"
 #include "timelib_private.h"
 
-static int month_tab_leap[12] = { -1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-static int month_tab[12] =      { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-
-
-void timelib_unixtime2date(timelib_time* tm, timelib_sll ts)
+void timelib_unixtime2date(timelib_sll ts, timelib_sll *y, timelib_sll *m, timelib_sll *d)
 {
-	timelib_sll days, tmp_days, remainder;
-	timelib_sll cur_year = 1970;
-	timelib_sll i;
-	int *months;
+	timelib_sll days, era, t;
+	timelib_ull day_of_era, year_of_era, day_of_year, month_portion;
 
-	days = ts / SECS_PER_DAY;
-	remainder = ts - (days * SECS_PER_DAY);
-	if (ts < 0 && remainder == 0) {
-		days++;
-	}
-	TIMELIB_DEBUG(printf("days=%lld, rem=%lld\n", days, remainder););
+	/* Calculate days since algorithm's epoch (0000-03-01) */
+	days = ts / SECS_PER_DAY + HINNANT_EPOCH_SHIFT;
 
-	if (ts >= 0) {
-		tmp_days = days + 1;
-	} else {
-		tmp_days = days;
-	}
+	/* Adjustment for a negative time portion */
+	t = ts % SECS_PER_DAY;
+	days += (t < 0) ? -1 : 0;
 
-	if (tmp_days > DAYS_PER_LYEAR_PERIOD || tmp_days <= -DAYS_PER_LYEAR_PERIOD) {
-		cur_year += YEARS_PER_LYEAR_PERIOD * (tmp_days / DAYS_PER_LYEAR_PERIOD);
-		tmp_days -= DAYS_PER_LYEAR_PERIOD * (tmp_days / DAYS_PER_LYEAR_PERIOD);
-	}
-	TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
+	/* Calculate year, month, and day. Algorithm from:
+	 * http://howardhinnant.github.io/date_algorithms.html#civil_from_days */
+	era = (days >= 0 ? days : days - DAYS_PER_ERA + 1) / DAYS_PER_ERA;
+	day_of_era = days - era * DAYS_PER_ERA;
+	year_of_era = (day_of_era - day_of_era / 1460 + day_of_era / 36524 - day_of_era / 146096) / DAYS_PER_YEAR;
+	*y = year_of_era + era * YEARS_PER_ERA;
+	day_of_year = day_of_era - (DAYS_PER_YEAR * year_of_era + year_of_era / 4 - year_of_era / 100);
+	month_portion = (5 * day_of_year + 2) / 153;
+	*d = day_of_year - (153 * month_portion + 2) / 5 + 1;
+	*m = month_portion + (month_portion < 10 ? 3 : -9);
+	*y += (*m <= 2);
 
-	if (ts >= 0) {
-		while (tmp_days >= DAYS_PER_LYEAR) {
-			cur_year++;
-			if (timelib_is_leap(cur_year)) {
-				tmp_days -= DAYS_PER_LYEAR;
-			} else {
-				tmp_days -= DAYS_PER_YEAR;
-			}
-			TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
-		}
-	} else {
-		while (tmp_days <= 0) {
-			cur_year--;
-			if (timelib_is_leap(cur_year)) {
-				tmp_days += DAYS_PER_LYEAR;
-			} else {
-				tmp_days += DAYS_PER_YEAR;
-			}
-			TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
-		}
-	}
-	TIMELIB_DEBUG(printf("tmp_days=%lld, year=%lld\n", tmp_days, cur_year););
-
-	months = timelib_is_leap(cur_year) ? month_tab_leap : month_tab;
-	if (timelib_is_leap(cur_year) && cur_year < 1970) {
-		tmp_days--;
-	}
-	i = 11;
-	while (i > 0) {
-		TIMELIB_DEBUG(printf("month=%lld (%d)\n", i, months[i]););
-		if (tmp_days > months[i]) {
-			break;
-		}
-		i--;
-	}
-	TIMELIB_DEBUG(printf("A: ts=%lld, year=%lld, month=%lld, day=%lld,", ts, cur_year, i + 1, tmp_days - months[i]););
-
-	tm->y = cur_year;
-	tm->m = i + 1;
-	tm->d = tmp_days - months[i];
+	TIMELIB_DEBUG(printf("A: ts=%lld, year=%lld, month=%lld, day=%lld,", ts, *y, *m, *d););
 }
 
 /* Converts a Unix timestamp value into broken down time, in GMT */
@@ -103,7 +59,7 @@ void timelib_unixtime2gmt(timelib_time* tm, timelib_sll ts)
 	timelib_sll remainder;
 	timelib_sll hours, minutes, seconds;
 
-	timelib_unixtime2date(tm, ts);
+	timelib_unixtime2date(ts, &tm->y, &tm->m, &tm->d);
 	remainder = ts % SECS_PER_DAY;
 	remainder += (remainder < 0) * SECS_PER_DAY;
 
