@@ -1,4 +1,0 @@
-Expected:                                                           | Timestamp: | Timezone:
-TYPE: 0 TS: 1099195200 | 2004-10-31 00:00:00 EDT America/New_York   | 1099195200 | America/New_York
-TYPE: 0 TS: 1099198800 | 2004-10-31 01:00:00 EDT America/New_York   | 1099198800 | America/New_York
-TYPE: 0 TS: 1099206000 | 2004-10-31 02:00:00 EST America/New_York   | 1099206000 | America/New_York

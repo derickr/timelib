@@ -24,7 +24,7 @@ C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour
 	tests/c/timelib_juliandate.cpp tests/c/issues.cpp tests/c/astro_rise_set_altitude.cpp \
 	tests/c/parse_date_from_format_test.cpp tests/c/parse_intervals.cpp \
 	tests/c/warn_on_slim.cpp tests/c/parse_posix.cpp tests/c/transitions.cpp \
-	tests/c/parse_tz.cpp
+	tests/c/parse_tz.cpp tests/c/render.cpp
 
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
