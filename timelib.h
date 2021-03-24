@@ -627,6 +627,12 @@ void timelib_strtointerval(const char *s, size_t len,
 void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi);
 
 /**
+ * Returns the number of days from the y/m/d fields of 'time' since the Unix
+ * Epoch.
+ */
+timelib_sll timelib_epoch_days_from_time(timelib_time *time);
+
+/**
  * Takes the information from the y/m/d/h/i/s fields and makes sure their
  * values are in the right range.
  *

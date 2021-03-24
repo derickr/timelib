@@ -83,6 +83,7 @@
 
 #define SECS_PER_ERA   TIMELIB_LL_CONST(12622780800)
 #define SECS_PER_DAY   86400
+#define SECS_PER_HOUR   3600
 #define DAYS_PER_WEEK      7
 #define DAYS_PER_YEAR    365
 #define DAYS_PER_LYEAR   366

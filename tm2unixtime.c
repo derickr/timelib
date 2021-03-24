@@ -25,10 +25,6 @@
 #include "timelib.h"
 #include "timelib_private.h"
 
-/*                                    jan  feb  mrt  apr  may  jun  jul  aug  sep  oct  nov  dec */
-static int month_tab_leap[12]     = {  -1,  30,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
-static int month_tab[12]          = {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
-
 /*                                    dec  jan  feb  mrt  apr  may  jun  jul  aug  sep  oct  nov  dec */
 static int days_in_month_leap[13] = {  31,  31,  29,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
 static int days_in_month[13]      = {  31,  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
@@ -358,61 +354,7 @@ static void do_adjust_special_early(timelib_time* time)
 	timelib_do_normalize(time);
 }
 
-static timelib_sll do_years(timelib_sll year)
-{
-	timelib_sll i;
-	timelib_sll res = 0;
-	timelib_sll eras;
-
-	eras = (year - 1970) / 40000;
-
-	/* Hack to make sure we don't overflow. Right now, we can't easily thrown a
-	 * warning in this case, so we'll just return some rubbish. Sucks, but at
-	 * least it doesn't show UBSAN warnings anymore */
-	if (eras < -1000000 || eras > 1000000) {
-		return eras > 0 ? LLONG_MAX/10 : LLONG_MIN/10;
-	}
-
-	if (eras != 0) {
-		year = year - (eras * 40000);
-		res += (SECS_PER_ERA * eras * 100);
-	}
-
-	if (year >= 1970) {
-		for (i = year - 1; i >= 1970; i--) {
-			if (timelib_is_leap(i)) {
-				res += (DAYS_PER_LYEAR * SECS_PER_DAY);
-			} else {
-				res += (DAYS_PER_YEAR * SECS_PER_DAY);
-			}
-		}
-	} else {
-		for (i = 1969; i >= year; i--) {
-			if (timelib_is_leap(i)) {
-				res -= (DAYS_PER_LYEAR * SECS_PER_DAY);
-			} else {
-				res -= (DAYS_PER_YEAR * SECS_PER_DAY);
-			}
-		}
-	}
-	return res;
-}
-
-static timelib_sll do_months(timelib_ull month, timelib_sll year)
-{
-	if (timelib_is_leap(year)) {
-		return ((month_tab_leap[month - 1] + 1) * SECS_PER_DAY);
-	} else {
-		return ((month_tab[month - 1]) * SECS_PER_DAY);
-	}
-}
-
-static timelib_sll do_days(timelib_ull day)
-{
-	return ((day - 1) * SECS_PER_DAY);
-}
-
-static timelib_sll do_time(timelib_ull hour, timelib_ull minute, timelib_ull second)
+static timelib_sll seconds_from_hms(timelib_ull hour, timelib_ull minute, timelib_ull second)
 {
 	timelib_sll res = 0;
 
@@ -489,6 +431,20 @@ static timelib_sll do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 	return 0;
 }
 
+timelib_sll timelib_epoch_days_from_time(timelib_time *time)
+{
+	timelib_sll y = time->y; // Make copy, as we don't want to change the original one
+	timelib_sll era, year_of_era, day_of_year, day_of_era;
+
+	y -= time->m <= 2;
+	era = (y >= 0 ? y : y - 399) / YEARS_PER_ERA;
+	year_of_era = y - era * YEARS_PER_ERA;                                                        // [0, 399]
+	day_of_year = (153 * (time->m + (time->m > 2 ? -3 : 9)) + 2)/5 + time->d - 1;                 // [0, 365]
+	day_of_era = year_of_era * DAYS_PER_YEAR + year_of_era / 4 - year_of_era / 100 + day_of_year; // [0, 146096]
+
+	return era * DAYS_PER_ERA + day_of_era - HINNANT_EPOCH_SHIFT;
+}
+
 void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi)
 {
 	timelib_sll res = 0;
@@ -496,10 +452,8 @@ void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi)
 	do_adjust_special_early(time);
 	do_adjust_relative(time);
 	do_adjust_special(time);
-	res += do_years(time->y);
-	res += do_months(time->m, time->y);
-	res += do_days(time->d);
-	res += do_time(time->h, time->i, time->s);
+	res += (timelib_epoch_days_from_time(time) * SECS_PER_DAY);
+	res += seconds_from_hms(time->h, time->i, time->s);
 	time->sse = res;
 
 	res += do_adjust_timezone(time, tzi);
