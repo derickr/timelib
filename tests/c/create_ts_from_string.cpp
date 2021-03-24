@@ -6,32 +6,58 @@ extern timelib_tzdb *zoneinfo;
 
 TEST_GROUP(create_ts)
 {
+	int dummy_error;
+	timelib_time *t;
+	timelib_time *now;
+	timelib_tzinfo *tzi;
+
+	TEST_SETUP()
+	{
+		t = NULL;
+		now = NULL;
+		tzi = NULL;
+	}
+
+	void test_create_ts(const char *s, const char *r, const char *tzid)
+	{
+		t = timelib_strtotime(s, strlen(s), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		if (!t) {
+			return;
+		}
+		now = timelib_strtotime(r, strlen(r), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		if (!now) {
+			return;
+		}
+		timelib_fill_holes(t, now, TIMELIB_OVERRIDE_TIME);
+
+		tzi = timelib_parse_tzfile(tzid, timelib_builtin_db(), &dummy_error);
+
+		if (now->tz_info && (now->tz_info != tzi)) {
+			timelib_tzinfo_dtor(now->tz_info);
+		}
+
+		timelib_update_ts(t, tzi);
+	}
+
+	TEST_TEARDOWN()
+	{
+		if (now) {
+			timelib_time_dtor(now);
+		}
+		if (t->tz_info && (t->tz_info != tzi)) {
+			timelib_tzinfo_dtor(t->tz_info);
+		}
+		timelib_time_dtor(t);
+		if (tzi) {
+			timelib_tzinfo_dtor(tzi);
+		}
+	}
 };
 
 #define TEST_CREATE_TS_FROM_STRINGS(n,e,s,r,tzid) \
 	TEST(create_ts, n) { \
-		int dummy_error; \
-		timelib_time *t = timelib_strtotime(s, strlen(s), NULL, timelib_builtin_db(), timelib_parse_tzfile); \
-		CHECK(t != NULL); \
-		timelib_time *now = timelib_strtotime(r, strlen(r), NULL, timelib_builtin_db(), timelib_parse_tzfile); \
-		CHECK(now != NULL); \
-		timelib_tzinfo *tzi = timelib_parse_tzfile(tzid, timelib_builtin_db(), &dummy_error); \
-		\
-		timelib_fill_holes(t, now, TIMELIB_OVERRIDE_TIME); \
-		if (now->tz_info && (now->tz_info != tzi)) { \
-			timelib_tzinfo_dtor(now->tz_info); \
-		} \
-		timelib_time_dtor(now); \
-		timelib_update_ts(t, tzi); \
-		\
+		test_create_ts(s, r, tzid); \
 		LONGS_EQUAL(e, t->sse); \
-		if (t->tz_info && (t->tz_info != tzi)) { \
-			timelib_tzinfo_dtor(t->tz_info); \
-		} \
-		timelib_time_dtor(t); \
-		if (tzi) { \
-			timelib_tzinfo_dtor(tzi); \
-		} \
 	}
 
 /* from bug24910.ts */

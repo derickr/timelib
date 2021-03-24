@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "timelib.h"
+#include "timelib_private.h"
 #include <string.h>
 
 TEST_GROUP(issues)
@@ -130,6 +131,205 @@ TEST(issues, issue0019_test6)
 	LONGS_EQUAL(1, t->d);
 
 	timelib_time_dtor(t);
+}
+
+TEST_GROUP(issue0023)
+{
+	int               dummy_error;
+	timelib_time   *changed;
+	timelib_tzinfo *tzi;
+	timelib_time   *t;
+	timelib_rel_time *p = NULL;
+	timelib_error_container *errors;
+
+	TEST_SETUP()
+	{
+		tzi = timelib_parse_tzfile((char*) "Europe/London", timelib_builtin_db(), &dummy_error);
+		t = changed = NULL;
+	}
+
+	void test_add(const char *str, const char *interval)
+	{
+		timelib_time     *b = NULL, *e = NULL;
+		int               r = 0;
+
+		t = timelib_strtotime(str, strlen(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		timelib_update_ts(t, tzi);
+
+		timelib_strtointerval(interval, strlen(interval), &b, &e, &p, &r, &errors);
+
+		LONGS_EQUAL(5, p->h);
+
+		changed = timelib_add(t, p);
+	}
+
+	void test_sub(const char *str, const char *interval)
+	{
+		timelib_time     *b = NULL, *e = NULL;
+		int               r = 0;
+
+		t = timelib_strtotime(str, strlen(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		timelib_update_ts(t, tzi);
+
+		timelib_strtointerval(interval, strlen(interval), &b, &e, &p, &r, &errors);
+
+		LONGS_EQUAL(5, p->h);
+
+		changed = timelib_sub(t, p);
+	}
+
+	TEST_TEARDOWN()
+	{
+		timelib_tzinfo_dtor(tzi);
+		timelib_time_dtor(t);
+		timelib_time_dtor(changed);
+		timelib_rel_time_dtor(p);
+		timelib_error_container_dtor(errors);
+	}
+};
+
+TEST(issue0023, test1a)
+{
+	test_add("2014-03-30 00:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1396137600 + (4 * SECS_PER_HOUR), changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(3,    changed->m);
+	LONGS_EQUAL(30,   changed->d);
+	LONGS_EQUAL(5,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test1b)
+{
+	test_sub("2014-03-30 05:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1396137600, changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(3,    changed->m);
+	LONGS_EQUAL(30,   changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test2a)
+{
+	test_add("2014-03-29 00:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1396051200 + (5 * SECS_PER_HOUR), changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(3,    changed->m);
+	LONGS_EQUAL(29,   changed->d);
+	LONGS_EQUAL(5,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test2b)
+{
+	test_sub("2014-03-29 05:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1396051200, changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(3,    changed->m);
+	LONGS_EQUAL(29,   changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test3a)
+{
+	test_add("2014-03-31 00:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1396220400 + (5 * SECS_PER_HOUR), changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(3,    changed->m);
+	LONGS_EQUAL(31,   changed->d);
+	LONGS_EQUAL(5,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test3b)
+{
+	test_sub("2014-03-31 05:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1396220400, changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(3,    changed->m);
+	LONGS_EQUAL(31,   changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test4a)
+{
+	test_add("2014-10-25 00:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1414191600 + (5 * SECS_PER_HOUR), changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(25,   changed->d);
+	LONGS_EQUAL(5,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test4b)
+{
+	test_sub("2014-10-25 05:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1414191600, changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(25,   changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test5a)
+{
+	test_add("2014-10-26 00:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1414278000 + (6 * SECS_PER_HOUR), changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(26,   changed->d);
+	LONGS_EQUAL(5,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test5b)
+{
+	test_sub("2014-10-26 05:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1414278000, changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(26,   changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test6a)
+{
+	test_add("2014-10-27 00:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1414368000 + (5 * SECS_PER_HOUR), changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(27,   changed->d);
+	LONGS_EQUAL(5,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test6b)
+{
+	test_sub("2014-10-27 05:00:00.000000", "PT5H");
+
+	LONGS_EQUAL(1414368000, changed->sse);
+	LONGS_EQUAL(2014, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(27,   changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
 }
 
 TEST(issues, issue0035_test1)
@@ -524,4 +724,25 @@ TEST(issues, issue0094)
 
 	timelib_time_dtor(t);
 	timelib_error_container_dtor(error);
+}
+
+
+TEST(issues, updatets)
+{
+	signed long long ts;
+	timelib_time *t;
+	const char    *tz;
+	timelib_tzinfo  *tzi;
+	int dummy_error;
+
+	ts = 1289109600;
+	tz = "America/New_York";
+	tzi = timelib_parse_tzfile(tz, timelib_builtin_db(), &dummy_error);
+
+	t = timelib_time_ctor();
+	timelib_set_timezone(t, tzi);
+	timelib_unixtime2local(t, ts);
+	timelib_update_ts(t, NULL);
+	timelib_tzinfo_dtor(t->tz_info);
+	timelib_time_dtor(t);
 }
