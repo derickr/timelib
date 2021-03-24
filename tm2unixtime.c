@@ -364,14 +364,14 @@ static timelib_sll seconds_from_hms(timelib_ull hour, timelib_ull minute, timeli
 	return res;
 }
 
-static timelib_sll do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
+static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 {
 	switch (tz->zone_type) {
 		case TIMELIB_ZONETYPE_OFFSET:
 
 			tz->is_localtime = 1;
-			return -tz->z;
-			break;
+			tz->sse += -tz->z;
+			return;
 
 		case TIMELIB_ZONETYPE_ABBR: {
 			timelib_sll tmp;
@@ -379,56 +379,47 @@ static timelib_sll do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 			tz->is_localtime = 1;
 			tmp = -tz->z;
 			tmp -= tz->dst * 3600;
-			return tmp;
-			}
-			break;
+			tz->sse += (-tz->z - tz->dst * SECS_PER_HOUR);
+			return;
+		}
 
 		case TIMELIB_ZONETYPE_ID:
 			tzi = tz->tz_info;
 			/* Break intentionally missing */
 
-		default:
+		default: {
 			/* No timezone in struct, fallback to reference if possible */
-			if (tzi) {
-				timelib_time_offset *before, *after;
-				timelib_sll          tmp;
-				int                  in_transition;
+			timelib_time_offset *before, *after;
+			timelib_sll          adjustment;
+			int                  in_transition;
 
-				tz->is_localtime = 1;
-				before = timelib_get_time_zone_info(tz->sse, tzi);
-				after = timelib_get_time_zone_info(tz->sse - before->offset, tzi);
-				timelib_set_timezone(tz, tzi);
-
-				in_transition = (
-					((tz->sse - after->offset) >= (after->transition_time + (before->offset - after->offset))) &&
-					((tz->sse - after->offset) < after->transition_time)
-				);
-
-				if ((before->offset != after->offset) && !in_transition) {
-					tmp = -after->offset;
-				} else {
-					tmp = -tz->z;
-				}
-				timelib_time_offset_dtor(before);
-				timelib_time_offset_dtor(after);
-
-				{
-					timelib_time_offset *gmt_offset;
-
-					gmt_offset = timelib_get_time_zone_info(tz->sse + tmp, tzi);
-					tz->z = gmt_offset->offset;
-
-					tz->dst = gmt_offset->is_dst;
-					if (tz->tz_abbr) {
-						timelib_free(tz->tz_abbr);
-					}
-					tz->tz_abbr = timelib_strdup(gmt_offset->abbr);
-					timelib_time_offset_dtor(gmt_offset);
-				}
-				return tmp;
+			if (!tzi) {
+				return;
 			}
+
+			before = timelib_get_time_zone_info(tz->sse, tzi);
+			after = timelib_get_time_zone_info(tz->sse - before->offset, tzi);
+			tz->is_localtime = 1;
+
+			in_transition = (
+				((tz->sse - after->offset) >= (after->transition_time + (before->offset - after->offset))) &&
+				((tz->sse - after->offset) < after->transition_time)
+			);
+
+			if ((before->offset != after->offset) && !in_transition) {
+				adjustment = -after->offset;
+			} else {
+				adjustment = -before->offset;
+			}
+			timelib_time_offset_dtor(before);
+			timelib_time_offset_dtor(after);
+
+			tz->sse += adjustment;
+			timelib_set_timezone(tz, tzi);
+			return;
+		}
 	}
-	return 0;
+	return;
 }
 
 timelib_sll timelib_epoch_days_from_time(timelib_time *time)
@@ -447,17 +438,16 @@ timelib_sll timelib_epoch_days_from_time(timelib_time *time)
 
 void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi)
 {
-	timelib_sll res = 0;
-
 	do_adjust_special_early(time);
 	do_adjust_relative(time);
 	do_adjust_special(time);
-	res += (timelib_epoch_days_from_time(time) * SECS_PER_DAY);
-	res += seconds_from_hms(time->h, time->i, time->s);
-	time->sse = res;
 
-	res += do_adjust_timezone(time, tzi);
-	time->sse = res;
+	time->sse =
+		(timelib_epoch_days_from_time(time) * SECS_PER_DAY) +
+		seconds_from_hms(time->h, time->i, time->s);
+
+	// This modifies time->sse, if needed
+	do_adjust_timezone(time, tzi);
 
 	time->sse_uptodate = 1;
 	time->have_relative = time->relative.have_weekday_relative = time->relative.have_special_relative = time->relative.first_last_day_of = 0;
