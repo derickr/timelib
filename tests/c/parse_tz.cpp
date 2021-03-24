@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "timelib.h"
+#include "timelib_private.h"
 #include <string.h>
 
 TEST_GROUP(parse_tz)
@@ -43,5 +44,30 @@ TEST(parse_tz, us_samoa)
 	CHECK(error == TIMELIB_ERROR_NO_ERROR);
 	STRCMP_EQUAL("SST11", tzi->posix_string);
 	CHECK(!tzi->bc);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(parse_tz, petersburg)
+{
+	int error;
+	timelib_tzinfo *tzi = timelib_parse_tzfile("America/Indiana/Petersburg", timelib_builtin_db(), &error);
+	CHECK(tzi != NULL);
+	CHECK(error == TIMELIB_ERROR_NO_ERROR);
+	STRCMP_EQUAL("EST5EDT,M3.2.0,M11.1.0", tzi->posix_string);
+	LONGS_EQUAL(7, tzi->bit64.typecnt);
+	LONGS_EQUAL(6, tzi->posix_info->type_index_dst_type);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(parse_tz, beulah)
+{
+	int error;
+	timelib_tzinfo *tzi = timelib_parse_tzfile("America/North_Dakota/Beulah", timelib_builtin_db(), &error);
+	CHECK(tzi != NULL);
+	CHECK(error == TIMELIB_ERROR_NO_ERROR);
+	STRCMP_EQUAL("CST6CDT,M3.2.0,M11.1.0", tzi->posix_string);
+	LONGS_EQUAL(7, tzi->bit64.typecnt);
+	LONGS_EQUAL(6, tzi->posix_info->type_index_dst_type);
+	STRCMP_EQUAL("CDT", &tzi->timezone_abbr[tzi->type[tzi->posix_info->type_index_dst_type].abbr_idx]);
 	timelib_tzinfo_dtor(tzi);
 }

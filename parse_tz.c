@@ -252,7 +252,9 @@ static int read_64bit_types(const unsigned char **tzf, timelib_tzinfo *tz)
 	memcpy(buffer, *tzf, sizeof(unsigned char) * 6 * tz->bit64.typecnt);
 	*tzf += sizeof(unsigned char) * 6 * tz->bit64.typecnt;
 
-	tz->type = (ttinfo*) timelib_calloc(1, tz->bit64.typecnt * sizeof(ttinfo));
+	// We add two extra to have space for potential new ttinfo entries due to new types defined in the
+	// POSIX string
+	tz->type = (ttinfo*) timelib_calloc(1, (tz->bit64.typecnt + 2) * sizeof(ttinfo));
 	if (!tz->type) {
 		timelib_free(buffer);
 		return TIMELIB_ERROR_CANNOT_ALLOCATE;
@@ -389,6 +391,31 @@ static signed int find_ttinfo_index(timelib_tzinfo *tz, int32_t offset, int isds
 	return TIMELIB_UNSET;
 }
 
+static unsigned int add_abbr(timelib_tzinfo *tz, char *abbr)
+{
+	size_t old_length = tz->bit64.charcnt;
+	size_t new_length = old_length + strlen(abbr) + 1;
+	tz->timezone_abbr = (char*) timelib_realloc(tz->timezone_abbr, new_length);
+	memcpy(tz->timezone_abbr + old_length, abbr, strlen(abbr));
+	tz->bit64.charcnt = new_length;
+	tz->timezone_abbr[new_length - 1] = '\0';
+
+	return old_length;
+}
+
+static signed int add_new_ttinfo_index(timelib_tzinfo *tz, int32_t offset, int isdst, char *abbr)
+{
+	tz->type[tz->bit64.typecnt].offset = offset;
+	tz->type[tz->bit64.typecnt].isdst = isdst;
+	tz->type[tz->bit64.typecnt].abbr_idx = add_abbr(tz, abbr);
+	tz->type[tz->bit64.typecnt].isstdcnt = 0;
+	tz->type[tz->bit64.typecnt].isgmtcnt = 0;
+
+	++tz->bit64.typecnt;
+
+	return tz->bit64.typecnt - 1;
+}
+
 static int integrate_posix_string(timelib_tzinfo *tz)
 {
 	tz->posix_info = timelib_parse_posix_str(tz->posix_string);
@@ -398,7 +425,8 @@ static int integrate_posix_string(timelib_tzinfo *tz)
 
 	tz->posix_info->type_index_std_type = find_ttinfo_index(tz, tz->posix_info->std_offset, 0, tz->posix_info->std);
 	if (tz->posix_info->type_index_std_type == TIMELIB_UNSET) {
-		return 0;
+		tz->posix_info->type_index_std_type = add_new_ttinfo_index(tz, tz->posix_info->std_offset, 0, tz->posix_info->std);
+		return 1;
 	}
 
 	/* If there is no DST set for this zone, return */
@@ -408,7 +436,8 @@ static int integrate_posix_string(timelib_tzinfo *tz)
 
 	tz->posix_info->type_index_dst_type = find_ttinfo_index(tz, tz->posix_info->dst_offset, 1, tz->posix_info->dst);
 	if (tz->posix_info->type_index_dst_type == TIMELIB_UNSET) {
-		return 0;
+		tz->posix_info->type_index_dst_type = add_new_ttinfo_index(tz, tz->posix_info->dst_offset, 1, tz->posix_info->dst);
+		return 1;
 	}
 
 	return 1;
