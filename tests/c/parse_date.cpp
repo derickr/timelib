@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "timelib.h"
+#include "timelib_private.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -3132,95 +3133,181 @@ TEST(parse_date, iso8601shorttz_11)
 	LONGS_EQUAL(34200, t->z);
 }
 
-/*
- * last-day-of:
- * TS: 0 | 2008-02-01 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.0 / last y of z month           | last saturday of feb 2008
- */
+TEST(parse_date, last_day_of_00)
+{
+	test_parse("last saturday of feb 2008");
+	LONGS_EQUAL(2008, t->y);
+	LONGS_EQUAL( 2, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(-7, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(6, t->relative.weekday);
+	LONGS_EQUAL(0, t->relative.weekday_behavior);
+	LONGS_EQUAL(TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH, t->relative.special.type);
+}
 
-/*
- * last-day-of:
- * TS: 0 | 2008-11-01 00:00:00  0Y   0M  -7D /   0H   0M   0S / 2.0 / last y of z month           | last tue of 2008-11
- */
+TEST(parse_date, last_day_of_01)
+{
+	test_parse("last tue of 2008-11");
+	LONGS_EQUAL(2008, t->y);
+	LONGS_EQUAL(11, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(-7, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(2, t->relative.weekday);
+	LONGS_EQUAL(0, t->relative.weekday_behavior);
+	LONGS_EQUAL(TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH, t->relative.special.type);
+}
 
-/*
- * last-day-of:
- * TS: 0 | -99999-09--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 0.0 / last y of z month     | last sunday of sept
- */
+TEST(parse_date, last_day_of_02)
+{
+	test_parse("last sunday of sept");
+	LONGS_EQUAL(TIMELIB_UNSET, t->y);
+	LONGS_EQUAL( 9, t->m);
+	LONGS_EQUAL(TIMELIB_UNSET, t->d);
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(-7, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(0, t->relative.weekday);
+	LONGS_EQUAL(0, t->relative.weekday_behavior);
+	LONGS_EQUAL(TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH, t->relative.special.type);
+}
 
-/*
- * last-day-of:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y   0M  -7D /   0H   0M   0S / 6.0 / last y of z month | last saturday of this month
- */
+TEST(parse_date, last_day_of_03)
+{
+	test_parse("last saturday of this month");
+	LONGS_EQUAL(TIMELIB_UNSET, t->y);
+	LONGS_EQUAL(TIMELIB_UNSET, t->m);
+	LONGS_EQUAL(TIMELIB_UNSET, t->d);
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(-7, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(6, t->relative.weekday);
+	LONGS_EQUAL(0, t->relative.weekday_behavior);
+	LONGS_EQUAL(TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH, t->relative.special.type);
+}
 
-/*
- * last-day-of:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y  -1M  -7D /   0H   0M   0S / 4.0 / last y of z month | last thursday of last month
- */
+TEST(parse_date, last_day_of_04)
+{
+	test_parse("last thursday of last month");
+	LONGS_EQUAL(TIMELIB_UNSET, t->y);
+	LONGS_EQUAL(TIMELIB_UNSET, t->m);
+	LONGS_EQUAL(TIMELIB_UNSET, t->d);
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(-1, t->relative.m);
+	LONGS_EQUAL(-7, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(4, t->relative.weekday);
+	LONGS_EQUAL(0, t->relative.weekday_behavior);
+	LONGS_EQUAL(TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH, t->relative.special.type);
+}
 
-/*
- * last-day-of:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y   4M  -7D /   0H   0M   0S / 3.0 / last y of z month | last wed of fourth month
- */
+TEST(parse_date, last_day_of_05)
+{
+	test_parse("last wed of fourth month");
+	LONGS_EQUAL(TIMELIB_UNSET, t->y);
+	LONGS_EQUAL(TIMELIB_UNSET, t->m);
+	LONGS_EQUAL(TIMELIB_UNSET, t->d);
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(4, t->relative.m);
+	LONGS_EQUAL(-7, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(3, t->relative.weekday);
+	LONGS_EQUAL(0, t->relative.weekday_behavior);
+	LONGS_EQUAL(TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH, t->relative.special.type);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.001000 | +1 ms
- */
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.003000 | +3 msec
- */
+TEST(parse_date, microsecond_00)
+{
+	test_parse("+1 ms");
+	LONGS_EQUAL(1000, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.004000 | +4 msecs
- */
+TEST(parse_date, microsecond_01)
+{
+	test_parse("+3 msec");
+	LONGS_EQUAL(3000, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.005000 | +5 millisecond
- */
+TEST(parse_date, microsecond_02)
+{
+	test_parse("+4 msecs");
+	LONGS_EQUAL(4000, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.006000 | +6 milliseconds
- */
+TEST(parse_date, microsecond_03)
+{
+	test_parse("+5 millisecond");
+	LONGS_EQUAL(5000, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000001 | +1 µs
- */
+TEST(parse_date, microsecond_04)
+{
+	test_parse("+6 milliseconds");
+	LONGS_EQUAL(6000, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000003 | +3 usec
- */
+TEST(parse_date, microsecond_05)
+{
+	test_parse("+1 µs");
+	LONGS_EQUAL(1, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000004 | +4 usecs
- */
+TEST(parse_date, microsecond_06)
+{
+	test_parse("+3 usec");
+	LONGS_EQUAL(3, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000005 | +5 µsec
- */
+TEST(parse_date, microsecond_07)
+{
+	test_parse("+4 usecs");
+	LONGS_EQUAL(4, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000006 | +6 µsecs
- */
+TEST(parse_date, microsecond_08)
+{
+	test_parse("+5 µsec");
+	LONGS_EQUAL(5, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000007 | +7 microsecond
- */
+TEST(parse_date, microsecond_09)
+{
+	test_parse("+6 µsecs");
+	LONGS_EQUAL(6, t->relative.us);
+}
 
-/*
- * microsecond:
- * TS: 0 | -99999--99999--99999 -99999:-99999:-99999  0Y   0M   0D /   0H   0M   0S 0.000008 | +8 microseconds
- */
+TEST(parse_date, microsecond_10)
+{
+	test_parse("+7 microsecond");
+	LONGS_EQUAL(7, t->relative.us);
+}
+
+TEST(parse_date, microsecond_11)
+{
+	test_parse("+8 microseconds");
+	LONGS_EQUAL(8, t->relative.us);
+}
+
 
 TEST(parse_date, mysql_00)
 {
@@ -4109,25 +4196,33 @@ TEST(parse_date, relative_54)
 	LONGS_EQUAL(0, t->relative.weekday_behavior);
 }
 
-/*
- * relative:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 0 weekday | this weekday
- */
+TEST(parse_date, relative_55)
+{
+	test_parse("this weekday");
+	LONGS_EQUAL(TIMELIB_SPECIAL_WEEKDAY, t->relative.special.type);
+	LONGS_EQUAL(0, t->relative.special.amount);
+}
 
-/*
- * relative:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -1 weekday | last weekday
- */
+TEST(parse_date, relative_56)
+{
+	test_parse("last weekday");
+	LONGS_EQUAL(TIMELIB_SPECIAL_WEEKDAY, t->relative.special.type);
+	LONGS_EQUAL(-1, t->relative.special.amount);
+}
 
-/*
- * relative:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / 1 weekday | next weekday
- */
+TEST(parse_date, relative_57)
+{
+	test_parse("next weekday");
+	LONGS_EQUAL(TIMELIB_SPECIAL_WEEKDAY, t->relative.special.type);
+	LONGS_EQUAL(1, t->relative.special.amount);
+}
 
-/*
- * relative:
- * TS: 0 | -99999--99999--99999 00:00:00  0Y   0M   0D /   0H   0M   0S / -8 weekday | 8 weekdays ago
- */
+TEST(parse_date, relative_58)
+{
+	test_parse("8 weekdays ago");
+	LONGS_EQUAL(TIMELIB_SPECIAL_WEEKDAY, t->relative.special.type);
+	LONGS_EQUAL(-8, t->relative.special.amount);
+}
 
 TEST(parse_date, relative_59)
 {
@@ -4648,60 +4743,137 @@ TEST(parse_date, timeshort24_03)
 	LONGS_EQUAL( 0, t->s);
 }
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.300000 | @1508765076.3
- */
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.340000 | @1508765076.34
- */
+TEST(parse_date, timestamp_00)
+{
+	test_parse("@1508765076.3");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(300000,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.347000 | @1508765076.347
- */
+TEST(parse_date, timestamp_01)
+{
+	test_parse("@1508765076.34");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(340000,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.347000 | @1508765076.3470
- */
+TEST(parse_date, timestamp_02)
+{
+	test_parse("@1508765076.347");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(347000,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.347000 | @1508765076.34700
- */
+TEST(parse_date, timestamp_03)
+{
+	test_parse("@1508765076.3479");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(347900,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.347000 | @1508765076.347000
- */
+TEST(parse_date, timestamp_04)
+{
+	test_parse("@1508765076.34795");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(347950,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.030000 | @1508765076.03
- */
+TEST(parse_date, timestamp_05)
+{
+	test_parse("@1508765076.347958");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(347958,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.003000 | @1508765076.003
- */
+TEST(parse_date, timestamp_06)
+{
+	test_parse("@1508765076.003");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(  3000,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.000300 | @1508765076.0003
- */
+TEST(parse_date, timestamp_07)
+{
+	test_parse("@1508765076.0003");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(   300,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.000030 | @1508765076.00003
- */
+TEST(parse_date, timestamp_08)
+{
+	test_parse("@1508765076.00003");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(    30,     t->relative.us);
+}
 
-/*
- * timestamp:
- * TS: 0 | 1970-01-01 00:00:00 GMT 00000  0Y   0M   0D /   0H   0M 1508765076S 0.000003 | @1508765076.000003
- */
+TEST(parse_date, timestamp_09)
+{
+	test_parse("@1508765076.000003");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL(1508765076, t->relative.s);
+	LONGS_EQUAL(     3,     t->relative.us);
+}
+
 
 TEST(parse_date, timetiny12_00)
 {
