@@ -20,11 +20,12 @@ MANUAL_TESTS=tests/tester-parse-interval \
 	tests/enumerate-timezones tests/date_from_isodate
 AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 	tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo
-C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour.cpp \
-	tests/c/timelib_juliandate.cpp tests/c/issues.cpp tests/c/astro_rise_set_altitude.cpp \
-	tests/c/parse_date_from_format_test.cpp tests/c/parse_intervals.cpp \
-	tests/c/warn_on_slim.cpp tests/c/parse_posix.cpp tests/c/transitions.cpp \
-	tests/c/parse_tz.cpp tests/c/render.cpp tests/c/create_ts_from_string.cpp
+C_TESTS=tests/c/timelib_get_current_offset_test.o tests/c/timelib_decimal_hour.o \
+	tests/c/timelib_juliandate.o tests/c/issues.o tests/c/astro_rise_set_altitude.o \
+	tests/c/parse_date_from_format_test.o tests/c/parse_intervals.o \
+	tests/c/warn_on_slim.o tests/c/parse_posix.o tests/c/transitions.o \
+	tests/c/parse_tz.o tests/c/render.o tests/c/create_ts_from_string.o \
+	tests/c/parse_date.o
 
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
@@ -104,30 +105,16 @@ clean-all: clean
 	rm -f timezonemap.h
 
 clean:
-	rm -f parse_iso_intervals.c parse_date.c *.o timelib.a ${TEST_BINARIES}
+	rm -f parse_iso_intervals.c parse_date.c *.o tests/c/*.o timelib.a ${TEST_BINARIES}
+
+#%.o: %.cpp timelib.a
+#	$(CXX) -c $(CPPFLAGS) $(LDFLAGS) $< -o $@
 
 ctest: tests/c/all_tests.cpp timelib.a ${C_TESTS}
 	$(CXX) $(CPPFLAGS) $(LDFLAGS) tests/c/all_tests.cpp ${C_TESTS} timelib.a $(TEST_LDFLAGS) -o ctest
 
-test: ctest tests/tester-parse-string tests/tester-parse-string-by-format
-	-@php tests/test_all.php
-	@echo Running C tests
+test: ctest
 	@./ctest -c
-
-test-parse-string: tests/tester-parse-string
-	@for i in tests/files/*.parse; do echo $$i; php tests/test_parser.php $$i; echo; done
-
-test-parse-format: tests/tester-parse-string-by-format
-	@for i in tests/files/*.parseformat; do echo $$i; php tests/test_parse_format.php $$i; echo; done
-
-test-create-ts: tests/tester-create-ts
-	@for i in tests/files/*.ts; do echo $$i; php tests/test_create.php $$i; echo; done
-
-test-render-ts: tests/tester-render-ts
-	@for i in tests/files/*.render; do echo $$i; php tests/test_render.php $$i; echo; done
-
-test-render-ts-zoneinfo: tests/tester-render-ts-zoneinfo
-	@for i in tests/files/*.render; do echo $$i; php tests/test_render.php $$i; echo; done
 
 package: clean
 	tar -cvzf parse_date.tar.gz parse_date.re Makefile tests
