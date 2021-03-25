@@ -24,7 +24,8 @@ C_TESTS=tests/c/timelib_get_current_offset_test.cpp tests/c/timelib_decimal_hour
 	tests/c/timelib_juliandate.cpp tests/c/issues.cpp tests/c/astro_rise_set_altitude.cpp \
 	tests/c/parse_date_from_format_test.cpp tests/c/parse_intervals.cpp \
 	tests/c/warn_on_slim.cpp tests/c/parse_posix.cpp tests/c/transitions.cpp \
-	tests/c/parse_tz.cpp tests/c/render.cpp tests/c/create_ts_from_string.cpp
+	tests/c/parse_tz.cpp tests/c/render.cpp tests/c/create_ts_from_string.cpp \
+	tests/c/parse_date.cpp
 
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
@@ -109,9 +110,7 @@ clean:
 ctest: tests/c/all_tests.cpp timelib.a ${C_TESTS}
 	$(CXX) $(CPPFLAGS) $(LDFLAGS) tests/c/all_tests.cpp ${C_TESTS} timelib.a $(TEST_LDFLAGS) -o ctest
 
-test: ctest tests/tester-parse-string tests/tester-parse-string-by-format
-	-@php tests/test_all.php
-	@echo Running C tests
+test: ctest
 	@./ctest -c
 
 test-parse-string: tests/tester-parse-string
