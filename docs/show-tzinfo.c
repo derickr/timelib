@@ -26,12 +26,8 @@
 
 int main(int argc, char *argv[])
 {
-	signed long long ts;
-	timelib_time *local_time;
 	timelib_tzinfo *tz;
 	int dummy_error;
-
-	ts = 368237; /*Monday 1970-01-01 17:17:17 */
 
 	if (argc == 3) {
 		timelib_tzdb *db = timelib_zoneinfo(argv[2]);
@@ -59,17 +55,7 @@ int main(int argc, char *argv[])
 	}
 	timelib_dump_tzinfo(tz);
 
-	local_time = timelib_time_ctor();
-	timelib_set_timezone(local_time, tz);
-	timelib_unixtime2gmt(local_time, ts);
-	timelib_dump_date(local_time, 1);
-	timelib_unixtime2local(local_time, ts);
-	timelib_dump_date(local_time, 1);
-
-	timelib_update_ts(local_time, tz);
-
-	timelib_tzinfo_dtor(local_time->tz_info);
-	timelib_time_dtor(local_time);
+	timelib_tzinfo_dtor(tz);
 
 	return 0;
 }

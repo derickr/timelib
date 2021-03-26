@@ -10,6 +10,7 @@ parse_iso_intervals.c
 parse_posix.o
 parse_tz.o
 parse_zoneinfo.o
+show-tzinfo
 svn-commit.tmp
 test-abbr-to-id
 test-astro
@@ -19,7 +20,6 @@ tester-iso-week
 tester-parse-interval
 tester-parse-string
 tester-parse-string-by-format
-tester-parse-tz
 tester-render-ts
 tester-render-ts-zoneinfo
 tests/enumerate-timezones
