@@ -948,6 +948,12 @@ void timelib_decimal_hour_to_hms(double h, int *hour, int *min, int *sec);
  */
 void timelib_hms_to_decimal_hour(int hour, int min, int sec, double *h);
 
+/**
+ * Converts hour/min/sec values into seconds
+ */
+timelib_sll timelib_hms_to_seconds(timelib_sll h, timelib_sll m, timelib_sll s);
+
+
 /* from astro.c */
 
 /**
