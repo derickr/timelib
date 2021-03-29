@@ -1,8 +1,8 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2019 Derick Rethans
- * Copyright (c) 2018 MongoDB, Inc.
+ * Copyright (c) 2015-2021 Derick Rethans
+ * Copyright (c) 2018,2021 MongoDB, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -359,9 +359,9 @@ typedef struct _timelib_tzdb {
 # define timelib_free    free
 #endif
 
-#define TIMELIB_VERSION 202101
-#define TIMELIB_EXTENDED_VERSION 20210102
-#define TIMELIB_ASCII_VERSION "2021.01"
+#define TIMELIB_VERSION 202102
+#define TIMELIB_EXTENDED_VERSION 20210201
+#define TIMELIB_ASCII_VERSION "2021.02"
 
 #define TIMELIB_NONE             0x00
 #define TIMELIB_OVERRIDE_TIME    0x01
