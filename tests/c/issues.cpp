@@ -135,7 +135,7 @@ TEST(issues, issue0019_test6)
 
 TEST_GROUP(issue0023)
 {
-	int               dummy_error;
+	int             dummy_error;
 	timelib_time   *changed;
 	timelib_tzinfo *tzi;
 	timelib_time   *t;
@@ -176,6 +176,21 @@ TEST_GROUP(issue0023)
 		LONGS_EQUAL(5, p->h);
 
 		changed = timelib_sub(t, p);
+	}
+
+	void test_add_wall(const char *str, const char *interval)
+	{
+		timelib_time     *b = NULL, *e = NULL;
+		int               r = 0;
+
+		t = timelib_strtotime(str, strlen(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		timelib_update_ts(t, tzi);
+		timelib_set_timezone(t, tzi);
+		timelib_update_from_sse(t);
+
+		timelib_strtointerval(interval, strlen(interval), &b, &e, &p, &r, &errors);
+
+		changed = timelib_add_wall(t, p);
 	}
 
 	TEST_TEARDOWN()
@@ -330,6 +345,21 @@ TEST(issue0023, test6b)
 	LONGS_EQUAL(27,   changed->d);
 	LONGS_EQUAL(0,    changed->h);
 	LONGS_EQUAL(0,    changed->i);
+}
+
+TEST(issue0023, test7a)
+{
+	test_add_wall("@1635641999", "PT1S");
+
+	LONGS_EQUAL(1635642000, changed->sse);
+	LONGS_EQUAL(2021, changed->y);
+	LONGS_EQUAL(10,   changed->m);
+	LONGS_EQUAL(31,   changed->d);
+	LONGS_EQUAL(1,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+	LONGS_EQUAL(0,    changed->s);
+	LONGS_EQUAL(0,    changed->dst);
+	STRCMP_EQUAL("GMT", changed->tz_abbr);
 }
 
 TEST(issues, issue0035_test1)

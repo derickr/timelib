@@ -1021,6 +1021,7 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two);
  * complex statements such as "next workday".
  */
 timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
+timelib_time *timelib_add_wall(timelib_time *t, timelib_rel_time *interval);
 
 /**
  * Subtracts the relative time information 'interval' to the base time 't'.
@@ -1030,6 +1031,7 @@ timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
  * workday".
  */
 timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
+timelib_time *timelib_sub_wall(timelib_time *t, timelib_rel_time *interval);
 
 /* from parse_posix.c */
 
