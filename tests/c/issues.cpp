@@ -746,3 +746,64 @@ TEST(issues, updatets)
 	timelib_tzinfo_dtor(t->tz_info);
 	timelib_time_dtor(t);
 }
+
+TEST_GROUP(issues_relative)
+{
+	timelib_time *t, *update;
+	int           i;
+	timelib_error_container *error;
+	timelib_tzinfo  *tzi;
+
+	void test_parse(const char *tzid, timelib_sll ts, const char *modify)
+	{
+		int dummy_error;
+
+		tzi = timelib_parse_tzfile(tzid, timelib_builtin_db(), &dummy_error);
+
+		t = timelib_time_ctor();
+		timelib_set_timezone(t, tzi);
+		timelib_unixtime2local(t, ts);
+
+		update = timelib_strtotime(modify, strlen(modify), &error, timelib_builtin_db(), timelib_parse_tzfile);
+
+		timelib_fill_holes(update, t, TIMELIB_NO_CLONE);
+		timelib_update_ts(update, tzi);
+		timelib_apply_localtime(update, 1);
+	}
+
+	TEST_TEARDOWN()
+	{
+		timelib_tzinfo_dtor(t->tz_info);
+		timelib_time_dtor(t);
+		timelib_time_dtor(update);
+		timelib_error_container_dtor(error);
+	}
+};
+
+TEST(issues_relative, bug33414_01)
+{
+	test_parse("Pacific/Kwajalein", 745391837, "next Saturday");
+
+	LONGS_EQUAL(745934400, update->sse);
+	LONGS_EQUAL(1993, update->y);
+	LONGS_EQUAL( 8, update->m);
+	LONGS_EQUAL(22, update->d);
+	LONGS_EQUAL( 0, update->h);
+	LONGS_EQUAL( 0, update->i);
+	LONGS_EQUAL( 0, update->s);
+	STRCMP_EQUAL("+12", update->tz_abbr);
+}
+
+TEST(issues_relative, bug33415_01)
+{
+	test_parse("Africa/Monrovia", 63050507, "next Friday");
+
+	LONGS_EQUAL(63593070, update->sse);
+	LONGS_EQUAL(1972, update->y);
+	LONGS_EQUAL( 1, update->m);
+	LONGS_EQUAL( 7, update->d);
+	LONGS_EQUAL( 0, update->h);
+	LONGS_EQUAL(44, update->i);
+	LONGS_EQUAL(30, update->s);
+	STRCMP_EQUAL("GMT", update->tz_abbr);
+}

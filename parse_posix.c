@@ -505,7 +505,7 @@ static void calc_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, posi
 
 ttinfo* timelib_fetch_posix_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib_sll *transition_time)
 {
-	timelib_sll       year, year_begin_ts;
+	timelib_sll       year;
 	timelib_time      dummy;
 	posix_transitions transitions = { 0 };
 	size_t            i;
@@ -513,13 +513,12 @@ ttinfo* timelib_fetch_posix_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, 
 	/* Find 'year' (UTC) for 'ts' */
 	timelib_unixtime2gmt(&dummy, ts);
 	year = dummy.y;
-	year_begin_ts = timelib_ts_at_start_of_year(year);
 
 	/* If there is no second (dst_end) information, the UTC offset is valid for the whole year, so no need to
 	 * do clever logic */
 	if (!tz->posix_info->dst_end) {
 		if (transition_time) {
-			*transition_time = year_begin_ts;
+			*transition_time = tz->trans[tz->bit64.timecnt - 1];
 		}
 		return &(tz->type[tz->posix_info->type_index_std_type]);
 	}
