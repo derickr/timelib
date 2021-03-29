@@ -471,16 +471,52 @@ static void set_default_location_and_comments(const unsigned char **tzf, timelib
 	tz->location.comments[1] = '\0';
 }
 
+static char *format_ut_time(timelib_sll ts, timelib_tzinfo *tz)
+{
+	char *tmp = timelib_calloc(1, 64);
+	timelib_time *t = timelib_time_ctor();
+
+	timelib_unixtime2gmt(t, ts);
+	snprintf(
+		tmp, 64,
+		"%04lld-%02lld-%02lld %02lld:%02lld:%02lld UT",
+		t->y, t->m, t->d,
+		t->h, t->i, t->s
+	);
+
+	timelib_time_dtor(t);
+	return tmp;
+}
+
+static char *format_offset_type(timelib_tzinfo *tz, int i)
+{
+	char *tmp = timelib_calloc(1, 64);
+
+	snprintf(
+		tmp, 64,
+		"%3d [%6ld %1d %3d '%s' (%d,%d)]",
+		i,
+		(long int) tz->type[i].offset,
+		tz->type[i].isdst,
+		tz->type[i].abbr_idx,
+		&tz->timezone_abbr[tz->type[i].abbr_idx],
+		tz->type[i].isstdcnt,
+		tz->type[i].isgmtcnt
+	);
+
+	return tmp;
+}
+
 void timelib_dump_tzinfo(timelib_tzinfo *tz)
 {
-	uint32_t i;
+	uint32_t  i;
+	char     *date_str, *trans_str;
 
 	printf("Country Code:      %s\n", tz->location.country_code);
 	printf("Geo Location:      %f,%f\n", tz->location.latitude, tz->location.longitude);
 	printf("Comments:\n%s\n",          tz->location.comments);
 	printf("BC:                %s\n",  tz->bc ? "no" : "yes");
 	printf("Slim File:         %s\n",  detect_slim_file(tz) ? "yes" : "no");
-	printf("POSIX string:      %s\n",  tz->posix_string);
 
 	printf("\n64-bit:\n");
 	printf("UTC/Local count:   " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->bit64.ttisgmtcnt);
@@ -490,31 +526,43 @@ void timelib_dump_tzinfo(timelib_tzinfo *tz)
 	printf("Local types count: " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->bit64.typecnt);
 	printf("Zone Abbr. count:  " TIMELIB_ULONG_FMT "\n", (timelib_ulong) tz->bit64.charcnt);
 
-	printf ("%16s (%20s) = %3d [%5ld %1d %3d '%s' (%d,%d)]\n",
-		"", "", 0,
-		(long int) tz->type[0].offset,
-		tz->type[0].isdst,
-		tz->type[0].abbr_idx,
-		&tz->timezone_abbr[tz->type[0].abbr_idx],
-		tz->type[0].isstdcnt,
-		tz->type[0].isgmtcnt
-		);
+	trans_str = format_offset_type(tz, 0);
+	printf("%22s (%20s) = %s\n", "", "", trans_str);
+	timelib_free(trans_str);
+
 	for (i = 0; i < tz->bit64.timecnt; i++) {
-		printf ("%016" PRIX64 " (%20" PRId64 ") = %3d [%5ld %1d %3d '%s' (%d,%d)]\n",
-			tz->trans[i], tz->trans[i], tz->trans_idx[i],
-			(long int) tz->type[tz->trans_idx[i]].offset,
-			tz->type[tz->trans_idx[i]].isdst,
-			tz->type[tz->trans_idx[i]].abbr_idx,
-			&tz->timezone_abbr[tz->type[tz->trans_idx[i]].abbr_idx],
-			tz->type[tz->trans_idx[i]].isstdcnt,
-			tz->type[tz->trans_idx[i]].isgmtcnt
-			);
+		date_str = format_ut_time(tz->trans[i], tz);
+		trans_str = format_offset_type(tz, tz->trans_idx[i]);
+		printf(
+			"%s (%20" PRId64 ") = %s\n",
+			date_str,
+			tz->trans[i],
+			trans_str
+		);
+		timelib_free(date_str);
+		timelib_free(trans_str);
 	}
 	for (i = 0; i < tz->bit64.leapcnt; i++) {
-		printf ("%016" PRIX64 " (%20ld) = %d\n",
-			tz->leap_times[i].trans,
+		date_str = format_ut_time(tz->trans[i], tz);
+		printf (
+			"%s (%20ld) = %d\n",
+			date_str,
 			(long) tz->leap_times[i].trans,
-			tz->leap_times[i].offset);
+			tz->leap_times[i].offset
+		);
+		timelib_free(date_str);
+	}
+
+	printf("\n%43sPOSIX string: %s\n", "", tz->posix_string);
+	if (tz->posix_info->std) {
+		trans_str = format_offset_type(tz, tz->posix_info->type_index_std_type);
+		printf("%43sstd: %s\n", "", trans_str);
+		timelib_free(trans_str);
+		if (tz->posix_info->dst) {
+			trans_str = format_offset_type(tz, tz->posix_info->type_index_dst_type);
+			printf("%43sdst: %s\n", "", trans_str);
+			timelib_free(trans_str);
+		}
 	}
 }
 

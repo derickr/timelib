@@ -16,7 +16,7 @@ CC=gcc
 CXX=g++
 
 MANUAL_TESTS=tests/tester-parse-interval \
-	tests/tester-parse-tz tests/tester-iso-week tests/test-abbr-to-id \
+	tests/tester-iso-week tests/test-abbr-to-id \
 	tests/enumerate-timezones tests/date_from_isodate
 AUTO_TESTS=tests/tester-parse-string tests/tester-parse-string-by-format \
 	tests/tester-create-ts tests/tester-render-ts tests/tester-render-ts-zoneinfo
@@ -30,7 +30,7 @@ C_TESTS=tests/c/timelib_get_current_offset_test.o tests/c/timelib_decimal_hour.o
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
 EXAMPLE_BINARIES=docs/date-from-iso-parts docs/date-from-parts docs/date-from-string \
-	docs/date-to-parts
+	docs/date-to-parts docs/show-tzinfo
 
 all: parse_date.o tm2unixtime.o unixtime2tm.o dow.o astro.o interval.o \
 		${TEST_BINARIES} ${EXAMPLE_BINARIES} ctest
@@ -58,9 +58,6 @@ tests/tester-parse-string-by-format: timelib.a tests/tester-parse-string-by-form
 
 tests/tester-create-ts: timelib.a tests/tester-create-ts.c
 	$(CC) $(CFLAGS) -o tests/tester-create-ts tests/tester-create-ts.c timelib.a $(LDFLAGS)
-
-tests/tester-parse-tz: timelib.a tests/test-tz-parser.c
-	$(CC) $(CFLAGS) -o tests/tester-parse-tz tests/test-tz-parser.c timelib.a $(LDFLAGS)
 
 tests/tester-render-ts: timelib.a tests/tester-render-ts.c
 	$(CC) $(CFLAGS) -o tests/tester-render-ts tests/tester-render-ts.c timelib.a $(LDFLAGS)
@@ -95,6 +92,9 @@ docs/date-from-string: timelib.a docs/date-from-string.c
 
 docs/date-to-parts: timelib.a docs/date-to-parts.c
 	$(CC) $(CFLAGS) -o docs/date-to-parts docs/date-to-parts.c timelib.a $(LDFLAGS)
+
+docs/show-tzinfo: timelib.a docs/show-tzinfo.c
+	$(CC) $(CFLAGS) -o docs/show-tzinfo docs/show-tzinfo.c timelib.a $(LDFLAGS)
 
 
 timezonemap.h: gettzmapping.php

@@ -389,7 +389,7 @@ static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 
 		default: {
 			/* No timezone in struct, fallback to reference if possible */
-			timelib_time_offset *before, *after;
+			timelib_time_offset *current, *after;
 			timelib_sll          adjustment;
 			int                  in_transition;
 
@@ -397,21 +397,21 @@ static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 				return;
 			}
 
-			before = timelib_get_time_zone_info(tz->sse, tzi);
-			after = timelib_get_time_zone_info(tz->sse - before->offset, tzi);
+			current = timelib_get_time_zone_info(tz->sse, tzi);
+			after = timelib_get_time_zone_info(tz->sse - current->offset, tzi);
 			tz->is_localtime = 1;
 
 			in_transition = (
-				((tz->sse - after->offset) >= (after->transition_time + (before->offset - after->offset))) &&
+				((tz->sse - after->offset) >= (after->transition_time + (current->offset - after->offset))) &&
 				((tz->sse - after->offset) < after->transition_time)
 			);
 
-			if ((before->offset != after->offset) && !in_transition) {
+			if ((current->offset != after->offset) && !in_transition) {
 				adjustment = -after->offset;
 			} else {
-				adjustment = -before->offset;
+				adjustment = -current->offset;
 			}
-			timelib_time_offset_dtor(before);
+			timelib_time_offset_dtor(current);
 			timelib_time_offset_dtor(after);
 
 			tz->sse += adjustment;
