@@ -25,6 +25,36 @@
 #include "timelib.h"
 #include "timelib_private.h"
 
+// This section adds the missing 'strndup' implementation on Windows.
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
+#include <stdlib.h>
+#include <string.h>
+
+/**
+ * Extension char* strndup(const char* s, size_t n)
+ *
+ * Returns a pointer to a copy of 's' with at most 'n' characters
+ * in memory obtained from 'malloc', or 'NULL' if insufficient
+ * memory was available.  The result is always 'NULL' terminated.
+ */
+char* strndup(const char* s, size_t n) {
+    char* result;
+    size_t len = strlen(s);
+
+    if (n < len)
+        len = n;
+
+    result = (char*)malloc(len + 1);
+    if (!result)
+        return 0;
+
+    result[len] = '\0';
+    return (char*)memcpy(result, s, len);
+}
+
+#endif
+
 /* Forwards declrations */
 static timelib_posix_trans_info *timelib_posix_trans_info_ctor(void);
 static void timelib_posix_trans_info_dtor(timelib_posix_trans_info* ts);
