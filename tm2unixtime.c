@@ -354,16 +354,6 @@ static void do_adjust_special_early(timelib_time* time)
 	timelib_do_normalize(time);
 }
 
-static timelib_sll seconds_from_hms(timelib_ull hour, timelib_ull minute, timelib_ull second)
-{
-	timelib_sll res = 0;
-
-	res += hour * 3600;
-	res += minute * 60;
-	res += second;
-	return res;
-}
-
 static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 {
 	switch (tz->zone_type) {
@@ -444,7 +434,7 @@ void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi)
 
 	time->sse =
 		(timelib_epoch_days_from_time(time) * SECS_PER_DAY) +
-		seconds_from_hms(time->h, time->i, time->s);
+		timelib_hms_to_seconds(time->h, time->i, time->s);
 
 	// This modifies time->sse, if needed
 	do_adjust_timezone(time, tzi);

@@ -948,6 +948,12 @@ void timelib_decimal_hour_to_hms(double h, int *hour, int *min, int *sec);
  */
 void timelib_hms_to_decimal_hour(int hour, int min, int sec, double *h);
 
+/**
+ * Converts hour/min/sec values into seconds
+ */
+timelib_sll timelib_hms_to_seconds(timelib_sll h, timelib_sll m, timelib_sll s);
+
+
 /* from astro.c */
 
 /**
@@ -1015,6 +1021,7 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two);
  * complex statements such as "next workday".
  */
 timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
+timelib_time *timelib_add_wall(timelib_time *t, timelib_rel_time *interval);
 
 /**
  * Subtracts the relative time information 'interval' to the base time 't'.
@@ -1024,6 +1031,7 @@ timelib_time *timelib_add(timelib_time *t, timelib_rel_time *interval);
  * workday".
  */
 timelib_time *timelib_sub(timelib_time *t, timelib_rel_time *interval);
+timelib_time *timelib_sub_wall(timelib_time *t, timelib_rel_time *interval);
 
 /* from parse_posix.c */
 
