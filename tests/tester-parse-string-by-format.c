@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Derick Rethans
+ * Copyright (c) 2015,2021 Derick Rethans
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,11 @@ int main(int argc, char *argv[])
 	timelib_time *t;
 	int           i, errors_found;
 	timelib_error_container *errors;
+
+	if (argc < 3) {
+		printf("Usage:\n\ttester-parse-string-by-format [format] [string]\n\tExample: ./tester-parse-string-by-format \"d M Y h:i A\" \"07 Apr 2021 3:34 PM\"\n\n");
+		exit(-1);
+	}
 
 	t = timelib_parse_from_format(argv[1], argv[2], strlen(argv[2]), &errors, timelib_builtin_db(), timelib_parse_tzfile);
 	if (errors->warning_count) {
