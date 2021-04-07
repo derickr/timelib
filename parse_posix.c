@@ -26,10 +26,9 @@
 #include "timelib_private.h"
 
 // This section adds the missing 'strndup' implementation on Windows.
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-
-#include <stdlib.h>
-#include <string.h>
+#if TIMELIB_USE_BUILTIN_STRNDUP == 1
+# include <stdlib.h>
+# include <string.h>
 
 /**
  * Extension char* strndup(const char* s, size_t n)
