@@ -355,8 +355,13 @@ typedef struct _timelib_tzdb {
 # define timelib_realloc realloc
 # define timelib_calloc  calloc
 # define timelib_strdup  strdup
-# define timelib_strndup strndup
 # define timelib_free    free
+# if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#  define TIMELIB_USE_BUILTIN_STRNDUP 1
+# else
+#  define TIMELIB_USE_BUILTIN_STRNDUP 0
+#  define timelib_strndup strndup
+# endif
 #endif
 
 #define TIMELIB_VERSION 202103
