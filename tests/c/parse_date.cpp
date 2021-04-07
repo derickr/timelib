@@ -2436,6 +2436,15 @@ TEST(parse_date, iso8601date_00)
 	LONGS_EQUAL(22, t->d);
 }
 
+TEST(parse_date, iso8601datetime_00)
+{
+	test_parse("1978-12-22T23");
+	LONGS_EQUAL(1978, t->y);
+	LONGS_EQUAL(12, t->m);
+	LONGS_EQUAL(22, t->d);
+	LONGS_EQUAL(23, t->h);
+}
+
 TEST(parse_date, iso8601date_01)
 {
 	test_parse("0078-12-22");
