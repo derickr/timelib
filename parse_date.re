@@ -2227,7 +2227,6 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 			case TIMELIB_FORMAT_MERIDIAN: /* am/pm/a.m./p.m. AM/PM/A.M./P.M. */
 				if (s->time->h == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_MERIDIAN_BEFORE_HOUR, "Meridian can only come after an hour has been found", string, begin);
-					break;
 				}
 				if ((tmp = timelib_meridian_with_check(&ptr, s->time->h)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_MERIDIAN, "A meridian could not be found", string, begin);
@@ -2235,7 +2234,9 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				}
 
 				s->time->have_time = 1;
-				s->time->h += tmp;
+				if (s->time->h != TIMELIB_UNSET) {
+					s->time->h += tmp;
+				}
 				break;
 			case TIMELIB_FORMAT_MINUTE_TWO_DIGIT: /* two digit minute, with leading zero */
 				{

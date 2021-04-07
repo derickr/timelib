@@ -205,6 +205,20 @@ TEST(parse_date_from_format, cannotMixISOWithNatural)
 	LONGS_EQUAL(1, errors->error_count);
 }
 
+TEST(parse_date_from_format, cannotHaveMeridianBeforeHour)
+{
+	test_parse("11 Mar 2013 PM 3:34", "d M Y A h:i");
+	LONGS_EQUAL(1, errors->error_count);
+	LONGS_EQUAL(3, t->h);
+}
+
+TEST(parse_date_from_format, cannotHaveMeridianWithoutHour)
+{
+	test_parse("11 Mar 2013 PM", "d M Y A");
+	LONGS_EQUAL(1, errors->error_count);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+}
+
 TEST(parse_date_from_format, naturalDateWithPrefix)
 {
 	test_parse_with_prefix("Year 2018 Month 01 Day 26", "Year %Y Month %m Day %d");
