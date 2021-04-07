@@ -31,27 +31,29 @@
 # include <string.h>
 
 /**
- * Extension char* strndup(const char* s, size_t n)
+ * char* timelib_strndup(const char* s, size_t n)
  *
  * Returns a pointer to a copy of 's' with at most 'n' characters
  * in memory obtained from 'malloc', or 'NULL' if insufficient
  * memory was available.  The result is always 'NULL' terminated.
  */
-char* strndup(const char* s, size_t n) {
-    char* result;
-    size_t len = strlen(s);
+static char* timelib_strndup(const char* s, size_t n)
+{
+	char* result;
+	size_t len = strlen(s);
 
-    if (n < len)
-        len = n;
+	if (n < len) {
+		len = n;
+	}
 
-    result = (char*)malloc(len + 1);
-    if (!result)
-        return 0;
+	result = (char*)malloc(len + 1);
+	if (!result) {
+		return 0;
+	}
 
-    result[len] = '\0';
-    return (char*)memcpy(result, s, len);
+	result[len] = '\0';
+	return (char*)memcpy(result, s, len);
 }
-
 #endif
 
 /* Forwards declrations */
