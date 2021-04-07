@@ -949,6 +949,7 @@ timetiny12 = hour12 space? meridian;
 timeshort12 = hour12[:.]minutelz space? meridian;
 timelong12 = hour12[:.]minute[:.]secondlz space? meridian;
 
+timetiny24 = 't' hour24;
 timeshort24 = 't'? hour24[:.]minute;
 timelong24 =  't'? hour24[:.]minute[:.]second;
 iso8601long =  't'? hour24 [:.] minute [:.] second frac;
@@ -1244,19 +1245,21 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		return TIMELIB_TIME24_WITH_ZONE;
 	}
 
-	timeshort24 | timelong24 /* | iso8601short | iso8601norm */ | iso8601long /*| iso8601shorttz | iso8601normtz | iso8601longtz*/
+	timetiny24 | timeshort24 | timelong24 /* | iso8601short | iso8601norm */ | iso8601long /*| iso8601shorttz | iso8601normtz | iso8601longtz*/
 	{
 		int tz_not_found;
-		DEBUG_OUTPUT("timeshort24 | timelong24 | iso8601long");
+		DEBUG_OUTPUT("timetiny24 | timeshort24 | timelong24 | iso8601long");
 		TIMELIB_INIT;
 		TIMELIB_HAVE_TIME();
 		s->time->h = timelib_get_nr(&ptr, 2);
-		s->time->i = timelib_get_nr(&ptr, 2);
 		if (*ptr == ':' || *ptr == '.') {
-			s->time->s = timelib_get_nr(&ptr, 2);
+			s->time->i = timelib_get_nr(&ptr, 2);
+			if (*ptr == ':' || *ptr == '.') {
+				s->time->s = timelib_get_nr(&ptr, 2);
 
-			if (*ptr == '.') {
+				if (*ptr == '.') {
 				s->time->us = timelib_get_frac_nr(&ptr);
+				}
 			}
 		}
 
@@ -2235,7 +2238,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 
 				s->time->have_time = 1;
 				if (s->time->h != TIMELIB_UNSET) {
-					s->time->h += tmp;
+				s->time->h += tmp;
 				}
 				break;
 			case TIMELIB_FORMAT_MINUTE_TWO_DIGIT: /* two digit minute, with leading zero */
