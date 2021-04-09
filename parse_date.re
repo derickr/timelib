@@ -1258,7 +1258,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 				s->time->s = timelib_get_nr(&ptr, 2);
 
 				if (*ptr == '.') {
-				s->time->us = timelib_get_frac_nr(&ptr);
+					s->time->us = timelib_get_frac_nr(&ptr);
 				}
 			}
 		}
@@ -2238,7 +2238,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 
 				s->time->have_time = 1;
 				if (s->time->h != TIMELIB_UNSET) {
-				s->time->h += tmp;
+					s->time->h += tmp;
 				}
 				break;
 			case TIMELIB_FORMAT_MINUTE_TWO_DIGIT: /* two digit minute, with leading zero */
