@@ -30,6 +30,10 @@
 # include "timelib_config.h"
 #endif
 
+#define TIMELIB_VERSION 202104
+#define TIMELIB_EXTENDED_VERSION 20210401
+#define TIMELIB_ASCII_VERSION "2021.04"
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
@@ -363,10 +367,6 @@ typedef struct _timelib_tzdb {
 #  define timelib_strndup strndup
 # endif
 #endif
-
-#define TIMELIB_VERSION 202103
-#define TIMELIB_EXTENDED_VERSION 20210301
-#define TIMELIB_ASCII_VERSION "2021.03"
 
 #define TIMELIB_NONE             0x00
 #define TIMELIB_OVERRIDE_TIME    0x01
