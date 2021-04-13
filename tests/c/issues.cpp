@@ -512,3 +512,31 @@ TEST(issues, issue0093_test1)
 	timelib_error_container_dtor(error);
 }
 
+TEST(issues, tzcorparse_01)
+{
+	timelib_time t;
+	int  dst = 0;
+	int  tz_not_found = 0;
+	const char *str = "+30157";
+
+	timelib_parse_zone((const char **) &str, &dst, &t, &tz_not_found, timelib_builtin_db(), timelib_parse_tzfile);
+
+	LONGS_EQUAL(1, tz_not_found);
+}
+
+TEST(issues, tzcorparse_02)
+{
+	timelib_time t;
+	int  dst = 0;
+	int  tz_not_found = 0;
+	const char *str = "+30:57";
+	timelib_sll ret;
+
+	ret = timelib_parse_zone((const char **) &str, &dst, &t, &tz_not_found, timelib_builtin_db(), timelib_parse_tzfile);
+
+	LONGS_EQUAL(0, tz_not_found);
+	LONGS_EQUAL(0, t.dst);
+	LONGS_EQUAL(1, t.is_localtime);
+	LONGS_EQUAL(TIMELIB_ZONETYPE_OFFSET, t.zone_type);
+	LONGS_EQUAL(1857 * 60, ret);
+}
