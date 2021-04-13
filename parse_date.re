@@ -753,10 +753,12 @@ static timelib_long timelib_lookup_abbr(const char **ptr, int *dst, char **tz_ab
 #define sHOUR(a) (int)(a * 3600)
 #define sMIN(a) (int)(a * 60)
 
-static timelib_long timelib_parse_tz_cor(const char **ptr)
+static timelib_long timelib_parse_tz_cor(const char **ptr, int *tz_not_found)
 {
 	const char *begin = *ptr, *end;
 	timelib_long  tmp;
+
+	*tz_not_found = 1;
 
 	while (isdigit(**ptr) || **ptr == ':') {
 		++*ptr;
@@ -765,21 +767,31 @@ static timelib_long timelib_parse_tz_cor(const char **ptr)
 	switch (end - begin) {
 		case 1: /* H */
 		case 2: /* HH */
+			*tz_not_found = 0;
 			return sHOUR(strtol(begin, NULL, 10));
-			break;
+
 		case 3: /* H:M */
 		case 4: /* H:MM, HH:M, HHMM */
 			if (begin[1] == ':') {
+				*tz_not_found = 0;
 				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 2, NULL, 10));
 				return tmp;
 			} else if (begin[2] == ':') {
+				*tz_not_found = 0;
 				tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
 				return tmp;
 			} else {
+				*tz_not_found = 0;
 				tmp = strtol(begin, NULL, 10);
 				return sHOUR(tmp / 100) + sMIN(tmp % 100);
 			}
+
 		case 5: /* HH:MM */
+			if (begin[2] != ':') {
+				break;
+			}
+
+			*tz_not_found = 0;
 			tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
 			return tmp;
 	}
@@ -834,18 +846,16 @@ timelib_long timelib_parse_zone(const char **ptr, int *dst, timelib_time *t, int
 		++*ptr;
 		t->is_localtime = 1;
 		t->zone_type = TIMELIB_ZONETYPE_OFFSET;
-		*tz_not_found = 0;
 		t->dst = 0;
 
-		retval = timelib_parse_tz_cor(ptr);
+		retval = timelib_parse_tz_cor(ptr, tz_not_found);
 	} else if (**ptr == '-') {
 		++*ptr;
 		t->is_localtime = 1;
 		t->zone_type = TIMELIB_ZONETYPE_OFFSET;
-		*tz_not_found = 0;
 		t->dst = 0;
 
-		retval = -1 * timelib_parse_tz_cor(ptr);
+		retval = -1 * timelib_parse_tz_cor(ptr, tz_not_found);
 	} else {
 		int found = 0;
 		timelib_long offset = 0;
