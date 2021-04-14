@@ -563,3 +563,104 @@ TEST(issues, weekday_time_part_01)
 	timelib_time_dtor(t_rel);
 	timelib_tzinfo_dtor(tzi);
 }
+
+
+TEST(issues, first_day_of_time_01)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            current[] = "2020-11-27 12:33:57";
+	char            relative[] = "first day of this month";
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_time   *t_cur = timelib_strtotime(current, sizeof(current), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t_rel = timelib_strtotime(relative, sizeof(relative), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	timelib_fill_holes(t_rel, t_cur, TIMELIB_NONE);
+	timelib_update_ts(t_rel, tzi);
+
+	LONGS_EQUAL(2020, t_rel->y);
+	LONGS_EQUAL(11,   t_rel->m);
+	LONGS_EQUAL( 1,   t_rel->d);
+	LONGS_EQUAL( 0, t_rel->h);
+	LONGS_EQUAL( 0, t_rel->i);
+	LONGS_EQUAL( 0, t_rel->s);
+
+	timelib_time_dtor(t_cur);
+	timelib_time_dtor(t_rel);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, first_day_of_time_02)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            current[] = "2020-11-27 12:33:57";
+	char            relative[] = "first day of last month";
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_time   *t_cur = timelib_strtotime(current, sizeof(current), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t_rel = timelib_strtotime(relative, sizeof(relative), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	timelib_fill_holes(t_rel, t_cur, TIMELIB_NONE);
+	timelib_update_ts(t_rel, tzi);
+
+	LONGS_EQUAL(2020, t_rel->y);
+	LONGS_EQUAL(10,   t_rel->m);
+	LONGS_EQUAL( 1,   t_rel->d);
+	LONGS_EQUAL( 0, t_rel->h);
+	LONGS_EQUAL( 0, t_rel->i);
+	LONGS_EQUAL( 0, t_rel->s);
+
+	timelib_time_dtor(t_cur);
+	timelib_time_dtor(t_rel);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, last_day_of_time_01)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            current[] = "2020-11-27 12:33:57";
+	char            relative[] = "last day of this month";
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_time   *t_cur = timelib_strtotime(current, sizeof(current), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t_rel = timelib_strtotime(relative, sizeof(relative), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	timelib_fill_holes(t_rel, t_cur, TIMELIB_NONE);
+	timelib_update_ts(t_rel, tzi);
+
+	LONGS_EQUAL(2020, t_rel->y);
+	LONGS_EQUAL(11,   t_rel->m);
+	LONGS_EQUAL(30,   t_rel->d);
+	LONGS_EQUAL( 0, t_rel->h);
+	LONGS_EQUAL( 0, t_rel->i);
+	LONGS_EQUAL( 0, t_rel->s);
+
+	timelib_time_dtor(t_cur);
+	timelib_time_dtor(t_rel);
+	timelib_tzinfo_dtor(tzi);
+}
+
+TEST(issues, last_day_of_time_02)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            current[] = "2020-11-27 12:33:57";
+	char            relative[] = "last day of last month";
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_time   *t_cur = timelib_strtotime(current, sizeof(current), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t_rel = timelib_strtotime(relative, sizeof(relative), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	timelib_fill_holes(t_rel, t_cur, TIMELIB_NONE);
+	timelib_update_ts(t_rel, tzi);
+
+	LONGS_EQUAL(2020, t_rel->y);
+	LONGS_EQUAL(10,   t_rel->m);
+	LONGS_EQUAL(31,   t_rel->d);
+	LONGS_EQUAL( 0, t_rel->h);
+	LONGS_EQUAL( 0, t_rel->i);
+	LONGS_EQUAL( 0, t_rel->s);
+
+	timelib_time_dtor(t_cur);
+	timelib_time_dtor(t_rel);
+	timelib_tzinfo_dtor(tzi);
+}
