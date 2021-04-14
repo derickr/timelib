@@ -1157,6 +1157,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		DEBUG_OUTPUT("firstdayof | lastdayof");
 		TIMELIB_INIT;
 		TIMELIB_HAVE_RELATIVE();
+		TIMELIB_UNHAVE_TIME();
 
 		/* skip "last day of" or "first day of" */
 		if (*ptr == 'l' || *ptr == 'L') {
