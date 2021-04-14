@@ -540,3 +540,26 @@ TEST(issues, tzcorparse_02)
 	LONGS_EQUAL(TIMELIB_ZONETYPE_OFFSET, t.zone_type);
 	LONGS_EQUAL(1857 * 60, ret);
 }
+
+
+TEST(issues, weekday_time_part_01)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            current[] = "2020-11-27 12:33:57";
+	char            relative[] = "+1 weekday";
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	timelib_time   *t_cur = timelib_strtotime(current, sizeof(current), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_time   *t_rel = timelib_strtotime(relative, sizeof(relative), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	timelib_fill_holes(t_rel, t_cur, TIMELIB_NONE);
+	timelib_update_ts(t_rel, tzi);
+
+	LONGS_EQUAL(12, t_rel->h);
+	LONGS_EQUAL(33, t_rel->i);
+	LONGS_EQUAL(57, t_rel->s);
+
+	timelib_time_dtor(t_cur);
+	timelib_time_dtor(t_rel);
+	timelib_tzinfo_dtor(tzi);
+}
