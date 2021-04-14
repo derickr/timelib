@@ -639,7 +639,13 @@ static const timelib_relunit* timelib_lookup_relunit(const char **ptr)
 	return value;
 }
 
-static void timelib_set_relative(const char **ptr, timelib_sll amount, int behavior, Scanner *s)
+/**
+ * The time_part parameter is a flag. It can be TIMELIB_TIME_PART_KEEP in case
+ * the time portion should not be reset to midnight, or
+ * TIMELIB_TIME_PART_DONT_KEEP in case it does need to be reset. This is used
+ * for not overwriting the time portion for 'X weekday'.
+ */
+static void timelib_set_relative(const char **ptr, timelib_sll amount, int behavior, Scanner *s, int time_part)
 {
 	const timelib_relunit* relunit;
 
@@ -658,7 +664,9 @@ static void timelib_set_relative(const char **ptr, timelib_sll amount, int behav
 
 		case TIMELIB_WEEKDAY:
 			TIMELIB_HAVE_WEEKDAY_RELATIVE();
-			TIMELIB_UNHAVE_TIME();
+			if (time_part != TIMELIB_TIME_PART_KEEP) {
+				TIMELIB_UNHAVE_TIME();
+			}
 			s->time->relative.d += (amount > 0 ? amount - 1 : amount) * 7;
 			s->time->relative.weekday = relunit->multiplier;
 			s->time->relative.weekday_behavior = behavior;
@@ -666,7 +674,9 @@ static void timelib_set_relative(const char **ptr, timelib_sll amount, int behav
 
 		case TIMELIB_SPECIAL:
 			TIMELIB_HAVE_SPECIAL_RELATIVE();
-			TIMELIB_UNHAVE_TIME();
+			if (time_part != TIMELIB_TIME_PART_KEEP) {
+				TIMELIB_UNHAVE_TIME();
+			}
 			s->time->relative.special.type = relunit->multiplier;
 			s->time->relative.special.amount = amount;
 	}
@@ -1195,10 +1205,10 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		timelib_eat_spaces(&ptr);
 		if (i > 0) { /* first, second... etc */
 			s->time->relative.special.type = TIMELIB_SPECIAL_DAY_OF_WEEK_IN_MONTH;
-			timelib_set_relative(&ptr, i, 1, s);
+			timelib_set_relative(&ptr, i, 1, s, TIMELIB_TIME_PART_DONT_KEEP);
 		} else { /* last */
 			s->time->relative.special.type = TIMELIB_SPECIAL_LAST_DAY_OF_WEEK_IN_MONTH;
-			timelib_set_relative(&ptr, i, behavior, s);
+			timelib_set_relative(&ptr, i, behavior, s, TIMELIB_TIME_PART_DONT_KEEP);
 		}
 		TIMELIB_DEINIT;
 		return TIMELIB_WEEK_DAY_OF_MONTH;
@@ -1708,7 +1718,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		while(*ptr) {
 			i = timelib_get_relative_text(&ptr, &behavior);
 			timelib_eat_spaces(&ptr);
-			timelib_set_relative(&ptr, i, behavior, s);
+			timelib_set_relative(&ptr, i, behavior, s, TIMELIB_TIME_PART_DONT_KEEP);
 			s->time->relative.weekday_behavior = 2;
 
 			/* to handle the format weekday + last/this/next week */
@@ -1732,7 +1742,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		while(*ptr) {
 			i = timelib_get_relative_text(&ptr, &behavior);
 			timelib_eat_spaces(&ptr);
-			timelib_set_relative(&ptr, i, behavior, s);
+			timelib_set_relative(&ptr, i, behavior, s, TIMELIB_TIME_PART_DONT_KEEP);
 		}
 		TIMELIB_DEINIT;
 		return TIMELIB_RELATIVE;
@@ -1826,7 +1836,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		while(*ptr) {
 			i = timelib_get_signed_nr(s, &ptr, 24);
 			timelib_eat_spaces(&ptr);
-			timelib_set_relative(&ptr, i, 1, s);
+			timelib_set_relative(&ptr, i, 1, s, TIMELIB_TIME_PART_KEEP);
 		}
 		TIMELIB_DEINIT;
 		return TIMELIB_RELATIVE;
