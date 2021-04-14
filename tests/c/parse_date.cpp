@@ -465,6 +465,9 @@ TEST(parse_date, bug51096_00)
 	LONGS_EQUAL(0, t->relative.h);
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+	LONGS_EQUAL(TIMELIB_UNSET, t->i);
+	LONGS_EQUAL(TIMELIB_UNSET, t->s);
 }
 
 TEST(parse_date, bug51096_01)
@@ -476,6 +479,9 @@ TEST(parse_date, bug51096_01)
 	LONGS_EQUAL(0, t->relative.h);
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+	LONGS_EQUAL(TIMELIB_UNSET, t->i);
+	LONGS_EQUAL(TIMELIB_UNSET, t->s);
 }
 
 TEST(parse_date, bug51096_02)
@@ -487,6 +493,9 @@ TEST(parse_date, bug51096_02)
 	LONGS_EQUAL(0, t->relative.h);
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+	LONGS_EQUAL(TIMELIB_UNSET, t->i);
+	LONGS_EQUAL(TIMELIB_UNSET, t->s);
 }
 
 TEST(parse_date, bug51096_03)
@@ -498,6 +507,9 @@ TEST(parse_date, bug51096_03)
 	LONGS_EQUAL(0, t->relative.h);
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+	LONGS_EQUAL(TIMELIB_UNSET, t->i);
+	LONGS_EQUAL(TIMELIB_UNSET, t->s);
 }
 
 TEST(parse_date, bug51096_04)
@@ -510,6 +522,9 @@ TEST(parse_date, bug51096_04)
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
 	LONGS_EQUAL(1, t->relative.first_last_day_of);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
 }
 
 TEST(parse_date, bug51096_05)
@@ -521,6 +536,9 @@ TEST(parse_date, bug51096_05)
 	LONGS_EQUAL(0, t->relative.h);
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+	LONGS_EQUAL(TIMELIB_UNSET, t->i);
+	LONGS_EQUAL(TIMELIB_UNSET, t->s);
 }
 
 TEST(parse_date, bug51096_06)
@@ -533,6 +551,9 @@ TEST(parse_date, bug51096_06)
 	LONGS_EQUAL(0, t->relative.i);
 	LONGS_EQUAL(0, t->relative.s);
 	LONGS_EQUAL(2, t->relative.first_last_day_of);
+	LONGS_EQUAL(0, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
 }
 
 
@@ -4222,6 +4243,9 @@ TEST(parse_date, relative_58)
 	test_parse("8 weekdays ago");
 	LONGS_EQUAL(TIMELIB_SPECIAL_WEEKDAY, t->relative.special.type);
 	LONGS_EQUAL(-8, t->relative.special.amount);
+	LONGS_EQUAL(TIMELIB_UNSET, t->h);
+	LONGS_EQUAL(TIMELIB_UNSET, t->i);
+	LONGS_EQUAL(TIMELIB_UNSET, t->s);
 }
 
 TEST(parse_date, relative_59)
