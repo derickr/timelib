@@ -2168,15 +2168,20 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				break;
 			case TIMELIB_FORMAT_DAY_OF_YEAR: /* day of year - resets month (0 based) - also initializes everything else to !TIMELIB_UNSET */
 				TIMELIB_CHECK_NUMBER;
+				if (s->time->y == TIMELIB_UNSET) {
+					add_pbf_error(s, TIMELIB_ERR_MERIDIAN_BEFORE_HOUR, "A 'day of year' can only come after a year has been found", string, begin);
+				}
 				if ((tmp = timelib_get_nr(&ptr, 3)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_THREE_DIGIT_DAY_OF_YEAR, "A three digit day-of-year could not be found", string, begin);
 					break;
 				}
 
-				s->time->have_date = 1;
-				s->time->m = 1;
-				s->time->d = tmp + 1;
-				timelib_do_normalize(s->time);
+				if (s->time->y != TIMELIB_UNSET) {
+					s->time->have_date = 1;
+					s->time->m = 1;
+					s->time->d = tmp + 1;
+					timelib_do_normalize(s->time);
+				}
 				break;
 
 			case TIMELIB_FORMAT_MONTH_TWO_DIGIT: /* two digit month, without leading zero */
