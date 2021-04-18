@@ -219,6 +219,33 @@ TEST(parse_date_from_format, cannotHaveMeridianWithoutHour)
 	LONGS_EQUAL(TIMELIB_UNSET, t->h);
 }
 
+TEST(parse_date_from_format, cannotHaveDOYBeforeYear)
+{
+	test_parse("60 2020", "z Y");
+	LONGS_EQUAL(1, errors->error_count);
+	LONGS_EQUAL(2020, t->y);
+	LONGS_EQUAL(TIMELIB_UNSET, t->m);
+	LONGS_EQUAL(TIMELIB_UNSET, t->d);
+}
+
+TEST(parse_date_from_format, DOYAfterLeapYear)
+{
+	test_parse("2020 60", "Y z");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(2020, t->y);
+	LONGS_EQUAL(3, t->m);
+	LONGS_EQUAL(1, t->d);
+}
+
+TEST(parse_date_from_format, DOYAfterYear)
+{
+	test_parse("2021 60", "Y z");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(2021, t->y);
+	LONGS_EQUAL(3, t->m);
+	LONGS_EQUAL(2, t->d);
+}
+
 TEST(parse_date_from_format, naturalDateWithPrefix)
 {
 	test_parse_with_prefix("Year 2018 Month 01 Day 26", "Year %Y Month %m Day %d");
