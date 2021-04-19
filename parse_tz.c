@@ -159,9 +159,6 @@ static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz, unsigned
 		*type = TIMELIB_TZINFO_ZONEINFO;
 		return read_tzif_preamble(tzf, tz);
 	} else {
-		// This is the default value used to avoid this compilation error with `-Os` flag:
-		// "'type' may be used uninitialized in this function [-Werror=maybe-uninitialized]"
-		*type = TIMELIB_TZINFO_ZONEINFO;
 		return -1;
 	}
 }
@@ -657,7 +654,7 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 	timelib_tzinfo *tmp;
 	int version;
 	int transitions_result, types_result;
-	unsigned int type; /* TIMELIB_TZINFO_PHP or TIMELIB_TZINFO_ZONEINFO */
+	unsigned int type = TIMELIB_TZINFO_ZONEINFO; /* TIMELIB_TZINFO_PHP or TIMELIB_TZINFO_ZONEINFO */
 
 	*error_code = TIMELIB_ERROR_NO_ERROR;
 
