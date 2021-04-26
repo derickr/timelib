@@ -794,3 +794,35 @@ TEST_YEAR_START(2035, 2051222400)
 TEST_YEAR_START(2036, 2082758400)
 TEST_YEAR_START(2037, 2114380800)
 TEST_YEAR_START(2038, 2145916800)
+
+TEST(posix, integration_01)
+{
+	int             error_code;
+	timelib_tzinfo *tzi;
+	timelib_tzdb   *test_directory = timelib_zoneinfo("tests/c/files");
+
+	tzi = timelib_parse_tzfile((char*) "Casablanca_AmazonLinux1", test_directory, &error_code);
+
+	LONGS_EQUAL(TIMELIB_ERROR_EMPTY_POSIX_STRING, error_code);
+	CHECK(tzi != NULL);
+	LONGS_EQUAL(196, tzi->bit64.timecnt);
+
+	timelib_tzinfo_dtor(tzi);
+	timelib_zoneinfo_dtor(test_directory);
+}
+
+TEST(posix, integration_02)
+{
+	int             error_code;
+	timelib_tzinfo *tzi;
+	timelib_tzdb   *test_directory = timelib_zoneinfo("tests/c/files");
+
+	tzi = timelib_parse_tzfile((char*) "Nuuk_AmazonLinux1", test_directory, &error_code);
+
+	LONGS_EQUAL(TIMELIB_ERROR_EMPTY_POSIX_STRING, error_code);
+	CHECK(tzi != NULL);
+	LONGS_EQUAL(835, tzi->bit64.timecnt);
+
+	timelib_tzinfo_dtor(tzi);
+	timelib_zoneinfo_dtor(test_directory);
+}
