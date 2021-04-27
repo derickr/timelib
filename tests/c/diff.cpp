@@ -152,3 +152,9 @@ TEST(timelib_diff, php78452)
 	test_parse("Asia/Tehran", "2019-09-24 11:47:24", "2019-08-21 12:47:24");
 	CHECKDIFF(0, 1, 2, 23, 0, 0, 0);
 }
+
+TEST(timelib_diff, php80974)
+{
+	test_parse("UTC", "2012-01-01 00:00 America/Toronto", "2012-01-01 00:00 America/Vancouver");
+	CHECKDIFF(0, 0, 0, 3, 0, 0, 0);
+}
