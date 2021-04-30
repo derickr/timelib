@@ -28,27 +28,49 @@
 
 void timelib_unixtime2date(timelib_sll ts, timelib_sll *y, timelib_sll *m, timelib_sll *d)
 {
-	timelib_sll days, era, t;
-	timelib_ull day_of_era, year_of_era, day_of_year, month_portion;
+	timelib_sll epoch_days;
 
 	/* Calculate days since algorithm's epoch (0000-03-01) */
-	days = ts / SECS_PER_DAY + HINNANT_EPOCH_SHIFT;
+	epoch_days = ts / SECS_PER_DAY + HINNANT_EPOCH_SHIFT;
 
 	/* Adjustment for a negative time portion */
-	t = ts % SECS_PER_DAY;
-	days += (t < 0) ? -1 : 0;
+	if (ts < 0) {
+		timelib_sll t = ts % SECS_PER_DAY;
+		epoch_days += (t < 0) ? -1 : 0;
+	}
 
 	/* Calculate year, month, and day. Algorithm from:
 	 * http://howardhinnant.github.io/date_algorithms.html#civil_from_days */
-	era = (days >= 0 ? days : days - DAYS_PER_ERA + 1) / DAYS_PER_ERA;
-	day_of_era = days - era * DAYS_PER_ERA;
-	year_of_era = (day_of_era - day_of_era / 1460 + day_of_era / 36524 - day_of_era / 146096) / DAYS_PER_YEAR;
-	*y = year_of_era + era * YEARS_PER_ERA;
-	day_of_year = day_of_era - (DAYS_PER_YEAR * year_of_era + year_of_era / 4 - year_of_era / 100);
-	month_portion = (5 * day_of_year + 2) / 153;
-	*d = day_of_year - (153 * month_portion + 2) / 5 + 1;
-	*m = month_portion + (month_portion < 10 ? 3 : -9);
-	*y += (*m <= 2);
+	if (epoch_days >= INT32_MIN && epoch_days <= INT32_MAX) {
+		/* Use 32-bit types and math instructions (32-bit division is faster) */
+		int32_t days = epoch_days;
+		int32_t era, day_of_era, year_of_era, day_of_year, month_portion;
+
+		days = epoch_days;
+
+		era = (days >= 0 ? days : days - DAYS_PER_ERA + 1) / DAYS_PER_ERA;
+		day_of_era = days - era * DAYS_PER_ERA;
+		year_of_era = (day_of_era - day_of_era / 1460 + day_of_era / 36524 - day_of_era / 146096) / DAYS_PER_YEAR;
+		*y = year_of_era + era * YEARS_PER_ERA;
+		day_of_year = day_of_era - (DAYS_PER_YEAR * year_of_era + year_of_era / 4 - year_of_era / 100);
+		month_portion = (5 * day_of_year + 2) / 153;
+		*d = day_of_year - (153 * month_portion + 2) / 5 + 1;
+		*m = month_portion + (month_portion < 10 ? 3 : -9);
+		*y += (*m <= 2);
+	} else {
+		timelib_sll days = epoch_days;
+		timelib_ull era, day_of_era, year_of_era, day_of_year, month_portion;
+
+		era = (days >= 0 ? days : days - DAYS_PER_ERA + 1) / DAYS_PER_ERA;
+		day_of_era = days - era * DAYS_PER_ERA;
+		year_of_era = (day_of_era - day_of_era / 1460 + day_of_era / 36524 - day_of_era / 146096) / DAYS_PER_YEAR;
+		*y = year_of_era + era * YEARS_PER_ERA;
+		day_of_year = day_of_era - (DAYS_PER_YEAR * year_of_era + year_of_era / 4 - year_of_era / 100);
+		month_portion = (5 * day_of_year + 2) / 153;
+		*d = day_of_year - (153 * month_portion + 2) / 5 + 1;
+		*m = month_portion + (month_portion < 10 ? 3 : -9);
+		*y += (*m <= 2);
+	}
 
 	TIMELIB_DEBUG(printf("A: ts=%lld, year=%lld, month=%lld, day=%lld,", ts, *y, *m, *d););
 }
