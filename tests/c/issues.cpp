@@ -990,3 +990,87 @@ TEST(issues, last_day_of_time_02)
 	timelib_time_dtor(t_rel);
 	timelib_tzinfo_dtor(tzi);
 }
+
+TEST(issues, php81106)
+{
+	int               dummy_error;
+	timelib_time     *t;
+	timelib_time     *changed;
+	timelib_time     *b = NULL, *e = NULL;
+	int               r = 0;
+	timelib_tzinfo   *tzi;
+	timelib_rel_time *p = NULL;
+	timelib_error_container *errors;
+
+	char interval[] = "PT0S";
+	char str[] = "2000-01-01 00:00:00";
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	t = timelib_strtotime(str, strlen(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_update_ts(t, tzi);
+	timelib_set_timezone(t, tzi);
+	timelib_update_from_sse(t);
+
+	timelib_strtointerval(interval, strlen(interval), &b, &e, &p, &r, &errors);
+	p->us = 1234000;
+
+	changed = timelib_add_wall(t, p);
+
+	LONGS_EQUAL(946684801, changed->sse);
+	LONGS_EQUAL(2000, changed->y);
+	LONGS_EQUAL(1,    changed->m);
+	LONGS_EQUAL(1,    changed->d);
+	LONGS_EQUAL(0,    changed->h);
+	LONGS_EQUAL(0,    changed->i);
+	LONGS_EQUAL(1,    changed->s);
+	LONGS_EQUAL(234000, changed->us);
+	STRCMP_EQUAL("UTC", changed->tz_abbr);
+
+	timelib_time_dtor(t);
+	timelib_time_dtor(changed);
+	timelib_tzinfo_dtor(tzi);
+	timelib_rel_time_dtor(p);
+	timelib_error_container_dtor(errors);
+}
+
+TEST(issues, php80998)
+{
+	int               dummy_error;
+	timelib_time     *t;
+	timelib_time     *changed;
+	timelib_time     *b = NULL, *e = NULL;
+	int               r = 0;
+	timelib_tzinfo   *tzi;
+	timelib_rel_time *p = NULL;
+	timelib_error_container *errors;
+
+	char str[] = "2021-04-05 14:00:00";
+	char interval[] = "PT10799S";
+
+	tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+	t = timelib_strtotime(str, strlen(str), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	timelib_update_ts(t, tzi);
+	timelib_set_timezone(t, tzi);
+	timelib_update_from_sse(t);
+
+	timelib_strtointerval(interval, strlen(interval), &b, &e, &p, &r, &errors);
+	p->us = 999999;
+	p->invert = 1;
+
+	changed = timelib_add_wall(t, p);
+
+	LONGS_EQUAL(2021, changed->y);
+	LONGS_EQUAL(4,    changed->m);
+	LONGS_EQUAL(5,    changed->d);
+	LONGS_EQUAL(11,   changed->h);
+	LONGS_EQUAL(0,    changed->i);
+	LONGS_EQUAL(1,    changed->s);
+	LONGS_EQUAL(1,    changed->us);
+	STRCMP_EQUAL("UTC", changed->tz_abbr);
+
+	timelib_time_dtor(t);
+	timelib_time_dtor(changed);
+	timelib_tzinfo_dtor(tzi);
+	timelib_rel_time_dtor(p);
+	timelib_error_container_dtor(errors);
+}
