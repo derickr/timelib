@@ -7,7 +7,7 @@
 TEST_GROUP(timelib_diff)
 {
 	timelib_time *t_now, *t_from, *t_to;
-	timelib_tzinfo *tzi;
+	timelib_tzinfo *tzi, *tzi_from, *tzi_to;
 	timelib_rel_time *diff;
 
 	void test_parse(const char *tzid, const char *from, const char *to)
@@ -15,6 +15,8 @@ TEST_GROUP(timelib_diff)
 		int dummy_error;
 
 		tzi = timelib_parse_tzfile(tzid, timelib_builtin_db(), &dummy_error);
+		tzi_from = NULL;
+		tzi_to = NULL;
 
 		t_now = timelib_strtotime("now", sizeof("now"), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 		t_from = timelib_strtotime(from, strlen(from), NULL, timelib_builtin_db(), timelib_parse_tzfile);
@@ -29,9 +31,38 @@ TEST_GROUP(timelib_diff)
 		diff = timelib_diff(t_from, t_to);
 	}
 
+	void test_parse(const char *tzid_from, const char *tzid_to, const char *from, const char *to)
+	{
+		int dummy_error;
+
+		tzi = NULL;
+		tzi_from = timelib_parse_tzfile(tzid_from, timelib_builtin_db(), &dummy_error);
+		tzi_to = timelib_parse_tzfile(tzid_to, timelib_builtin_db(), &dummy_error);
+
+		t_now = timelib_strtotime("now", sizeof("now"), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		t_from = timelib_strtotime(from, strlen(from), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		t_to = timelib_strtotime(to, strlen(to), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+		timelib_fill_holes(t_from, t_now, TIMELIB_NO_CLONE);
+		timelib_fill_holes(t_to, t_now, TIMELIB_NO_CLONE);
+
+		timelib_update_ts(t_from, tzi_from);
+		timelib_update_ts(t_to, tzi_to);
+
+		diff = timelib_diff(t_from, t_to);
+	}
+
 	TEST_TEARDOWN()
 	{
-		timelib_tzinfo_dtor(tzi);
+		if (tzi) {
+			timelib_tzinfo_dtor(tzi);
+		}
+		if (tzi_from) {
+			timelib_tzinfo_dtor(tzi_from);
+		}
+		if (tzi_to) {
+			timelib_tzinfo_dtor(tzi_to);
+		}
 		timelib_time_dtor(t_from);
 		timelib_time_dtor(t_to);
 		timelib_time_dtor(t_now);
@@ -151,4 +182,16 @@ TEST(timelib_diff, php78452)
 {
 	test_parse("Asia/Tehran", "2019-09-24 11:47:24", "2019-08-21 12:47:24");
 	CHECKDIFF(0, 1, 2, 23, 0, 0, 0);
+}
+
+TEST(timelib_diff, php80974)
+{
+	test_parse("America/Toronto", "America/Vancouver", "2012-01-01 00:00", "2012-01-01 00:00");
+	CHECKDIFF(0, 0, 0, 3, 0, 0, 0);
+}
+
+TEST(timelib_diff, php81273)
+{
+	test_parse("Australia/Sydney", "America/Los_Angeles", "2000-01-01 00:00:00.000000", "2000-01-01 00:00:00.000000");
+	CHECKDIFF(0, 0, 0, 19, 0, 0, 0);
 }
