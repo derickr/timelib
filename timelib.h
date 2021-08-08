@@ -180,6 +180,12 @@ typedef struct _timelib_posix_str
 	int type_index_dst_type;  // index into tz->type
 } timelib_posix_str;
 
+typedef struct _timelib_posix_transitions {
+	size_t      count;
+	timelib_sll times[6];
+	timelib_sll types[6];
+} timelib_posix_transitions;
+
 typedef struct _timelib_tzinfo
 {
 	char    *name;
@@ -1045,6 +1051,12 @@ timelib_time *timelib_sub_wall(timelib_time *t, timelib_rel_time *interval);
 void timelib_posix_str_dtor(timelib_posix_str *ps);
 
 timelib_posix_str* timelib_parse_posix_str(const char *posix);
+
+/**
+ * Calculate the two yearly to/from DST
+ */
+void timelib_get_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, timelib_posix_transitions *transitions);
+
 
 #ifdef __cplusplus
 } /* extern "C" */
