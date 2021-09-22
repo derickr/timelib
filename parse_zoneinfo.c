@@ -63,7 +63,6 @@ static int index_filter(const struct dirent *ent)
 		&& strcmp(ent->d_name, "posix") != 0
 		&& strcmp(ent->d_name, "posixrules") != 0
 		&& strcmp(ent->d_name, "right") != 0
-		&& strcmp(ent->d_name, "Etc") != 0
 		&& strcmp(ent->d_name, "localtime") != 0
 		&& strstr(ent->d_name, ".list") == NULL
 		&& strstr(ent->d_name, ".tab") == NULL;
