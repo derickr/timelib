@@ -33,13 +33,13 @@ int main(int argc, char *argv[])
 		timelib_tzdb *db = timelib_zoneinfo(argv[2]);
 
 		if (!db) {
-			fprintf(stderr, "Can not read timezone database in '%s'.\n", argv[2]);
+			fprintf(stderr, "Cannot read timezone database in '%s'.\n", argv[2]);
 			return 2;
 		}
 
 		tz = timelib_parse_tzfile(argv[1], db, &dummy_error);
 		if (!tz) {
-			fprintf(stderr, "Can not read timezone identifier '%s' from database in '%s'.\n", argv[1], argv[2]);
+			fprintf(stderr, "Cannot read timezone identifier '%s' from database in '%s'.\n", argv[1], argv[2]);
 
 			timelib_zoneinfo_dtor(db);
 			return 3;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 	} else {
 		tz = timelib_parse_tzfile(argv[1], timelib_builtin_db(), &dummy_error);
 		if (!tz) {
-			fprintf(stderr, "Can not read timezone identifier '%s' from built in database.\n", argv[1]);
+			fprintf(stderr, "Cannot read timezone identifier '%s' from built in database.\n", argv[1]);
 			return 4;
 		}
 	}
