@@ -50,18 +50,19 @@ index: timezonedb.h
 
 timezonedb.tgz: index
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
-	cp timezonedb.h ~/dev/php/pecl/timezonedb/trunk
-	php update-package-xml.php ~/dev/php/pecl/timezonedb/trunk
-	php update-package-version.php ~/dev/php/pecl/timezonedb/trunk
-	pecl package ~/dev/php/pecl/timezonedb/trunk/package.xml
+	cp timezonedb.h ~/dev/php/pecl-datetime-timezonedb
+	php update-package-xml.php ~/dev/php/pecl-datetime-timezonedb
+	php update-package-version.php ~/dev/php/pecl-datetime-timezonedb
+	pecl package ~/dev/php/pecl-datetime-timezonedb/package.xml
 	cp timezonedb-$(VERSION).tgz timezonedb.tgz
 
 release-pecl: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	$(eval TAG := $(shell cat version-info.txt | tail -n 1 | tr "." "_"))
-	cd ~/dev/php/pecl/timezonedb/trunk; svn commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezonedb.c timezonedb.h package.xml
-	svn cp -m "Released version $(VERSION) ($(TZVERSION))" https://svn.php.net/repository/pecl/timezonedb/trunk https://svn.php.net/repository/pecl/timezonedb/tags/RELEASE_$(TAG)
+	cd ~/dev/php/pecl-datetime-timezonedb; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezonedb.c timezonedb.h package.xml php_timezonedb.h
+	git tag -s RELEASE_$(TAG) -m "Go with $(VERSION)"
+	git push origin master RELEASE_$(TAG)
 
 release-docs: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
