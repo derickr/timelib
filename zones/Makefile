@@ -67,7 +67,7 @@ release-pecl: timezonedb.tgz
 release-docs: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
-	pecl upgrade -f timezonedb.tgz
+	-pecl upgrade -f timezonedb.tgz
 	cd ~/dev/php/php-doc-en; git pull
 	cd ~/dev/php/php-doc-en/reference/datetime/; php -dextension=timezonedb.so ../../../php-doc-base/scripts/gen-phpdoc-tz-list.php > timezones.xml
 	cd ~/dev/php/php-doc-en/reference/datetime/; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezones.xml && git push
@@ -76,7 +76,7 @@ release-php-clean:
 	-rm -rf /tmp/tz-tmp
 
 release-php-clone: release-php-clean
-	git clone git@git.php.net:php-src.git /tmp/tz-tmp
+	git clone git@github.com:/php/php-src /tmp/tz-tmp
 
 release-php-commit-73: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
