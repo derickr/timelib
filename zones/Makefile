@@ -61,8 +61,8 @@ release-pecl: timezonedb.tgz
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	$(eval TAG := $(shell cat version-info.txt | tail -n 1 | tr "." "_"))
 	cd ~/dev/php/pecl-datetime-timezonedb; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" timezonedb.c timezonedb.h package.xml php_timezonedb.h
-	git tag -s RELEASE_$(TAG) -m "Go with $(VERSION)"
-	git push origin master RELEASE_$(TAG)
+	cd ~/dev/php/pecl-datetime-timezonedb; git tag -s RELEASE_$(TAG) -m "Go with $(VERSION)"
+	cd ~/dev/php/pecl-datetime-timezonedb; git push origin master RELEASE_$(TAG)
 
 release-docs: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
