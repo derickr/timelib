@@ -25,7 +25,8 @@ C_TESTS=tests/c/timelib_get_current_offset_test.o tests/c/timelib_decimal_hour.o
 	tests/c/parse_date_from_format_test.o tests/c/parse_intervals.o \
 	tests/c/warn_on_slim.o tests/c/parse_posix.o tests/c/transitions.o \
 	tests/c/parse_tz.o tests/c/render.o tests/c/create_ts_from_string.o \
-	tests/c/parse_date.o tests/c/php-rfc.o tests/c/diff.o tests/c/interval.o
+	tests/c/parse_date.o tests/c/php-rfc.o tests/c/diff.o tests/c/interval.o \
+	tests/c/timezones_same.o tests/c/diff_days.o
 
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
 
