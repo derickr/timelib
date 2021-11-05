@@ -92,3 +92,65 @@ TEST(decimal_hour, convertNegativeZeroDecimalToHMS)
 	LONGS_EQUAL(0, min);
 	LONGS_EQUAL(0, sec);
 }
+
+
+TEST(decimal_hour, convertPositiveHMSFToDecimal)
+{
+	int hour = 2, min = 19, sec = 48, usec = 250000;
+	double d;
+
+	timelib_hmsf_to_decimal_hour(hour, min, sec, usec, &d);
+
+	DOUBLES_EQUAL(2.330069, d, 0.000001);
+}
+
+TEST(decimal_hour, convertPositiveHMSFToDecimalFullSec)
+{
+	int hour = 2, min = 19, sec = 47, usec = 1000000;
+	double d;
+
+	timelib_hmsf_to_decimal_hour(hour, min, sec, usec, &d);
+
+	DOUBLES_EQUAL(2.33, d, 0.000001);
+}
+
+TEST(decimal_hour, convertZeroHMSFToDecimal)
+{
+	int hour = 0, min = 0, sec = 0, usec = 0;
+	double d;
+
+	timelib_hmsf_to_decimal_hour(hour, min, sec, usec, &d);
+
+	DOUBLES_EQUAL(0, d, 0.00001);
+}
+
+TEST(decimal_hour, convertNegativeHMSFToDecimal)
+{
+	int hour = -2, min = 20, sec = 0, usec = 50000;
+	double d;
+
+	timelib_hmsf_to_decimal_hour(hour, min, sec, usec, &d);
+
+	DOUBLES_EQUAL(-2.333347, d, 0.000001);
+}
+
+TEST(decimal_hour, convertNegativeHMSFToDecimalSmall)
+{
+	int hour = -2, min = 20, sec = 0, usec = 5;
+	double base, d;
+
+	timelib_hms_to_decimal_hour(hour, min, sec, &base);
+	timelib_hmsf_to_decimal_hour(hour, min, sec, usec, &d);
+
+	DOUBLES_EQUAL(-1.388889e-09, d - base, 0.00001);
+}
+
+TEST(decimal_hour, convertNegativeZeroHMSFToDecimal)
+{
+	int hour = -0, min = 0, sec = 0, usec = 10;
+	double d;
+
+	timelib_hmsf_to_decimal_hour(hour, min, sec, usec, &d);
+
+	DOUBLES_EQUAL(0, d, 0.00001);
+}
