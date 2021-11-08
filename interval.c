@@ -167,7 +167,7 @@ int timelib_diff_days(timelib_time *one, timelib_time *two)
 		timelib_hmsf_to_decimal_hour(latest->h, latest->i, latest->s, latest->us, &latest_time);
 
 		days = llabs(timelib_epoch_days_from_time(one) - timelib_epoch_days_from_time(two));
-		if (latest_time < earliest_time) {
+		if (latest_time < earliest_time && days > 0) {
 			days--;
 		}
 	} else {
