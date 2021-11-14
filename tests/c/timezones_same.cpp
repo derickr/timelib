@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "timelib.h"
+#include <string.h>
 
 TEST_GROUP(timezone_same)
 {
