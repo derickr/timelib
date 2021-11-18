@@ -76,9 +76,15 @@ $first = (new DateTime('2018-07-01 00:00:00.000000 America/Toronto'))
     ->setTimezone(new DateTimeZone('UTC'));
 $second = new DateTime('2018-07-02 00:00:00.000000 America/Toronto');
 */
-TEST(diff_days, php81458)
+TEST(diff_days, php81458_1)
 {
 	test_parse_with_tz("2018-07-01 04:00 GMT+0000", "2018-07-02 00:00", NULL, "America/Toronto");
+	LONGS_EQUAL(1, days);
+}
+
+TEST(diff_days, php81458_2)
+{
+	test_parse_with_tz("2018-12-01 00:00", "2018-12-02 00:01", "UTC", "UTC");
 	LONGS_EQUAL(1, days);
 }
 
