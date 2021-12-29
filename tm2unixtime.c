@@ -364,11 +364,8 @@ static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 			return;
 
 		case TIMELIB_ZONETYPE_ABBR: {
-			timelib_sll tmp;
 
 			tz->is_localtime = 1;
-			tmp = -tz->z;
-			tmp -= tz->dst * 3600;
 			tz->sse += (-tz->z - tz->dst * SECS_PER_HOUR);
 			return;
 		}
