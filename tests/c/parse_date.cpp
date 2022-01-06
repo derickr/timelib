@@ -4898,6 +4898,19 @@ TEST(parse_date, timestamp_09)
 	LONGS_EQUAL(     3,     t->relative.us);
 }
 
+TEST(parse_date, timestamp_10)
+{
+	test_parse("@-0.4");
+	LONGS_EQUAL(1970, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 1, t->d);
+	LONGS_EQUAL( 0, t->h);
+	LONGS_EQUAL( 0, t->i);
+	LONGS_EQUAL( 0, t->s);
+	LONGS_EQUAL( 0, t->relative.s);
+	LONGS_EQUAL(-400000, t->relative.us);
+}
+
 
 TEST(parse_date, timetiny12_00)
 {

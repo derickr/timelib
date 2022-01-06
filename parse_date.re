@@ -1145,6 +1145,7 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 	{
 		timelib_ull i, us;
 		const char *ptr_before;
+		bool is_negative;
 
 		TIMELIB_INIT;
 		TIMELIB_HAVE_RELATIVE();
@@ -1152,11 +1153,14 @@ weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of
 		TIMELIB_UNHAVE_TIME();
 		TIMELIB_HAVE_TZ();
 
+		is_negative = *(ptr + 1) == '-';
+
 		i = timelib_get_signed_nr(s, &ptr, 24);
 
 		ptr_before = ptr;
 		us = timelib_get_signed_nr(s, &ptr, 6);
 		us = us * pow(10, 7 - (ptr - ptr_before));
+		if (is_negative) us *= -1;
 
 		s->time->y = 1970;
 		s->time->m = 1;
