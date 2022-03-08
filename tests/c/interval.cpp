@@ -91,7 +91,7 @@ TEST(timelib_interval, php80998_2b)
 TEST(timelib_interval, php80998_1a_sub)
 {
 	test_sub_wall("2021-04-05 11:00:00", "PT2H59M59S", 999999L, INVERT);
-	CHECKRES(2021,  4,  5, 14,  0,  0, 999999, 1617631200);
+	CHECKRES(2021,  4,  5, 13, 59, 59, 999999, 1617631200);
 }
 
 TEST(timelib_interval, php80998_1b_sub)
@@ -103,7 +103,7 @@ TEST(timelib_interval, php80998_1b_sub)
 TEST(timelib_interval, php80998_2a_sub)
 {
 	test_sub_wall("2021-04-05 11:00:00", "PT2H59M59S", 999999L, 0);
-	CHECKRES(2021,  4,  5,  8,  0,  1, 1, 1617609601);
+	CHECKRES(2021,  4,  5,  8,  0,  0, 1, 1617609601);
 }
 
 TEST(timelib_interval, php80998_2b_sub)
