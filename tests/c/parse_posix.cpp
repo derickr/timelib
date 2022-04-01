@@ -216,6 +216,14 @@ PARSE_TEST_STD_DST(full_7,
 	TYPE_MWD, -1,  1, 2, 3, 356400
 )
 
+// new with XXX
+PARSE_TEST_STD_DST(full_8,
+	"XXX6PDT7,0/0,J365/23",
+	"XXX", "PDT", -21600, -25200,
+	TYPE_D,    0, -1, -1, -1,     0,
+	TYPE_JD, 365, -1, -1, -1, 82800
+)
+
 /* Test whether all the used ones can be parsed */
 #define PARSE_TEST_SUCCESS(n,p) \
 	TEST(posix, n) { \
