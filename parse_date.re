@@ -2250,7 +2250,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					break;
 				}
 				if (s->time->h > 12) {
-					add_pbf_error(s, TIMELIB_ERR_HOUR_LARGER_THAN_12, "Hour can not be higher than 12", string, begin);
+					add_pbf_error(s, TIMELIB_ERR_HOUR_LARGER_THAN_12, "Hour cannot be higher than 12", string, begin);
 					break;
 				}
 
