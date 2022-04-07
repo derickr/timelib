@@ -2499,7 +2499,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					break;
 
 				default:
-					add_pbf_error(s, TIMELIB_ERR_DATA_MISSING, "Data missing", string, ptr);
+					add_pbf_error(s, TIMELIB_ERR_DATA_MISSING, "Not enough data available to satisfy format", string, ptr);
 					done = 1;
 			}
 			fptr++;
