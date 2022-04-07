@@ -5814,3 +5814,75 @@ TEST(parse_date, year_long_09)
 	LONGS_EQUAL( 0, t->s);
 }
 
+TEST(parse_date, timetiny24_00)
+{
+	test_parse("1978-12-22T23");
+	LONGS_EQUAL(1978, t->y);
+	LONGS_EQUAL(12, t->m);
+	LONGS_EQUAL(22, t->d);
+	LONGS_EQUAL(23, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, timetiny24_01)
+{
+	test_parse("T9");
+	LONGS_EQUAL(9, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, timetiny24_02)
+{
+	test_parse("T23Z");
+	LONGS_EQUAL(23, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, timetiny24_03)
+{
+	test_parse("1978-12-22T9");
+	LONGS_EQUAL(1978, t->y);
+	LONGS_EQUAL(12, t->m);
+	LONGS_EQUAL(22, t->d);
+	LONGS_EQUAL(9, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, timetiny24_04)
+{
+	test_parse("1978-12-22T23Z");
+	LONGS_EQUAL(1978, t->y);
+	LONGS_EQUAL(12, t->m);
+	LONGS_EQUAL(22, t->d);
+	LONGS_EQUAL(23, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, timetiny24_05)
+{
+	test_parse("1978-12-03T09-03");
+	LONGS_EQUAL(1978, t->y);
+	LONGS_EQUAL(12, t->m);
+	LONGS_EQUAL(03, t->d);
+	LONGS_EQUAL(9, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(-10800, t->z);
+	POINTERS_EQUAL(NULL, t->tz_abbr);
+}
+
+TEST(parse_date, timetiny24_06)
+{
+	test_parse("T09-03");
+	LONGS_EQUAL(9, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+	LONGS_EQUAL(-10800, t->z);
+	POINTERS_EQUAL(NULL, t->tz_abbr);
+}
+
