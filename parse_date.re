@@ -211,18 +211,25 @@ static timelib_relunit const timelib_relunit_lookup[] = {
 	{ "year",        TIMELIB_YEAR,    1 },
 	{ "years",       TIMELIB_YEAR,    1 },
 
+	{ "mondays",     TIMELIB_WEEKDAY, 1 },
 	{ "monday",      TIMELIB_WEEKDAY, 1 },
 	{ "mon",         TIMELIB_WEEKDAY, 1 },
+	{ "tuesdays",    TIMELIB_WEEKDAY, 2 },
 	{ "tuesday",     TIMELIB_WEEKDAY, 2 },
 	{ "tue",         TIMELIB_WEEKDAY, 2 },
+	{ "wednesdays",  TIMELIB_WEEKDAY, 3 },
 	{ "wednesday",   TIMELIB_WEEKDAY, 3 },
 	{ "wed",         TIMELIB_WEEKDAY, 3 },
+	{ "thursdays",   TIMELIB_WEEKDAY, 4 },
 	{ "thursday",    TIMELIB_WEEKDAY, 4 },
 	{ "thu",         TIMELIB_WEEKDAY, 4 },
+	{ "fridays",     TIMELIB_WEEKDAY, 5 },
 	{ "friday",      TIMELIB_WEEKDAY, 5 },
 	{ "fri",         TIMELIB_WEEKDAY, 5 },
+	{ "saturdays",   TIMELIB_WEEKDAY, 6 },
 	{ "saturday",    TIMELIB_WEEKDAY, 6 },
 	{ "sat",         TIMELIB_WEEKDAY, 6 },
+	{ "sundays",     TIMELIB_WEEKDAY, 0 },
 	{ "sunday",      TIMELIB_WEEKDAY, 0 },
 	{ "sun",         TIMELIB_WEEKDAY, 0 },
 
@@ -963,10 +970,11 @@ weekofyear = "0"[1-9] | [1-4][0-9] | "5"[0-3];
 monthlz = "0" [0-9] | "1" [0-2];
 daylz   = "0" [0-9] | [1-2][0-9] | "3" [01];
 
+dayfulls = 'sundays' | 'mondays' | 'tuesdays' | 'wednesdays' | 'thursdays' | 'fridays' | 'saturdays';
 dayfull = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
 dayabbr = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 dayspecial = 'weekday' | 'weekdays';
-daytext = dayfull | dayabbr | dayspecial;
+daytext = dayfulls | dayfull | dayabbr | dayspecial;
 
 monthfull = 'january' | 'february' | 'march' | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december';
 monthabbr = 'jan' | 'feb' | 'mar' | 'apr' | 'may' | 'jun' | 'jul' | 'aug' | 'sep' | 'sept' | 'oct' | 'nov' | 'dec';
@@ -1055,7 +1063,7 @@ relative = relnumber space? (reltextunit | 'week' );
 relativetext = (reltextnumber|reltexttext) space reltextunit;
 relativetextweek = reltexttext space 'week';
 
-weekdayof        = (reltextnumber|reltexttext) space (dayfull|dayabbr) space 'of';
+weekdayof        = (reltextnumber|reltexttext) space (dayfulls|dayfull|dayabbr) space 'of';
 
 */
 
