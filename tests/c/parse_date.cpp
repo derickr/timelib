@@ -3542,6 +3542,38 @@ TEST(parse_date, pgsql_20)
 	LONGS_EQUAL(366, t->d);
 }
 
+TEST(parse_date, pgsql_21)
+{
+	test_parse("1999-008");
+	LONGS_EQUAL(1999, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL( 8, t->d);
+}
+
+TEST(parse_date, pgsql_22)
+{
+	test_parse("1999-038");
+	LONGS_EQUAL(1999, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL(38, t->d);
+}
+
+TEST(parse_date, pgsql_23)
+{
+	test_parse("1999-238");
+	LONGS_EQUAL(1999, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL(238, t->d);
+}
+
+TEST(parse_date, pgsql_24)
+{
+	test_parse("1999-366");
+	LONGS_EQUAL(1999, t->y);
+	LONGS_EQUAL( 1, t->m);
+	LONGS_EQUAL(366, t->d);
+}
+
 TEST(parse_date, pointeddate_00)
 {
 	test_parse("22.12.1978");
