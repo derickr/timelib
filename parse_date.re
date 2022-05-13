@@ -820,6 +820,22 @@ static timelib_long timelib_parse_tz_cor(const char **ptr, int *tz_not_found)
 			*tz_not_found = 0;
 			tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10));
 			return tmp;
+
+		case 6: /* HHMMSS */
+			*tz_not_found = 0;
+			tmp = strtol(begin, NULL, 10);
+			tmp = sHOUR(tmp / 10000) + sMIN((tmp / 100) % 100) + (tmp % 100);
+			return tmp;
+
+		case 8: /* HH:MM:SS */
+			if (begin[2] != ':' || begin[5] != ':') {
+				break;
+			}
+
+			*tz_not_found = 0;
+			tmp = sHOUR(strtol(begin, NULL, 10)) + sMIN(strtol(begin + 3, NULL, 10)) + strtol(begin + 6, NULL, 10);
+			return tmp;
+
 	}
 	return 0;
 }
@@ -952,7 +968,7 @@ second = minute | "60";
 secondlz = minutelz | "60";
 meridian = ([AaPp] "."? [Mm] "."?) [\000\t ];
 tz = "("? [A-Za-z]{1,6} ")"? | [A-Z][a-z]+([_/-][A-Za-z]+)+;
-tzcorrection = "GMT"? [+-] hour24 ":"? minute?;
+tzcorrection = "GMT"? [+-] ((hour24 (":"? minute)?) | (hour24lz minutelz secondlz) | (hour24lz ":" minutelz ":" secondlz));
 
 daysuf = "st" | "nd" | "rd" | "th";
 
