@@ -5114,6 +5114,30 @@ TEST(parse_date, tzcorrection_14)
 	LONGS_EQUAL(14940, t->z);
 }
 
+TEST(parse_date, tzcorrection_15)
+{
+	test_parse("+040915");
+	LONGS_EQUAL(14955, t->z);
+}
+
+TEST(parse_date, tzcorrection_16)
+{
+	test_parse("-040916");
+	LONGS_EQUAL(-14956, t->z);
+}
+
+TEST(parse_date, tzcorrection_17)
+{
+	test_parse("+04:09:15");
+	LONGS_EQUAL(14955, t->z);
+}
+
+TEST(parse_date, tzcorrection_18)
+{
+	test_parse("-04:09:25");
+	LONGS_EQUAL(-14965, t->z);
+}
+
 TEST(parse_date, tz_identifier_00)
 {
 	test_parse("01:00:03.12345 Europe/Amsterdam");
