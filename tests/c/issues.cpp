@@ -867,6 +867,25 @@ TEST(issues, tzcorparse_02)
 	LONGS_EQUAL(1857 * 60, ret);
 }
 
+TEST(issues, tzabbrparse_01)
+{
+	timelib_time t = {};
+	int  dst = 0;
+	int  tz_not_found = 0;
+	const char *str = "CEST";
+	timelib_sll ret;
+
+	ret = timelib_parse_zone((const char **) &str, &dst, &t, &tz_not_found, timelib_builtin_db(), timelib_parse_tzfile);
+
+	LONGS_EQUAL(0, tz_not_found);
+	LONGS_EQUAL(1, t.dst);
+	LONGS_EQUAL(1, t.is_localtime);
+	LONGS_EQUAL(TIMELIB_ZONETYPE_ABBR, t.zone_type);
+	LONGS_EQUAL(7200, ret + t.dst * 3600);
+
+	free(t.tz_abbr);
+}
+
 
 TEST(issues, weekday_time_part_01)
 {
