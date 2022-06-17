@@ -1,5 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "timelib.h"
+#include "timelib_private.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -47,6 +48,29 @@ TEST_GROUP(timelib_diff)
 		timelib_fill_holes(t_to, t_now, TIMELIB_NO_CLONE);
 
 		timelib_update_ts(t_from, tzi_from);
+		timelib_update_ts(t_to, tzi_to);
+
+		diff = timelib_diff(t_from, t_to);
+	}
+
+	void test_parse(timelib_sll offset_from, const char *tzid_to, const char *from, const char *to)
+	{
+		int dummy_error;
+
+		tzi = NULL;
+		tzi_to = timelib_parse_tzfile(tzid_to, timelib_builtin_db(), &dummy_error);
+
+		t_now = timelib_strtotime("now", sizeof("now"), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		t_from = timelib_strtotime(from, strlen(from), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		t_to = timelib_strtotime(to, strlen(to), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+		timelib_fill_holes(t_from, t_now, TIMELIB_NO_CLONE);
+		timelib_fill_holes(t_to, t_now, TIMELIB_NO_CLONE);
+
+		t_from->zone_type = TIMELIB_ZONETYPE_OFFSET;
+		t_from->z = offset_from;
+
+		timelib_update_ts(t_from, NULL);
 		timelib_update_ts(t_to, tzi_to);
 
 		diff = timelib_diff(t_from, t_to);
@@ -194,4 +218,10 @@ TEST(timelib_diff, php81273)
 {
 	test_parse("Australia/Sydney", "America/Los_Angeles", "2000-01-01 00:00:00.000000", "2000-01-01 00:00:00.000000");
 	CHECKDIFF(0, 0, 0, 19, 0, 0, 0);
+}
+
+TEST(timelib_diff, php_gh8730)
+{
+	test_parse(-4 * SECS_PER_HOUR, "US/Eastern", "2022-06-08 09:15:00", "2022-06-08 09:15:00");
+	CHECKDIFF(0, 0, 0, 0, 0, 0, 0);
 }
