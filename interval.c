@@ -130,11 +130,16 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 		}
 	} else {
 		/* Then for all the others */
-		if (one->zone_type == 3 && two->zone_type == 3) {
+		if (
+			(one->zone_type == 3 && two->zone_type == 3) ||
+			(one->zone_type != 3 && two->zone_type == 3 && one->z == two->z) ||
+			(one->zone_type == 3 && two->zone_type != 3 && one->z == two->z)
+		) {
 			rt->h -= dst_h_corr;
 		} else {
 			rt->h -= dst_h_corr + (two->dst - one->dst);
 		}
+
 		rt->i -= dst_m_corr;
 
 		timelib_do_rel_normalize(rt->invert ? one : two, rt);
