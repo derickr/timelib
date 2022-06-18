@@ -225,3 +225,15 @@ TEST(timelib_diff, php_gh8730)
 	test_parse(-4 * SECS_PER_HOUR, "US/Eastern", "2022-06-08 09:15:00", "2022-06-08 09:15:00");
 	CHECKDIFF(0, 0, 0, 0, 0, 0, 0);
 }
+
+TEST(timelib_diff, php_81263a)
+{
+	test_parse("Europe/Berlin", "UTC", "2020-07-19 18:30:00", "2020-07-19 16:30:00");
+	CHECKDIFF(0, 0, 0, 0, 0, 0, 0);
+}
+
+TEST(timelib_diff, php_81263b)
+{
+	test_parse("UTC", "Europe/Berlin", "2020-07-19 16:30:00", "2020-07-19 18:30:00");
+	CHECKDIFF(0, 0, 0, 0, 0, 0, 0);
+}
