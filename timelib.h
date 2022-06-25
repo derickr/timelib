@@ -438,6 +438,7 @@ typedef enum _timelib_format_specifier_code {
 	TIMELIB_FORMAT_WHITESPACE,
 	TIMELIB_FORMAT_YEAR_TWO_DIGIT,
 	TIMELIB_FORMAT_YEAR_FOUR_DIGIT,
+	TIMELIB_FORMAT_YEAR_EXPANDED,
 	TIMELIB_FORMAT_YEAR_ISO
 } timelib_format_specifier_code;
 

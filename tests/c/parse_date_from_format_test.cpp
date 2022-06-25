@@ -48,6 +48,8 @@ static const timelib_format_specifier default_format_map[] = {
 	{' ', TIMELIB_FORMAT_WHITESPACE},
 	{'y', TIMELIB_FORMAT_YEAR_TWO_DIGIT},
 	{'Y', TIMELIB_FORMAT_YEAR_FOUR_DIGIT},
+	{'x', TIMELIB_FORMAT_YEAR_EXPANDED},
+	{'X', TIMELIB_FORMAT_YEAR_EXPANDED},
 	{'B', TIMELIB_FORMAT_YEAR_ISO},
 	{'b', TIMELIB_FORMAT_DAY_OF_WEEK_ISO},
 	{'V', TIMELIB_FORMAT_WEEK_OF_YEAR_ISO},
@@ -3174,4 +3176,130 @@ TEST(parse_date_from_format, day_03)
 	test_parse("SUNDAY", "D");
 	LONGS_EQUAL(0, t->relative.weekday);
 	LONGS_EQUAL(1, t->relative.weekday_behavior);
+}
+
+
+TEST(parse_date_from_format, year_expanded_01)
+{
+	test_parse("20-02", "x-m");
+	LONGS_EQUAL(20, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_02)
+{
+	test_parse("2002", "x");
+	LONGS_EQUAL(2002, t->y);
+}
+
+TEST(parse_date_from_format, year_expanded_03)
+{
+	test_parse("-2022-02", "x-m");
+	LONGS_EQUAL(-2022, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_04)
+{
+	test_parse("-81120-02", "x-m");
+	LONGS_EQUAL(-81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_05)
+{
+	test_parse("81120-02", "x-m");
+	LONGS_EQUAL(81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_06)
+{
+	test_parse("+82120-02", "x-m");
+	LONGS_EQUAL(82120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_07)
+{
+	test_parse("-81120-02", "-x-m");
+	LONGS_EQUAL(81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_08)
+{
+	test_parse("02-81120", "m-x");
+	LONGS_EQUAL(81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_expanded_09)
+{
+	test_parse("02--81120", "m-x");
+	LONGS_EQUAL(-81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+
+TEST(parse_date_from_format, year_eXpanded_01)
+{
+	test_parse("20-02", "X-m");
+	LONGS_EQUAL(20, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_02)
+{
+	test_parse("2002", "X");
+	LONGS_EQUAL(2002, t->y);
+}
+
+TEST(parse_date_from_format, year_eXpanded_03)
+{
+	test_parse("-2022-02", "X-m");
+	LONGS_EQUAL(-2022, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_04)
+{
+	test_parse("-81120-02", "X-m");
+	LONGS_EQUAL(-81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_05)
+{
+	test_parse("81120-02", "X-m");
+	LONGS_EQUAL(81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_06)
+{
+	test_parse("+82120-02", "X-m");
+	LONGS_EQUAL(82120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_07)
+{
+	test_parse("-81120-02", "-X-m");
+	LONGS_EQUAL(81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_08)
+{
+	test_parse("02-81120", "m-X");
+	LONGS_EQUAL(81120, t->y);
+	LONGS_EQUAL( 2, t->m);
+}
+
+TEST(parse_date_from_format, year_eXpanded_09)
+{
+	test_parse("02--81120", "m-X");
+	LONGS_EQUAL(-81120, t->y);
+	LONGS_EQUAL( 2, t->m);
 }
