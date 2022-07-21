@@ -213,6 +213,12 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 	rt->m = two->m - one->m;
 	rt->d = two->d - one->d;
 	rt->h = two->h - one->h;
+	if (one->zone_type != TIMELIB_ZONETYPE_ID) {
+		rt->h = rt->h + one->dst;
+	}
+	if (two->zone_type != TIMELIB_ZONETYPE_ID) {
+		rt->h = rt->h - two->dst;
+	}
 	rt->i = two->i - one->i;
 	rt->s = two->s - one->s + two->z - one->z;
 	rt->us = two->us - one->us;

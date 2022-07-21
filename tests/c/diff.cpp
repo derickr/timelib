@@ -76,7 +76,7 @@ TEST_GROUP(timelib_diff)
 		diff = timelib_diff(t_from, t_to);
 	}
 
-	void test_parse(timelib_sll offset_from, timelib_sll offset_to, const char *from, const char *to)
+	void test_parse(timelib_sll offset_from, bool dst_from, timelib_sll offset_to, bool dst_to, const char *from, const char *to)
 	{
 		t_now = timelib_strtotime("now", sizeof("now"), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 		t_from = timelib_strtotime(from, strlen(from), NULL, timelib_builtin_db(), timelib_parse_tzfile);
@@ -87,14 +87,22 @@ TEST_GROUP(timelib_diff)
 
 		t_from->zone_type = TIMELIB_ZONETYPE_OFFSET;
 		t_from->z = offset_from;
+		t_from->dst = dst_from;
 
 		t_to->zone_type = TIMELIB_ZONETYPE_OFFSET;
 		t_to->z = offset_to;
+		t_to->dst = dst_to;
 
 		timelib_update_ts(t_from, NULL);
 		timelib_update_ts(t_to, NULL);
 
 		diff = timelib_diff(t_from, t_to);
+	}
+
+
+	void test_parse(timelib_sll offset_from, timelib_sll offset_to, const char *from, const char *to)
+	{
+		test_parse(offset_from, false, offset_to, false, from, to);
 	}
 
 	TEST_TEARDOWN()
@@ -271,9 +279,39 @@ TEST(timelib_diff, php_80974b)
 	CHECKDIFF(0, 0, 0, 3, 0, 0, 0);
 }
 
-TEST(timelib_diff, fd2a)
+TEST(timelib_diff, test_time_spring_type2_prev_type2_prev)
 {
-	test_parse(-5 * SECS_PER_HOUR, -4 * SECS_PER_HOUR, "2012-03-14 04:30:00", "2012-03-13 04:30:00");
+	test_parse(-4 * SECS_PER_HOUR, false, -4 * SECS_PER_HOUR, false, "2010-03-13 18:38:28", "2010-02-11 02:18:48");
+	CHECKDIFF(0, 1, 2, 16, 19, 40, 0);
+}
+
+TEST(timelib_diff, test_time_spring_type2_prev_type2_st)
+{
+	test_parse(-4 * SECS_PER_HOUR, false, -4 * SECS_PER_HOUR, false, "2010-03-14 00:10:20", "2010-03-13 18:38:28");
+	CHECKDIFF(0, 0, 0, 5, 31, 52, 0);
+}
+
+TEST(timelib_diff, test_time_spring_type2_prev_type2_dt)
+{
+	test_parse(-4 * SECS_PER_HOUR, true, -4 * SECS_PER_HOUR, false, "2010-03-14 03:16:55", "2010-03-13 18:38:28");
+	CHECKDIFF(0, 0, 0, 7, 38, 27, 0);
+}
+
+TEST(timelib_diff, test_time_spring_type2_prev_type2_post)
+{
+	test_parse(-4 * SECS_PER_HOUR, true, -4 * SECS_PER_HOUR, false, "2010-03-15 19:59:59", "2010-03-13 18:38:28");
+	CHECKDIFF(0, 0, 2, 0, 21, 31, 0);
+}
+
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd1)
+{
+	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 03:00:00", "2010-03-14 01:59:59");
+	CHECKDIFF(0, 0, 0, 0, 0, 1, 0);
+}
+
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd2)
+{
+	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 04:30:00", "2010-03-13 04:30:00");
 	CHECKDIFF(0, 0, 0, 23, 0, 0, 0);
 }
 
