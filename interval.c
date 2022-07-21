@@ -119,7 +119,7 @@ static timelib_rel_time *timelib_diff_with_tzid(timelib_time *one, timelib_time 
 		if (one->zone_type == TIMELIB_ZONETYPE_ID && two->zone_type == TIMELIB_ZONETYPE_ID) {
 			trans = timelib_get_time_zone_info(two->sse, two->tz_info);
 			if (trans) {
-				if (one->sse >= trans->transition_time + dst_corr && one->sse < trans->transition_time) {
+				if (one->sse < trans->transition_time && one->sse >= trans->transition_time + dst_corr) {
 					timelib_sll flipped = SECS_PER_HOUR + (rt->i * 60) + (rt->s);
 					rt->h = flipped / SECS_PER_HOUR;
 					rt->i = (flipped - rt->h * SECS_PER_HOUR) / 60;
