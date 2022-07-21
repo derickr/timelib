@@ -76,6 +76,27 @@ TEST_GROUP(timelib_diff)
 		diff = timelib_diff(t_from, t_to);
 	}
 
+	void test_parse(timelib_sll offset_from, timelib_sll offset_to, const char *from, const char *to)
+	{
+		t_now = timelib_strtotime("now", sizeof("now"), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		t_from = timelib_strtotime(from, strlen(from), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+		t_to = timelib_strtotime(to, strlen(to), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+		timelib_fill_holes(t_from, t_now, TIMELIB_NO_CLONE);
+		timelib_fill_holes(t_to, t_now, TIMELIB_NO_CLONE);
+
+		t_from->zone_type = TIMELIB_ZONETYPE_OFFSET;
+		t_from->z = offset_from;
+
+		t_to->zone_type = TIMELIB_ZONETYPE_OFFSET;
+		t_to->z = offset_to;
+
+		timelib_update_ts(t_from, NULL);
+		timelib_update_ts(t_to, NULL);
+
+		diff = timelib_diff(t_from, t_to);
+	}
+
 	TEST_TEARDOWN()
 	{
 		if (tzi) {
@@ -236,4 +257,28 @@ TEST(timelib_diff, php_81263b)
 {
 	test_parse("UTC", "Europe/Berlin", "2020-07-19 16:30:00", "2020-07-19 18:30:00");
 	CHECKDIFF(0, 0, 0, 0, 0, 0, 0);
+}
+
+TEST(timelib_diff, php_80974a)
+{
+	test_parse("America/Toronto", "America/Vancouver", "2012-01-01 00:00:00", "2012-01-01 00:00:00");
+	CHECKDIFF(0, 0, 0, 3, 0, 0, 0);
+}
+
+TEST(timelib_diff, php_80974b)
+{
+	test_parse("America/Vancouver", "America/Toronto", "2012-01-01 00:00:00", "2012-01-01 00:00:00");
+	CHECKDIFF(0, 0, 0, 3, 0, 0, 0);
+}
+
+TEST(timelib_diff, fd2a)
+{
+	test_parse(-5 * SECS_PER_HOUR, -4 * SECS_PER_HOUR, "2012-03-14 04:30:00", "2012-03-13 04:30:00");
+	CHECKDIFF(0, 0, 0, 23, 0, 0, 0);
+}
+
+TEST(timelib_diff, fd2b)
+{
+	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2012-03-13 04:30:00", "2012-03-14 04:30:00");
+	CHECKDIFF(0, 0, 0, 23, 0, 0, 0);
 }
