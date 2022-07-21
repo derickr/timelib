@@ -220,7 +220,7 @@ timelib_rel_time *timelib_diff(timelib_time *one, timelib_time *two)
 		rt->h = rt->h - two->dst;
 	}
 	rt->i = two->i - one->i;
-	rt->s = two->s - one->s + two->z - one->z;
+	rt->s = two->s - one->s - two->z + one->z;
 	rt->us = two->us - one->us;
 
 	rt->days = timelib_diff_days(one, two);

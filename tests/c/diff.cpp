@@ -315,8 +315,32 @@ TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd2)
 	CHECKDIFF(0, 0, 0, 23, 0, 0, 0);
 }
 
-TEST(timelib_diff, fd2b)
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd3)
 {
-	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2012-03-13 04:30:00", "2012-03-14 04:30:00");
+	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 03:30:00", "2010-03-13 04:30:00");
+	CHECKDIFF(0, 0, 0, 22, 0, 0, 0);
+}
+
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd4)
+{
+	test_parse(-5 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 01:30:00", "2010-03-13 04:30:00");
+	CHECKDIFF(0, 0, 0, 21, 0, 0, 0);
+}
+
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd5)
+{
+	test_parse(-5 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 01:30:00", "2010-03-13 01:30:00");
+	CHECKDIFF(0, 0, 1,  0, 0, 0, 0);
+}
+
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd6)
+{
+	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 03:30:00", "2010-03-13 03:30:00");
 	CHECKDIFF(0, 0, 0, 23, 0, 0, 0);
+}
+
+TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd7)
+{
+	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 03:30:00", "2010-03-13 02:30:00");
+	CHECKDIFF(0, 0, 1,  0, 0, 0, 0);
 }
