@@ -91,7 +91,7 @@ TEST(timelib_interval, php80998_2b)
 TEST(timelib_interval, php80998_1a_sub)
 {
 	test_sub_wall("2021-04-05 11:00:00", "PT2H59M59S", 999999L, INVERT);
-	CHECKRES(2021,  4,  5, 13, 59, 59, 999999, 1617631200);
+	CHECKRES(2021,  4,  5, 13, 59, 59, 999999, 1617631199);
 }
 
 TEST(timelib_interval, php80998_1b_sub)
@@ -103,7 +103,7 @@ TEST(timelib_interval, php80998_1b_sub)
 TEST(timelib_interval, php80998_2a_sub)
 {
 	test_sub_wall("2021-04-05 11:00:00", "PT2H59M59S", 999999L, 0);
-	CHECKRES(2021,  4,  5,  8,  0,  0, 1, 1617609601);
+	CHECKRES(2021,  4,  5,  8,  0,  0, 1, 1617609600);
 }
 
 TEST(timelib_interval, php80998_2b_sub)
@@ -112,3 +112,80 @@ TEST(timelib_interval, php80998_2b_sub)
 	CHECKRES(2021,  4,  5,  8,  0,  0, 0, 1617609600);
 }
 
+TEST(timelib_interval, gh8964a)
+{
+	test_add_wall("2022-07-21 14:50:13", "PT0S", -5L, 0);
+	CHECKRES(2022,  7, 21, 14, 50, 12, 999995L, 1658415012);
+}
+
+TEST(timelib_interval, gh8964b)
+{
+	test_add_wall("2022-07-21 14:50:13", "PT0S", -5L, INVERT);
+	CHECKRES(2022,  7, 21, 14, 50, 13, 5L, 1658415013);
+}
+
+TEST(timelib_interval, gh8964c)
+{
+	test_sub_wall("2022-07-21 14:50:13", "PT0S", -5L, 0);
+	CHECKRES(2022,  7, 21, 14, 50, 13, 5L, 1658415013);
+}
+
+TEST(timelib_interval, gh8964d)
+{
+	test_sub_wall("2022-07-21 14:50:13", "PT0S", -5L, INVERT);
+	CHECKRES(2022,  7, 21, 14, 50, 12, 999995L, 1658415012);
+}
+
+TEST(timelib_interval, gh8964e)
+{
+	test_sub_wall("2022-07-21 15:00:10", "PT0S", 900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0,  9, 100000L, 1658415609);
+}
+
+TEST(timelib_interval, gh8964f)
+{
+	test_add_wall("2022-07-21 15:00:10", "PT0S", 900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0, 10, 900000L, 1658415610);
+}
+
+TEST(timelib_interval, gh8964g)
+{
+	test_sub_wall("2022-07-21 15:00:10", "PT0S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0, 10, 900000L, 1658415610);
+}
+
+TEST(timelib_interval, gh8964h)
+{
+	test_add_wall("2022-07-21 15:00:10", "PT0S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0,  9, 100000L, 1658415609);
+}
+
+TEST(timelib_interval, gh8964i)
+{
+	test_sub_wall("2022-07-21 15:00:10", "PT1S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0,  9, 900000L, 1658415609);
+}
+
+TEST(timelib_interval, gh8964j)
+{
+	test_add_wall("2022-07-21 15:00:10", "PT1S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0, 10, 100000L, 1658415610);
+}
+
+TEST(timelib_interval, gh8964k)
+{
+	test_sub_wall("2022-07-21 15:00:10", "PT2S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0,  8, 900000L, 1658415608);
+}
+
+TEST(timelib_interval, gh8964l)
+{
+	test_add_wall("2022-07-21 15:00:10", "PT2S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0, 11, 100000L, 1658415611);
+}
+
+TEST(timelib_interval, gh8964m)
+{
+	test_sub_wall("2022-07-21 15:00:09.100000", "PT0S", -900000L, 0);
+	CHECKRES(2022,  7, 21, 15,  0, 10, 0L, 1658415610);
+}
