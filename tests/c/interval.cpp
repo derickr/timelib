@@ -189,3 +189,21 @@ TEST(timelib_interval, gh8964m)
 	test_sub_wall("2022-07-21 15:00:09.100000", "PT0S", -900000L, 0);
 	CHECKRES(2022,  7, 21, 15,  0, 10, 0L, 1658415610);
 }
+
+TEST(timelib_interval, gh9106a)
+{
+	test_add_wall("2020-01-01 00:00:00.000000", "PT1S", 500000L, 0);
+	CHECKRES(2020,  1,  1,  0,  0,  1, 500000L, 1577836801);
+}
+
+TEST(timelib_interval, gh9106b)
+{
+	test_add_wall("2020-01-01 00:00:01.500000", "PT1S", 500000L, 0);
+	CHECKRES(2020,  1,  1,  0,  0,  3,      0L, 1577836803);
+}
+
+TEST(timelib_interval, gh9106c)
+{
+	test_add_wall("2020-01-01 00:00:03.600000", "PT1S", 500000L, 0);
+	CHECKRES(2020,  1,  1,  0,  0,  5, 100000L, 1577836805);
+}
