@@ -936,19 +936,16 @@ int timelib_get_time_zone_offset_info(timelib_sll ts, timelib_tzinfo *tz, int32_
 
 timelib_sll timelib_get_current_offset(timelib_time *t)
 {
-	timelib_time_offset *gmt_offset;
-	timelib_sll retval;
-
 	switch (t->zone_type) {
 		case TIMELIB_ZONETYPE_ABBR:
 		case TIMELIB_ZONETYPE_OFFSET:
 			return t->z + (t->dst * 3600);
 
-		case TIMELIB_ZONETYPE_ID:
-			gmt_offset = timelib_get_time_zone_info(t->sse, t->tz_info);
-			retval = gmt_offset->offset;
-			timelib_time_offset_dtor(gmt_offset);
-			return retval;
+		case TIMELIB_ZONETYPE_ID: {
+			int32_t      offset = 0;
+			timelib_get_time_zone_offset_info(t->sse, t->tz_info, &offset, NULL, NULL);
+			return offset;
+		}
 
 		default:
 			return 0;
