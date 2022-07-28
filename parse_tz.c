@@ -878,6 +878,34 @@ int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz)
 	return -1;
 }
 
+void timelib_get_time_zone_offset_info(timelib_sll ts, timelib_tzinfo *tz, int32_t* offset, timelib_sll* transition_time, unsigned int* is_dst)
+{
+	ttinfo *to;
+	timelib_sll tmp_transition_time;
+
+	if ((to = timelib_fetch_timezone_offset(tz, ts, &tmp_transition_time))) {
+		if (offset) {
+			*offset = to->offset;
+		}
+		if (is_dst) {
+			*is_dst = to->isdst;
+		}
+		if (transition_time) {
+			*transition_time = tmp_transition_time;
+		}
+	} else {
+		if (offset) {
+			*offset = 0;
+		}
+		if (is_dst) {
+			*is_dst = 0;
+		}
+		if (transition_time) {
+			*transition_time = 0;
+		}
+	}
+}
+
 timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *tz)
 {
 	ttinfo *to;
@@ -912,19 +940,16 @@ timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *
 
 timelib_sll timelib_get_current_offset(timelib_time *t)
 {
-	timelib_time_offset *gmt_offset;
-	timelib_sll retval;
-
 	switch (t->zone_type) {
 		case TIMELIB_ZONETYPE_ABBR:
 		case TIMELIB_ZONETYPE_OFFSET:
 			return t->z + (t->dst * 3600);
 
-		case TIMELIB_ZONETYPE_ID:
-			gmt_offset = timelib_get_time_zone_info(t->sse, t->tz_info);
-			retval = gmt_offset->offset;
-			timelib_time_offset_dtor(gmt_offset);
-			return retval;
+		case TIMELIB_ZONETYPE_ID: {
+			int32_t      offset;
+			timelib_get_time_zone_offset_info(t->sse, t->tz_info, &offset, NULL, NULL);
+			return offset;
+		}
 
 		default:
 			return 0;

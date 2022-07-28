@@ -376,7 +376,11 @@ static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 
 		default: {
 			/* No timezone in struct, fallback to reference if possible */
-			timelib_time_offset *current, *after;
+			int32_t              current_offset;
+			timelib_sll          current_transition_time;
+			unsigned int         current_is_dst;
+			int32_t              after_offset;
+			timelib_sll          after_transition_time;
 			timelib_sll          adjustment;
 			int                  in_transition;
 			int32_t              actual_offset;
@@ -386,49 +390,47 @@ static void do_adjust_timezone(timelib_time *tz, timelib_tzinfo *tzi)
 				return;
 			}
 
-			current = timelib_get_time_zone_info(tz->sse, tzi);
-			after = timelib_get_time_zone_info(tz->sse - current->offset, tzi);
-			actual_offset = after->offset;
-			actual_transition_time = after->transition_time;
-			if (current->offset == after->offset && tz->have_zone) {
+			timelib_get_time_zone_offset_info(tz->sse, tzi, &current_offset, &current_transition_time, &current_is_dst);
+			timelib_get_time_zone_offset_info(tz->sse - current_offset, tzi, &after_offset, &after_transition_time, NULL);
+			actual_offset = after_offset;
+			actual_transition_time = after_transition_time;
+			if (current_offset == after_offset && tz->have_zone) {
 				/* Make sure we're not missing a DST change because we don't know the actual offset yet */
-				if (current->offset >= 0 && tz->dst && !current->is_dst) {
+				if (current_offset >= 0 && tz->dst && !current_is_dst) {
 						/* Timezone or its DST at or east of UTC, so the local time, interpreted as UTC, leaves DST (as defined in the actual timezone) before the actual local time */
-						timelib_time_offset *earlier;
-						earlier = timelib_get_time_zone_info(tz->sse - current->offset - 7200, tzi);
-						if ((earlier->offset != after->offset) && (tz->sse - earlier->offset < after->transition_time)) {
+						int32_t              earlier_offset;
+						timelib_sll          earlier_transition_time;
+						timelib_get_time_zone_offset_info(tz->sse - current_offset - 7200, tzi, &earlier_offset, &earlier_transition_time, NULL);
+						if ((earlier_offset != after_offset) && (tz->sse - earlier_offset < after_transition_time)) {
 								/* Looking behind a bit clarified the actual offset to use */
-								actual_offset = earlier->offset;
-								actual_transition_time = earlier->transition_time;
+								actual_offset = earlier_offset;
+								actual_transition_time = earlier_transition_time;
 						}
-						timelib_time_offset_dtor(earlier);
-				} else if (current->offset <= 0 && current->is_dst && !tz->dst) {
+				} else if (current_offset <= 0 && current_is_dst && !tz->dst) {
 						/* Timezone west of UTC, so the local time, interpreted as UTC, leaves DST (as defined in the actual timezone) after the actual local time */
-						timelib_time_offset *later;
-						later = timelib_get_time_zone_info(tz->sse - current->offset + 7200, tzi);
-						if ((later->offset != after->offset) && (tz->sse - later->offset >= later->transition_time)) {
+						int32_t              later_offset;
+						timelib_sll          later_transition_time;
+						timelib_get_time_zone_offset_info(tz->sse - current_offset + 7200, tzi, &later_offset, &later_transition_time, NULL);
+						if ((later_offset != after_offset) && (tz->sse - later_offset >= later_transition_time)) {
 								/* Looking ahead a bit clarified the actual offset to use */
-								actual_offset = later->offset;
-								actual_transition_time = later->transition_time;
+								actual_offset = later_offset;
+								actual_transition_time = later_transition_time;
 						}
-						timelib_time_offset_dtor(later);
 				}
 			}
 
 			tz->is_localtime = 1;
 
 			in_transition = (
-				((tz->sse - actual_offset) >= (actual_transition_time + (current->offset - actual_offset))) &&
+				((tz->sse - actual_offset) >= (actual_transition_time + (current_offset - actual_offset))) &&
 				((tz->sse - actual_offset) < actual_transition_time)
 			);
 
-			if ((current->offset != actual_offset) && !in_transition) {
+			if ((current_offset != actual_offset) && !in_transition) {
 				adjustment = -actual_offset;
 			} else {
-				adjustment = -current->offset;
+				adjustment = -current_offset;
 			}
-			timelib_time_offset_dtor(current);
-			timelib_time_offset_dtor(after);
 
 			tz->sse += adjustment;
 			timelib_set_timezone(tz, tzi);
