@@ -14,11 +14,11 @@ TEST_GROUP(timelib_interval)
 	timelib_rel_time *p = NULL;
 	timelib_error_container *errors;
 
-	void setup(const char *base, const char *interval, timelib_sll us, bool invert)
+	void setup(const char *base, const char *tzid, const char *interval, timelib_sll us, bool invert)
 	{
 		int dummy_error;
 
-		tzi = timelib_parse_tzfile((char*) "UTC", timelib_builtin_db(), &dummy_error);
+		tzi = timelib_parse_tzfile((char*) tzid, timelib_builtin_db(), &dummy_error);
 		t = timelib_strtotime(base, strlen(base), NULL, timelib_builtin_db(), timelib_parse_tzfile);
 		timelib_update_ts(t, tzi);
 		timelib_set_timezone(t, tzi);
@@ -32,13 +32,19 @@ TEST_GROUP(timelib_interval)
 
 	void test_add_wall(const char *base, const char *interval, timelib_sll us, bool invert)
 	{
-		setup(base, interval, us, invert);
+		setup(base, "UTC", interval, us, invert);
+		changed = timelib_add_wall(t, p);
+	}
+
+	void test_add_wall(const char *base, const char *tzid, const char *interval, timelib_sll us, bool invert)
+	{
+		setup(base, tzid, interval, us, invert);
 		changed = timelib_add_wall(t, p);
 	}
 
 	void test_sub_wall(const char *base, const char *interval, timelib_sll us, bool invert)
 	{
-		setup(base, interval, us, invert);
+		setup(base, "UTC", interval, us, invert);
 		changed = timelib_sub_wall(t, p);
 	}
 
@@ -206,4 +212,32 @@ TEST(timelib_interval, gh9106c)
 {
 	test_add_wall("2020-01-01 00:00:03.600000", "PT1S", 500000L, 0);
 	CHECKRES(2020,  1,  1,  0,  0,  5, 100000L, 1577836805);
+}
+
+TEST(timelib_interval, gh8860a)
+{
+	test_add_wall("2022-10-30 01:00:00", "Europe/Amsterdam", "PT0H", 0, 0);
+	CHECKRES(2022, 10, 30,  1,  0,  0,      0L, 1667084400);
+	LONGS_EQUAL(changed->z, 7200);
+}
+
+TEST(timelib_interval, gh8860b)
+{
+	test_add_wall("2022-10-30 01:00:00", "Europe/Amsterdam", "PT1H", 0, 0);
+	CHECKRES(2022, 10, 30,  2,  0,  0,      0L, 1667088000);
+	LONGS_EQUAL(changed->z, 7200);
+}
+
+TEST(timelib_interval, gh8860c)
+{
+	test_add_wall("2022-10-30 02:00:00", "Europe/Amsterdam", "PT1H", 0, 0);
+	CHECKRES(2022, 10, 30,  3,  0,  0,      0L, 1667095200);
+	LONGS_EQUAL(changed->z, 3600);
+}
+
+TEST(timelib_interval, gh8860d)
+{
+	test_add_wall("2022-10-30 02:00:00", "Europe/Amsterdam", "PT3600S", 0, 0);
+	CHECKRES(2022, 10, 30,  3,  0,  0,      0L, 1667095200);
+	LONGS_EQUAL(changed->z, 3600);
 }
