@@ -484,6 +484,7 @@ static timelib_sll timelib_get_nr_ex(const char **ptr, int max_length, int *scan
 		}
 		++*ptr;
 	}
+
 	begin = *ptr;
 	while ((**ptr >= '0') && (**ptr <= '9') && len < max_length) {
 		++*ptr;
@@ -541,24 +542,49 @@ static timelib_sll timelib_get_frac_nr(const char **ptr)
 
 static timelib_ull timelib_get_signed_nr(Scanner *s, const char **ptr, int max_length)
 {
-	timelib_ull dir = 1;
+	char *str, *str_ptr;
+	timelib_sll tmp_nr = 0;
+	int len = 0;
+
+	str = timelib_calloc(1, max_length + 2); // for sign and \0
+	str_ptr = str;
 
 	while (((**ptr < '0') || (**ptr > '9')) && (**ptr != '+') && (**ptr != '-')) {
 		if (**ptr == '\0') {
+			add_error(s, TIMELIB_ERR_UNEXPECTED_DATA, "Found unexpected data");
+			timelib_free(str);
+			return 0;
+		}
+		++*ptr;
+	}
+
+	if ((**ptr == '+') || (**ptr == '-')) {
+		*str_ptr = **ptr;
+		++*ptr;
+		++str_ptr;
+	}
+
+	while (((**ptr < '0') || (**ptr > '9'))) {
+		if (**ptr == '\0') {
+			timelib_free(str);
 			add_error(s, TIMELIB_ERR_UNEXPECTED_DATA, "Found unexpected data");
 			return 0;
 		}
 		++*ptr;
 	}
 
-	while (**ptr == '+' || **ptr == '-')
-	{
-		if (**ptr == '-') {
-			dir *= -1;
-		}
+	while ((**ptr >= '0') && (**ptr <= '9') && len < max_length) {
+		*str_ptr = **ptr;
 		++*ptr;
+		++str_ptr;
+		++len;
 	}
-	return dir * timelib_get_nr(ptr, max_length);
+
+	tmp_nr = strtoll(str, NULL, 10);
+
+	timelib_free(str);
+
+	return tmp_nr;
 }
 
 static timelib_sll timelib_lookup_relative_text(const char **ptr, int *behavior)
