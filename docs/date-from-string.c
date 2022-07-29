@@ -63,7 +63,7 @@ timelib_tzinfo *cached_tzfile_wrapper(const char *tz_id, const timelib_tzdb *db,
 	return timelib_parse_tzfile(tz_id, global.db, error);
 }
 
-timelib_tzinfo *cached_fetch_tzinfo(char *tz_id)
+timelib_tzinfo *cached_fetch_tzinfo(const char *tz_id)
 {
 	int dummy_error;
 
@@ -73,7 +73,7 @@ timelib_tzinfo *cached_fetch_tzinfo(char *tz_id)
 int main(int argc, char *argv[])
 {
 	char           *time_string = NULL;
-	char           *tz_id = NULL;
+	const char     *tz_id = NULL;
 	timelib_time   *t;
 #if defined(PARTIAL)
 	timelib_time   *t_now;

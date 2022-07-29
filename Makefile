@@ -1,7 +1,36 @@
 FLAGS=-O0 -ggdb3 \
-	-Wall -Werror -Wextra -fsanitize=undefined -fsanitize=address \
-	-Wmaybe-uninitialized -Wmissing-field-initializers -Wshadow -Wno-unused-parameter \
-	-pedantic -Wno-implicit-fallthrough \
+	-Wall -Werror -Wextra \
+	-Wempty-body \
+	-Wenum-compare \
+	-Wformat-nonliteral \
+	-Wformat-security \
+	-Wimplicit-fallthrough \
+	-Winit-self \
+	-Wlogical-not-parentheses \
+	-Wlogical-op \
+	-Wmaybe-uninitialized \
+	-Wmaybe-uninitialized \
+	-Wmissing-field-initializers \
+	-Wmissing-format-attribute \
+	-Wno-implicit-fallthrough \
+	-Wno-missing-field-initializers \
+	-Wno-sign-compare \
+	-Wno-unused-but-set-variable \
+	-Wno-unused-parameter \
+	-Wno-variadic-macros \
+	-Wparentheses \
+	-Wpointer-arith \
+	-Wshadow \
+	-Wsizeof-array-argument \
+	-Wwrite-strings \
+	-fdiagnostics-show-option \
+	-fno-exceptions \
+	-fno-omit-frame-pointer \
+	-fno-optimize-sibling-calls \
+	-fsanitize=address \
+	-fsanitize=undefined \
+	-fstack-protector \
+	-pedantic \
 	-DHAVE_STDINT_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
 
 CFLAGS=-Wdeclaration-after-statement ${FLAGS}

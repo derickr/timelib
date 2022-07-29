@@ -61,7 +61,7 @@ timelib_tzinfo *cached_tzfile_wrapper(const char *tz_id, const timelib_tzdb *db,
 	return timelib_parse_tzfile(tz_id, global.db, error);
 }
 
-timelib_tzinfo *cached_fetch_tzinfo(char *tz_id)
+timelib_tzinfo *cached_fetch_tzinfo(const char *tz_id)
 {
 	int dummy_error;
 
@@ -70,8 +70,8 @@ timelib_tzinfo *cached_fetch_tzinfo(char *tz_id)
 
 int main(void)
 {
-	char           *dt_string  = "2017-06-05T11:30:09.123Z";
-	char           *tz_id      = "Europe/London";
+	const char     *dt_string  = "2017-06-05T11:30:09.123Z";
+	const char     *tz_id      = "Europe/London";
 	timelib_time   *t;
 	timelib_tzinfo *tzi;
 	timelib_error_container *errors;
