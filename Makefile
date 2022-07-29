@@ -9,19 +9,16 @@ FLAGS=-O0 -ggdb3 \
 	-Wlogical-not-parentheses \
 	-Wlogical-op \
 	-Wmaybe-uninitialized \
-	-Wmaybe-uninitialized \
 	-Wmissing-field-initializers \
 	-Wmissing-format-attribute \
-	-Wno-implicit-fallthrough \
-	-Wno-missing-field-initializers \
-	-Wno-sign-compare \
-	-Wno-unused-but-set-variable \
 	-Wno-unused-parameter \
-	-Wno-variadic-macros \
 	-Wparentheses \
 	-Wpointer-arith \
 	-Wshadow \
+	-Wsign-compare \
 	-Wsizeof-array-argument \
+	-Wunused-but-set-variable \
+	-Wvariadic-macros \
 	-Wwrite-strings \
 	-fdiagnostics-show-option \
 	-fno-exceptions \
