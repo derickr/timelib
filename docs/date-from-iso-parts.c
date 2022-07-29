@@ -61,7 +61,7 @@ timelib_tzinfo *cached_tzfile_wrapper(const char *tz_id, const timelib_tzdb *db,
 	return timelib_parse_tzfile(tz_id, global.db, error);
 }
 
-timelib_tzinfo *cached_fetch_tzinfo(char *tz_id)
+timelib_tzinfo *cached_fetch_tzinfo(const char *tz_id)
 {
 	int dummy_error;
 
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	timelib_sll ti = 50;
 	timelib_sll ts = 58;
 	timelib_sll tus = 48 * 1000;
-	char           *tz_id = "America/New_York";
+	const char     *tz_id = "America/New_York";
 	timelib_time   *t;
 	timelib_tzinfo *tzi;
 

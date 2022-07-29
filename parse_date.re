@@ -360,7 +360,7 @@ static timelib_error_message *alloc_error_message(timelib_error_message **messag
 	return *messages + (*count)++;
 }
 
-static void add_warning(Scanner *s, int error_code, char *error)
+static void add_warning(Scanner *s, int error_code, const char *error)
 {
 	timelib_error_message *message = alloc_error_message(&s->errors->warning_messages, &s->errors->warning_count);
 
@@ -370,7 +370,7 @@ static void add_warning(Scanner *s, int error_code, char *error)
 	message->message = timelib_strdup(error);
 }
 
-static void add_error(Scanner *s, int error_code, char *error)
+static void add_error(Scanner *s, int error_code, const char *error)
 {
 	timelib_error_message *message = alloc_error_message(&s->errors->error_messages, &s->errors->error_count);
 
@@ -380,7 +380,7 @@ static void add_error(Scanner *s, int error_code, char *error)
 	message->message = timelib_strdup(error);
 }
 
-static void add_pbf_warning(Scanner *s, int error_code, char *error, const char *sptr, const char *cptr)
+static void add_pbf_warning(Scanner *s, int error_code, const char *error, const char *sptr, const char *cptr)
 {
 	timelib_error_message *message = alloc_error_message(&s->errors->warning_messages, &s->errors->warning_count);
 
@@ -390,7 +390,7 @@ static void add_pbf_warning(Scanner *s, int error_code, char *error, const char 
 	message->message = timelib_strdup(error);
 }
 
-static void add_pbf_error(Scanner *s, int error_code, char *error, const char *sptr, const char *cptr)
+static void add_pbf_error(Scanner *s, int error_code, const char *error, const char *sptr, const char *cptr)
 {
 	timelib_error_message *message = alloc_error_message(&s->errors->error_messages, &s->errors->error_count);
 
@@ -520,7 +520,6 @@ static timelib_sll timelib_get_frac_nr(const char **ptr)
 	const char *begin, *end;
 	char *str;
 	double tmp_nr = TIMELIB_UNSET;
-	int len = 0;
 
 	while ((**ptr != '.') && (**ptr != ':') && ((**ptr < '0') || (**ptr > '9'))) {
 		if (**ptr == '\0') {
@@ -531,7 +530,6 @@ static timelib_sll timelib_get_frac_nr(const char **ptr)
 	begin = *ptr;
 	while ((**ptr == '.') || (**ptr == ':') || ((**ptr >= '0') && (**ptr <= '9'))) {
 		++*ptr;
-		++len;
 	}
 	end = *ptr;
 	str = timelib_calloc(1, end - begin);
@@ -2632,7 +2630,7 @@ void timelib_fill_holes(timelib_time *parsed, timelib_time *now, int options)
 */
 }
 
-char *timelib_timezone_id_from_abbr(const char *abbr, timelib_long gmtoffset, int isdst)
+const char *timelib_timezone_id_from_abbr(const char *abbr, timelib_long gmtoffset, int isdst)
 {
 	const timelib_tz_lookup_table *tp;
 

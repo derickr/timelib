@@ -115,7 +115,7 @@ function addData(array $index, string $data)
 	$str = "const timelib_tzdb_index_entry timezonedb_idx_builtin[$elements] = {\n";
 	foreach ( $index as $tzid => $start )
 	{
-		$str .= sprintf( "\t{ %-36s, 0x%06X },\n", "\"{$tzid}\"", $start );
+		$str .= sprintf( "\t{ (char*) %-36s, 0x%06X },\n", "\"{$tzid}\"", $start );
 	}
 	$str .= "};\n";
 

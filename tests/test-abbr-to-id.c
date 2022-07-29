@@ -26,7 +26,7 @@
 
 int main(void)
 {
-	char *id;
+	const char *id;
 
 	id = timelib_timezone_id_from_abbr("cest", 10800, 1);  printf("%s\n", id);
 	id = timelib_timezone_id_from_abbr("cest", 7200, 1);   printf("%s\n", id);
