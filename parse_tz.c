@@ -910,6 +910,30 @@ timelib_time_offset *timelib_get_time_zone_info(timelib_sll ts, timelib_tzinfo *
 	return tmp;
 }
 
+int timelib_get_time_zone_offset_info(timelib_sll ts, timelib_tzinfo *tz, int32_t* offset, timelib_sll* transition_time, unsigned int* is_dst)
+{
+	ttinfo *to;
+	timelib_sll tmp_transition_time;
+
+	if (tz == NULL) {
+		return 0;
+	}
+
+	if ((to = timelib_fetch_timezone_offset(tz, ts, &tmp_transition_time))) {
+		if (offset) {
+			*offset = to->offset;
+		}
+		if (is_dst) {
+			*is_dst = to->isdst;
+		}
+		if (transition_time) {
+			*transition_time = tmp_transition_time;
+		}
+		return 1;
+	}
+	return 0;
+}
+
 timelib_sll timelib_get_current_offset(timelib_time *t)
 {
 	timelib_time_offset *gmt_offset;
