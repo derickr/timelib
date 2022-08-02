@@ -241,3 +241,16 @@ TEST(timelib_interval, gh8860d)
 	CHECKRES(2022, 10, 30,  3,  0,  0,      0L, 1667095200);
 	LONGS_EQUAL(changed->z, 3600);
 }
+
+TEST(timelib_interval, long_positive_interval)
+{
+	test_add_wall("2000-01-01 00:00:01.500000", "P135000D", 0, 0);
+	CHECKRES(2369,  8,  14,  0,  0,  1, 500000L, 12610684801);
+}
+
+TEST(timelib_interval, long_negative_interval)
+{
+	test_add_wall("2000-01-01 00:00:01.500000", "P135000D", 0, INVERT);
+	CHECKRES(1630,  5,  20,  0,  0,  1, 500000L, -10717315199);
+}
+

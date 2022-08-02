@@ -104,9 +104,10 @@ static void do_range_limit_days_relative(timelib_sll *base_y, timelib_sll *base_
 static int do_range_limit_days(timelib_sll *y, timelib_sll *m, timelib_sll *d)
 {
 	timelib_sll leapyear;
-	timelib_sll days_this_month;
 	timelib_sll last_month, last_year;
 	timelib_sll days_last_month;
+	int retval = 0;
+	int* days_per_month_current_year;
 
 	/* can jump an entire leap year period quickly */
 	if (*d >= DAYS_PER_ERA || *d <= -DAYS_PER_ERA) {
@@ -117,29 +118,29 @@ static int do_range_limit_days(timelib_sll *y, timelib_sll *m, timelib_sll *d)
 	do_range_limit(1, 13, 12, m, y);
 
 	leapyear = timelib_is_leap(*y);
-	days_this_month = leapyear ? days_in_month_leap[*m] : days_in_month[*m];
-	last_month = (*m) - 1;
+	days_per_month_current_year = leapyear ? days_in_month_leap : days_in_month;
 
-	if (last_month < 1) {
-		last_month += 12;
-		last_year = (*y) - 1;
-	} else {
-		last_year = (*y);
-	}
-	leapyear = timelib_is_leap(last_year);
-	days_last_month = leapyear ? days_in_month_leap[last_month] : days_in_month[last_month];
+	while (*d <= 0 && *m > 0) {
+		last_month = (*m) - 1;
+		if (last_month < 1) {
+			last_month += 12;
+			last_year = (*y) - 1;
+		} else {
+			last_year = (*y);
+		}
+		leapyear = timelib_is_leap(last_year);
+		days_last_month = leapyear ? days_in_month_leap[last_month] : days_in_month[last_month];
 
-	if (*d <= 0) {
 		*d += days_last_month;
 		(*m)--;
-		return 1;
+		retval = 1;
 	}
-	if (*d > days_this_month) {
-		*d -= days_this_month;
+	while (*d > 0 && *m <= 12 && *d > days_per_month_current_year[*m]) {
+		*d -=  days_per_month_current_year[*m];
 		(*m)++;
-		return 1;
+		retval = 1;
 	}
-	return 0;
+	return retval;
 }
 
 static void do_adjust_for_weekday(timelib_time* time)
