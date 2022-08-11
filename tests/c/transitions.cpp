@@ -114,13 +114,6 @@ TEST_TRANSITION(fiji_02, "Pacific/Fiji", 1608386400, "+13", 46800, 1)
 TEST_TRANSITION(fiji_03, "Pacific/Fiji", 1608386401, "+13", 46800, 1)
 
 
-// Asia/Tehran is the only one using J, and only for 2088, but still test it
-TEST_EXISTS(teh_00, "Asia/Tehran")
-TEST_TRANSITION(teh_01, "Asia/Tehran", 3746546999, "+0430", 16200, 1)
-TEST_TRANSITION(teh_02, "Asia/Tehran", 3746547000, "+0330", 12600, 0)
-TEST_TRANSITION(teh_03, "Asia/Tehran", 3746547001, "+0330", 12600, 0)
-
-
 // Has a switch at a non-hour barrier
 TEST_EXISTS(chat_00, "Pacific/Chatham")
 TEST_TRANSITION(chat_01, "Pacific/Chatham", 1821880799, "+1245", 45900, 0)
