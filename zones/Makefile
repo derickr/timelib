@@ -21,13 +21,10 @@ tzdb: download
 	tar -C code -xzf tzcode*tar.gz
 
 code/zone.tab: tzdb
-	@make -C code
+	@make PACKRATDATA=backzone PACKRATLIST=zone.tab -C code
 	@echo "Compiling tzdata files..."
-	@for i in africa antarctica australasia asia etcetera europe factory northamerica southamerica backward; do \
-		cat code/$$i | ./code/zic -b fat -d code/data -; \
-		cat code/$$i | ./code/zic -b slim -d code/data-slim -; \
-		echo "- $$i"; \
-	done;
+	cat code/main.zi | ./code/zic -b fat -d code/data -
+	cat code/main.zi | ./code/zic -b slim -d code/data-slim -
 
 version-info.txt: download
 	find . -name tzdata*.tar.gz | sed 's/.*202/202/' | sed 's/\.tar.*//' > version-info.txt
