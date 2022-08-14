@@ -104,10 +104,10 @@ static void do_range_limit_days_relative(timelib_sll *base_y, timelib_sll *base_
 static int do_range_limit_days(timelib_sll *y, timelib_sll *m, timelib_sll *d)
 {
 	timelib_sll leapyear;
-	timelib_sll last_month, last_year;
-	timelib_sll days_last_month;
+	timelib_sll previous_month, previous_year;
+	timelib_sll days_in_previous_month;
 	int retval = 0;
-	int* days_per_month_current_year;
+	int *days_per_month_current_year;
 
 	/* can jump an entire leap year period quickly */
 	if (*d >= DAYS_PER_ERA || *d <= -DAYS_PER_ERA) {
@@ -121,17 +121,17 @@ static int do_range_limit_days(timelib_sll *y, timelib_sll *m, timelib_sll *d)
 	days_per_month_current_year = leapyear ? days_in_month_leap : days_in_month;
 
 	while (*d <= 0 && *m > 0) {
-		last_month = (*m) - 1;
-		if (last_month < 1) {
-			last_month += 12;
-			last_year = (*y) - 1;
+		previous_month = (*m) - 1;
+		if (previous_month < 1) {
+			previous_month += 12;
+			previous_year = (*y) - 1;
 		} else {
-			last_year = (*y);
+			previous_year = (*y);
 		}
-		leapyear = timelib_is_leap(last_year);
-		days_last_month = leapyear ? days_in_month_leap[last_month] : days_in_month[last_month];
+		leapyear = timelib_is_leap(previous_year);
+		days_in_previous_month = leapyear ? days_in_month_leap[previous_month] : days_in_month[previous_month];
 
-		*d += days_last_month;
+		*d += days_in_previous_month;
 		(*m)--;
 		retval = 1;
 	}
