@@ -344,3 +344,9 @@ TEST(timelib_diff, datetime_and_daylight_saving_time_type1_fd7)
 	test_parse(-4 * SECS_PER_HOUR, -5 * SECS_PER_HOUR, "2010-03-14 03:30:00", "2010-03-13 02:30:00");
 	CHECKDIFF(0, 0, 1,  0, 0, 0, 0);
 }
+
+TEST(timelib_diff, php_gh9382)
+{
+	test_parse(+2 * SECS_PER_HOUR, "Europe/Berlin", "2022-08-01 07:00:00", "2022-08-01 07:00:00");
+	CHECKDIFF(0, 0, 0,  0, 0, 0, 0);
+}
