@@ -254,27 +254,50 @@ TEST(timelib_interval, long_negative_interval)
 	CHECKRES(1630,  5,  20,  0,  0,  1, 500000L, -10717315199);
 }
 
-TEST(timelib_interval, leap_year_crossing)
+TEST(timelib_interval, leap_year_crossing_1)
 {
 	test_add_wall("2000-02-28 00:00:01.500000", "P1D", 0, 0);
 	CHECKRES(2000,  2,  29,  0,  0,  1, 500000L, 951782401);
+}
+
+TEST(timelib_interval, leap_year_crossing_2)
+{
 	test_add_wall("2000-02-29 00:00:01.500000", "P1D", 0, INVERT);
 	CHECKRES(2000,  2,  28,  0,  0,  1, 500000L, 951696001);
+}
+
+TEST(timelib_interval, leap_year_crossing_3)
+{
 	test_add_wall("2000-01-28 00:00:01.500000", "P32D", 0, 0);
 	CHECKRES(2000,  2,  29,  0,  0,  1, 500000L, 951782401);
+}
+
+TEST(timelib_interval, leap_year_crossing_4)
+{
 	test_add_wall("2000-02-29 00:00:01.500000", "P32D", 0, INVERT);
 	CHECKRES(2000,  1,  28,  0,  0,  1, 500000L, 949017601);
 }
 
-TEST(timelib_interval, non_leap_year_crossing)
+TEST(timelib_interval, non_leap_year_crossing_1)
 {
 	test_add_wall("2001-02-28 00:00:01.500000", "P1D", 0, 0);
 	CHECKRES(2001,  3,  1,  0,  0,  1, 500000L, 983404801);
+}
+
+TEST(timelib_interval, non_leap_year_crossing_2)
+{
 	test_add_wall("2001-03-01 00:00:01.500000", "P1D", 0, INVERT);
 	CHECKRES(2001,  2,  28,  0,  0,  1, 500000L, 983318401);
+}
+
+TEST(timelib_interval, non_leap_year_crossing_3)
+{
 	test_add_wall("2001-01-28 00:00:01.500000", "P32D", 0, 0);
 	CHECKRES(2001,  3,  1,  0,  0,  1, 500000L, 983404801);
+}
+
+TEST(timelib_interval, non_leap_year_crossing_4)
+{
 	test_add_wall("2001-03-01 00:00:01.500000", "P32D", 0, INVERT);
 	CHECKRES(2001,  1,  28,  0,  0,  1, 500000L, 980640001);
 }
-
