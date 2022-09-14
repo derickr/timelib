@@ -2647,15 +2647,18 @@ void timelib_fill_holes(timelib_time *parsed, timelib_time *now, int options)
 	if (parsed->h == TIMELIB_UNSET) parsed->h = now->h != TIMELIB_UNSET ? now->h : 0;
 	if (parsed->i == TIMELIB_UNSET) parsed->i = now->i != TIMELIB_UNSET ? now->i : 0;
 	if (parsed->s == TIMELIB_UNSET) parsed->s = now->s != TIMELIB_UNSET ? now->s : 0;
-	if (parsed->z == TIMELIB_UNSET) parsed->z = now->z != TIMELIB_UNSET ? now->z : 0;
-	if (parsed->dst == TIMELIB_UNSET) parsed->dst = now->dst != TIMELIB_UNSET ? now->dst : 0;
 
-	if (!parsed->tz_abbr) {
-		parsed->tz_abbr = now->tz_abbr ? timelib_strdup(now->tz_abbr) : NULL;
-	}
 	if (!parsed->tz_info) {
 		parsed->tz_info = now->tz_info ? (!(options & TIMELIB_NO_CLONE) ? timelib_tzinfo_clone(now->tz_info) : now->tz_info) : NULL;
+
+		if (parsed->z == TIMELIB_UNSET) parsed->z = now->z != TIMELIB_UNSET ? now->z : 0;
+		if (parsed->dst == TIMELIB_UNSET) parsed->dst = now->dst != TIMELIB_UNSET ? now->dst : 0;
+
+		if (!parsed->tz_abbr) {
+			parsed->tz_abbr = now->tz_abbr ? timelib_strdup(now->tz_abbr) : NULL;
+		}
 	}
+
 	if (parsed->zone_type == 0 && now->zone_type != 0) {
 		parsed->zone_type = now->zone_type;
 /*		parsed->tz_abbr = now->tz_abbr ? timelib_strdup(now->tz_abbr) : NULL;
