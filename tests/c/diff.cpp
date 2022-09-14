@@ -350,3 +350,9 @@ TEST(timelib_diff, php_gh9382)
 	test_parse(+2 * SECS_PER_HOUR, "Europe/Berlin", "2022-08-01 07:00:00", "2022-08-01 07:00:00");
 	CHECKDIFF(0, 0, 0,  0, 0, 0, 0);
 }
+
+TEST(timelib_diff, gh75)
+{
+	test_parse("PRC", "PRC", "2020-02-01 00:00:00", "2020-03-01 00:00:00");
+	CHECKDIFF(0, 1, 0,  0, 0, 0, 0);
+}
