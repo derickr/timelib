@@ -1051,3 +1051,24 @@ TEST(issues, php81106)
 	timelib_rel_time_dtor(p);
 	timelib_error_container_dtor(errors);
 }
+
+TEST(issues, sanitizer_issue)
+{
+	int             dummy_error;
+	timelib_tzinfo *tzi;
+	char            current[] = "1949-12-31 22:00:00";
+	tzi = timelib_parse_tzfile((char*) "Asia/Kuwait", timelib_builtin_db(), &dummy_error);
+	timelib_time   *t_cur = timelib_strtotime(current, sizeof(current), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+
+	timelib_update_ts(t_cur, tzi);
+
+	LONGS_EQUAL(1949, t_cur->y);
+	LONGS_EQUAL(12,   t_cur->m);
+	LONGS_EQUAL(31,   t_cur->d);
+	LONGS_EQUAL(22, t_cur->h);
+	LONGS_EQUAL( 0, t_cur->i);
+	LONGS_EQUAL( 0, t_cur->s);
+
+	timelib_time_dtor(t_cur);
+	timelib_tzinfo_dtor(tzi);
+}
