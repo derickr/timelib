@@ -818,3 +818,110 @@ TEST(timelib_add, test_time_spring_type3_dtsec_type2_stsec)
 }
 
 
+TEST(timelib_add, test_time_spring_type3_prev_type3_prev)
+{
+	test_add("America/New_York", "2010-02-11 02:18:48", "P0Y1M2DT16H19M40S");
+	CHECK_RES(2010, 03, 13, 18, 38, 28);
+}
+
+TEST(timelib_add, test_time_spring_type3_prev_type3_st)
+{
+	test_add("America/New_York", "2010-03-13 18:38:28", "P0Y0M0DT5H31M52S");
+	CHECK_RES(2010, 03, 14, 00, 10, 20);
+}
+
+TEST(timelib_add, test_time_spring_type3_prev_type3_dt)
+{
+	test_add("America/New_York", "2010-03-13 18:38:28", "P0Y0M0DT7H38M27S");
+	CHECK_RES(2010, 03, 14, 03, 16, 55);
+}
+
+TEST(timelib_add, test_time_spring_type3_prev_type3_post)
+{
+	test_add("America/New_York", "2010-03-13 18:38:28", "P0Y0M2DT1H21M31S");
+	CHECK_RES(2010, 03, 15, 19, 59, 59);
+}
+
+TEST(timelib_add, test_time_spring_type3_st_type3_prev)
+{
+	test_add("America/New_York", "2010-03-14 00:10:20", "-P0Y0M0DT5H31M52S");
+	CHECK_RES(2010, 03, 13, 18, 38, 28);
+}
+
+TEST(timelib_add, test_time_spring_type3_st_type3_st)
+{
+	test_add("America/New_York", "2010-03-14 00:10:20", "P0Y0M0DT0H5M15S");
+	CHECK_RES(2010, 03, 14, 00, 15, 35);
+}
+
+TEST(timelib_add, test_time_spring_type3_st_type3_dt)
+{
+	test_add("America/New_York", "2010-03-14 00:10:20", "P0Y0M0DT2H6M35S");
+	CHECK_RES(2010, 03, 14, 03, 16, 55);
+}
+
+TEST(timelib_add, test_time_spring_type3_st_type3_post)
+{
+	test_add("America/New_York", "2010-03-14 00:10:20", "P0Y0M1DT18H49M39S");
+	CHECK_RES(2010, 03, 15, 18, 59, 59);
+}
+
+TEST(timelib_add, test_time_spring_type3_dt_type3_prev)
+{
+	test_add("America/New_York", "2010-03-14 03:16:55", "-P0Y0M0DT7H38M27S");
+	CHECK_RES(2010, 03, 13, 18, 38, 28);
+}
+
+TEST(timelib_add, test_time_spring_type3_dt_type3_st)
+{
+	test_add("America/New_York", "2010-03-14 03:16:55", "-P0Y0M0DT2H6M35S");
+	CHECK_RES(2010, 03, 14, 00, 10, 20);
+}
+
+TEST(timelib_add, test_time_spring_type3_dt_type3_dt)
+{
+	test_add("America/New_York", "2010-03-14 03:16:55", "P0Y0M0DT2H3M1S");
+	CHECK_RES(2010, 03, 14, 05, 19, 56);
+}
+
+TEST(timelib_add, test_time_spring_type3_dt_type3_post)
+{
+	test_add("America/New_York", "2010-03-14 03:16:55", "P0Y0M1DT16H43M4S");
+	CHECK_RES(2010, 03, 15, 19, 59, 59);
+}
+
+TEST(timelib_add, test_time_spring_type3_post_type3_prev)
+{
+	test_add("America/New_York", "2010-03-15 19:59:59", "-P0Y0M2DT1H21M31S");
+	CHECK_RES(2010, 03, 13, 18, 38, 28);
+}
+
+TEST(timelib_add, test_time_spring_type3_post_type3_st)
+{
+	test_add("America/New_York", "2010-03-15 19:59:59", "-P0Y0M1DT18H49M39S");
+	CHECK_RES(2010, 03, 14, 00, 10, 20);
+}
+
+TEST(timelib_add, test_time_spring_type3_post_type3_dt)
+{
+	test_add("America/New_York", "2010-03-15 19:59:59", "-P0Y0M1DT16H43M4S");
+	CHECK_RES(2010, 03, 14, 03, 16, 55);
+}
+
+TEST(timelib_add, test_time_spring_type3_post_type3_post)
+{
+	test_add("America/New_York", "2010-03-15 18:57:55", "P0Y0M0DT1H2M4S");
+	CHECK_RES(2010, 03, 15, 19, 59, 59);
+}
+
+TEST(timelib_add, test_time_spring_type3_stsec_type3_dtsec)
+{
+	test_add("America/New_York", "2010-03-14 01:59:59", "P0Y0M0DT0H0M1S");
+	CHECK_RES(2010, 03, 14, 03, 00, 00);
+}
+
+TEST(timelib_add, test_time_spring_type3_dtsec_type3_stsec)
+{
+	test_add("America/New_York", "2010-03-14 03:00:00", "-P0Y0M0DT0H0M1S");
+	CHECK_RES(2010, 03, 14, 01, 59, 59);
+}
