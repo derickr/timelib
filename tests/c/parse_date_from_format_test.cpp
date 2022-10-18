@@ -3175,3 +3175,9 @@ TEST(parse_date_from_format, day_03)
 	LONGS_EQUAL(0, t->relative.weekday);
 	LONGS_EQUAL(1, t->relative.weekday_behavior);
 }
+
+TEST(parse_date_from_format, bug_gh9700)
+{
+	test_parse("2022-02-18T00:00:00+01:00[Europe/Berlin]", "Y-m-d\\TH:i:sP[e]");
+	STRCMP_EQUAL("Europe/Berlin", t->tz_info->name);
+}
