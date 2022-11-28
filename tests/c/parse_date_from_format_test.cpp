@@ -3308,3 +3308,13 @@ TEST(parse_date_from_format, bug_gh9700)
 	test_parse("2022-02-18T00:00:00+01:00[Europe/Berlin]", "Y-m-d\\TH:i:sP[e]");
 	STRCMP_EQUAL("Europe/Berlin", t->tz_info->name);
 }
+
+TEST(parse_date_from_format, trailing_with_plus)
+{
+	test_parse("01:31:PM - 03:00:PM", "h:i:A+");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(13, t->h);
+	LONGS_EQUAL(31, t->i);
+	LONGS_EQUAL( 0, t->s);
+}
