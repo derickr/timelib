@@ -356,3 +356,31 @@ TEST(timelib_diff, gh75)
 	test_parse("PRC", "PRC", "2020-02-01 00:00:00", "2020-03-01 00:00:00");
 	CHECKDIFF(0, 1, 0,  0, 0, 0, 0);
 }
+
+TEST(timelib_diff, php_gh9699)
+{
+	test_parse("America/Los_Angeles", "UTC", "2022-10-09 02:41:54.515330", "2022-10-10 08:41:54.534620");
+	CHECKDIFF( 0, 0, 0, 23,  0,  0, 19290);
+}
+
+TEST(timelib_diff, php_gh9866)
+{
+	test_parse("America/Chicago", "America/New_York", "2000-11-01 09:29:22.907606", "2022-06-06 11:00:00");
+	CHECKDIFF(21, 7, 4, 23, 30, 37, 92394);
+}
+
+TEST(timelib_diff, php_gh9880a)
+{
+	test_parse("America/Los_Angeles", "America/New_York", "2022-11-02 12:18:15", "2022-12-24 13:00:00");
+	LONGS_EQUAL(51, diff->days);
+	LONGS_EQUAL( 0, diff->invert);
+	CHECKDIFF(0, 1, 21, 22, 41, 45, 0);
+}
+
+TEST(timelib_diff, php_gh9880b)
+{
+	test_parse("America/New_York", "America/Los_Angeles", "2022-12-24 13:00:00", "2022-11-02 12:18:15");
+	LONGS_EQUAL(51, diff->days);
+	LONGS_EQUAL( 1, diff->invert);
+	CHECKDIFF(0, 1, 21, 22, 41, 45, 0);
+}
