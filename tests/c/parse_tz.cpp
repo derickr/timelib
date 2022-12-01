@@ -71,3 +71,28 @@ TEST(parse_tz, beulah)
 	STRCMP_EQUAL("CDT", &tzi->timezone_abbr[tzi->type[tzi->posix_info->type_index_dst_type].abbr_idx]);
 	timelib_tzinfo_dtor(tzi);
 }
+
+static timelib_tzinfo *test_date_parse_tzfile(const char *formal_tzname, const timelib_tzdb *tzdb, int *dummy_error_code)
+{
+	return timelib_parse_tzfile(formal_tzname, tzdb, dummy_error_code);
+}
+
+TEST(parse_tz, cst6cdt)
+{
+	timelib_long tll;
+	timelib_time *t = timelib_time_ctor();
+	const char *tz_name = "CST6CDT";
+	int is_dst;
+	int tz_not_found;
+
+	tll = timelib_parse_zone(&tz_name, &is_dst, t, &tz_not_found, timelib_builtin_db(), test_date_parse_tzfile);
+
+	CHECK(t->tz_info != NULL);
+	STRCMP_EQUAL(t->tz_info->name, "CST6CDT");
+	LONGS_EQUAL(4, t->tz_info->bit64.typecnt);
+	LONGS_EQUAL(1, t->tz_info->posix_info->type_index_dst_type);
+	LONGS_EQUAL(0, tll);
+
+	timelib_tzinfo_dtor(t->tz_info);
+	timelib_time_dtor(t);
+}
