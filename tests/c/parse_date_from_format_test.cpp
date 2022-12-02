@@ -16,6 +16,7 @@ static const timelib_format_specifier default_format_map[] = {
 	{'g', TIMELIB_FORMAT_HOUR_TWO_DIGIT_12_MAX_PADDED},
 	{'H', TIMELIB_FORMAT_HOUR_TWO_DIGIT_24_MAX},
 	{'G', TIMELIB_FORMAT_HOUR_TWO_DIGIT_24_MAX_PADDED},
+	{'~', TIMELIB_FORMAT_IGNORE_EXTRA_CHARACTERS},
 	{'a', TIMELIB_FORMAT_MERIDIAN},
 	{'A', TIMELIB_FORMAT_MERIDIAN},
 	{'u', TIMELIB_FORMAT_MICROSECOND_SIX_DIGIT},
@@ -3312,6 +3313,16 @@ TEST(parse_date_from_format, bug_gh9700)
 TEST(parse_date_from_format, trailing_with_plus)
 {
 	test_parse("01:31:PM - 03:00:PM", "h:i:A+");
+	LONGS_EQUAL(1, errors->warning_count);
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(13, t->h);
+	LONGS_EQUAL(31, t->i);
+	LONGS_EQUAL( 0, t->s);
+}
+
+TEST(parse_date_from_format, trailing_with_tilde)
+{
+	test_parse("01:31:PM - 03:00:PM", "h:i:A~");
 	LONGS_EQUAL(0, errors->warning_count);
 	LONGS_EQUAL(0, errors->error_count);
 	LONGS_EQUAL(13, t->h);

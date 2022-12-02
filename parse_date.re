@@ -2080,6 +2080,7 @@ static const timelib_format_specifier default_format_map[] = {
 	{'g', TIMELIB_FORMAT_HOUR_TWO_DIGIT_12_MAX_PADDED},
 	{'H', TIMELIB_FORMAT_HOUR_TWO_DIGIT_24_MAX},
 	{'G', TIMELIB_FORMAT_HOUR_TWO_DIGIT_24_MAX_PADDED},
+	{'~', TIMELIB_FORMAT_IGNORE_EXTRA_CHARACTERS},
 	{'a', TIMELIB_FORMAT_MERIDIAN},
 	{'A', TIMELIB_FORMAT_MERIDIAN},
 	{'u', TIMELIB_FORMAT_MICROSECOND_SIX_DIGIT},
@@ -2148,6 +2149,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 	Scanner      in;
 	Scanner     *s = &in;
 	bool         allow_extra = false;
+	bool         ignore_extra = false;
 	bool         prefix_found = false;
 	int          iso_year = TIMELIB_UNSET;
 	int          iso_week_of_year = TIMELIB_UNSET;
@@ -2474,8 +2476,12 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				timelib_eat_until_separator(&ptr);
 				break;
 
-			case TIMELIB_FORMAT_ALLOW_EXTRA_CHARACTERS: /* allow extra chars in the format */
+			case TIMELIB_FORMAT_ALLOW_EXTRA_CHARACTERS: /* allow extra chars in the data string */
 				allow_extra = true;
+				break;
+
+			case TIMELIB_FORMAT_IGNORE_EXTRA_CHARACTERS: /* allow and ignore extra chars in the data string */
+				ignore_extra = true;
 				break;
 
 			case TIMELIB_FORMAT_YEAR_ISO:
@@ -2543,7 +2549,11 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 		fptr++;
 	}
 	if (*ptr) {
-		if (!allow_extra) {
+		if (ignore_extra) {
+			/* Do nothing */
+		} else if (allow_extra) {
+			add_pbf_warning(s, TIMELIB_WARN_TRAILING_DATA, "Trailing data", string, ptr);
+		} else {
 			add_pbf_error(s, TIMELIB_ERR_TRAILING_DATA, "Trailing data", string, ptr);
 		}
 	}
@@ -2562,6 +2572,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					break;
 
 				case TIMELIB_FORMAT_ALLOW_EXTRA_CHARACTERS:
+				case TIMELIB_FORMAT_IGNORE_EXTRA_CHARACTERS:
 					break;
 
 				default:
