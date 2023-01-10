@@ -2477,7 +2477,6 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 			case TIMELIB_FORMAT_ALLOW_EXTRA_CHARACTERS: /* allow extra chars in the format */
 				allow_extra = true;
 				break;
-
 			case TIMELIB_FORMAT_YEAR_ISO:
 				if ((iso_year = timelib_get_nr(&ptr, 4)) == TIMELIB_UNSET) {
 					add_pbf_error(s, TIMELIB_ERR_NO_FOUR_DIGIT_YEAR_ISO, "A four digit ISO year could not be found", string, begin);
@@ -2543,7 +2542,9 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 		fptr++;
 	}
 	if (*ptr) {
-		if (!allow_extra) {
+		if (allow_extra) {
+			add_pbf_warning(s, TIMELIB_WARN_TRAILING_DATA, "Trailing data", string, ptr);
+		} else {
 			add_pbf_error(s, TIMELIB_ERR_TRAILING_DATA, "Trailing data", string, ptr);
 		}
 	}
@@ -2560,7 +2561,6 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				case TIMELIB_FORMAT_RESET_ALL_WHEN_NOT_SET: /* reset all fields to default when not set */
 					timelib_time_reset_unset_fields(s->time);
 					break;
-
 				case TIMELIB_FORMAT_ALLOW_EXTRA_CHARACTERS:
 					break;
 
