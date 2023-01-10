@@ -96,3 +96,43 @@ TEST(parse_tz, cst6cdt)
 	timelib_tzinfo_dtor(t->tz_info);
 	timelib_time_dtor(t);
 }
+
+TEST(parse_tz, etc_gmt_1)
+{
+	timelib_long tll;
+	timelib_time *t = timelib_time_ctor();
+	const char *tz_name = "Etc/GMT+7";
+	int is_dst;
+	int tz_not_found;
+
+	tll = timelib_parse_zone(&tz_name, &is_dst, t, &tz_not_found, timelib_builtin_db(), test_date_parse_tzfile);
+
+	CHECK(t->tz_info != NULL);
+	STRCMP_EQUAL(t->tz_info->name, "Etc/GMT+7");
+	LONGS_EQUAL(1, t->tz_info->bit64.typecnt);
+	LONGS_EQUAL(0, t->tz_info->posix_info->type_index_dst_type);
+	LONGS_EQUAL(0, tll);
+
+	timelib_tzinfo_dtor(t->tz_info);
+	timelib_time_dtor(t);
+}
+
+TEST(parse_tz, etc_gmt_2)
+{
+	timelib_long tll;
+	timelib_time *t = timelib_time_ctor();
+	const char *tz_name = "Etc/GMT-7";
+	int is_dst;
+	int tz_not_found;
+
+	tll = timelib_parse_zone(&tz_name, &is_dst, t, &tz_not_found, timelib_builtin_db(), test_date_parse_tzfile);
+
+	CHECK(t->tz_info != NULL);
+	STRCMP_EQUAL(t->tz_info->name, "Etc/GMT-7");
+	LONGS_EQUAL(1, t->tz_info->bit64.typecnt);
+	LONGS_EQUAL(0, t->tz_info->posix_info->type_index_dst_type);
+	LONGS_EQUAL(0, tll);
+
+	timelib_tzinfo_dtor(t->tz_info);
+	timelib_time_dtor(t);
+}
