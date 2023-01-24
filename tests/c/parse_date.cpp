@@ -5812,6 +5812,13 @@ TEST(parse_date, timetiny24_06)
 
 TEST(parse_date, gh_124a)
 {
-	test_parse("@-92233720368547758088");
+	test_parse("@-9223372036854775808");
 	LONGS_EQUAL(0x8000000000000000, t->relative.s);
+}
+
+TEST(parse_date, ozfuzz_33011)
+{
+	test_parse("@21641666666666669708sun");
+	LONGS_EQUAL(errors->error_count, 1);
+	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_NUMBER_OUT_OF_RANGE);
 }

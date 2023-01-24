@@ -25,20 +25,43 @@
 #include <stdio.h>
 #include <string.h>
 
+static void handle_errors(timelib_error_container **errors)
+{
+	int i;
+
+	if (!errors || !*errors) {
+		return;
+	}
+
+	for (i = 0; i < (*errors)->error_count; i++) {
+		printf("Error %03X @ position %d: %s\n",
+			(*errors)->error_messages[i].error_code,
+			(*errors)->error_messages[i].position,
+			(*errors)->error_messages[i].message);
+	}
+
+	timelib_error_container_dtor(*errors);
+}
+
 int main(int argc, char *argv[])
 {
 	timelib_time *t, *now;
 	char    *tz;
 	timelib_tzinfo *tzi;
 	int dummy_error;
+	timelib_error_container *errors;
 
 	if (argc < 4) {
 		printf("Usage:\n\ttester-create-ts [t] [reference] [tz specification]\n\tExample: ./tester-create-ts \"9/11\" \"00:00:00\" \"Europe/Amsterdam\"\n\n");
 		exit(-1);
 	}
 
-	t = timelib_strtotime(argv[1], strlen(argv[1]), NULL, timelib_builtin_db(), timelib_parse_tzfile);
-	now = timelib_strtotime(argv[2], strlen(argv[2]), NULL, timelib_builtin_db(), timelib_parse_tzfile);
+	t = timelib_strtotime(argv[1], strlen(argv[1]), &errors, timelib_builtin_db(), timelib_parse_tzfile);
+	handle_errors(&errors);
+
+	now = timelib_strtotime(argv[2], strlen(argv[2]), &errors, timelib_builtin_db(), timelib_parse_tzfile);
+	handle_errors(&errors);
+
 	tz = argv[3];
 	tzi = timelib_parse_tzfile(tz, timelib_builtin_db(), &dummy_error);
 
