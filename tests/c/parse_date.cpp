@@ -5829,3 +5829,10 @@ TEST(parse_date, ozfuzz_33011)
 	LONGS_EQUAL(errors->error_count, 1);
 	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_NUMBER_OUT_OF_RANGE);
 }
+
+TEST(parse_date, ozfuzz_55330)
+{
+	test_parse("@-25666666666666663653");
+	LONGS_EQUAL(errors->error_count, 1);
+	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_NUMBER_OUT_OF_RANGE);
+}
