@@ -2159,6 +2159,8 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 	int          iso_year = TIMELIB_UNSET;
 	int          iso_week_of_year = TIMELIB_UNSET;
 	int          iso_day_of_week = TIMELIB_UNSET;
+	int          week_of_year = TIMELIB_UNSET;
+	int          day_of_week = TIMELIB_UNSET;
 	char         prefix_char = format_config->prefix_char;
 	const timelib_format_specifier *format_map = format_config->format_map;
 
@@ -2295,7 +2297,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 						add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_YEAR, "A two digit year could not be found", string, begin);
 						break;
 					}
-					
+
 					s->time->have_date = 1;
 					TIMELIB_PROCESS_YEAR(s->time->y, length);
 				}
@@ -2414,7 +2416,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 						add_pbf_error(s, TIMELIB_ERR_NO_THREE_DIGIT_MILLISECOND, "A three digit millisecond could not be found", string, begin);
 						break;
 					}
-					
+
 					s->time->us = (f * pow(10, 3 - (ptr - tptr)) * 1000);
 				}
 				break;
@@ -2438,7 +2440,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 					add_pbf_error(s, TIMELIB_ERR_NO_SEP_SYMBOL, "The separation symbol ([;:/.,-]) could not be found", string, begin);
 					break;
 				}
-				
+
 				++ptr;
 				break;
 
@@ -2512,6 +2514,31 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				}
 				if (iso_day_of_week < 1 || iso_day_of_week > 7) {
 					add_pbf_error(s, TIMELIB_ERR_INVALID_DAY_OF_WEEK, "Day of week must be between 1 and 7", string, begin);
+					break;
+				}
+
+				s->time->have_date = 1;
+				break;
+			case TIMELIB_FORMAT_WEEK_OF_YEAR:
+				if ((week_of_year = timelib_get_nr(&ptr, 2)) == TIMELIB_UNSET) {
+					add_pbf_error(s, TIMELIB_ERR_NO_TWO_DIGIT_WEEK, "A two digit week could not be found", string, begin);
+					break;
+				}
+				/* Range is 0 - 52  for week of year */
+				if (week_of_year < 0 || week_of_year > 52) {
+					add_pbf_error(s, TIMELIB_ERR_INVALID_WEEK, "Week must be between 0 and 52", string, begin);
+					break;
+				}
+
+				s->time->have_date = 1;
+				break;
+			case TIMELIB_FORMAT_DAY_OF_WEEK:
+				if ((day_of_week = timelib_get_nr(&ptr, 1)) == TIMELIB_UNSET) {
+					add_pbf_error(s, TIMELIB_ERR_NO_DAY_OF_WEEK, "A single digit day of week could not be found", string, begin);
+					break;
+				}
+				if (day_of_week < 0 || day_of_week > 6) {
+					add_pbf_error(s, TIMELIB_ERR_INVALID_DAY_OF_WEEK, "Day of week must be between 0 and 6", string, begin);
 					break;
 				}
 
