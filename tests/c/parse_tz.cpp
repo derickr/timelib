@@ -136,3 +136,24 @@ TEST(parse_tz, etc_gmt_2)
 	timelib_tzinfo_dtor(t->tz_info);
 	timelib_time_dtor(t);
 }
+
+TEST(parse_tz, corrupt_transitions_dont_increase)
+{
+	const timelib_tzdb_index_entry index[1] = {
+		{ (char*) "dummy", 0 }
+	};
+	const unsigned char data[] = {
+		'P', 'H', 'P', '2', 0, 'X', 'X', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		'T', 'Z', 'i', 'f', '2',
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	};
+	const timelib_tzdb corrupt_tzdb = { "1", 1, index, data };
+
+	int error;
+	timelib_tzinfo *tzi = timelib_parse_tzfile("dummy", &corrupt_tzdb, &error);
+	CHECK(tzi == NULL);
+	CHECK(error == TIMELIB_ERROR_CORRUPT_TRANSITIONS_DONT_INCREASE);
+}
