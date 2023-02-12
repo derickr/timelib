@@ -211,6 +211,7 @@ static int read_64bit_transitions(const unsigned char **tzf, timelib_tzinfo *tz)
 			buffer[i] = timelib_conv_int64_signed(buffer[i]);
 			/* Sanity check to see whether TS is just increasing */
 			if (i > 0 && !(buffer[i] > buffer[i - 1])) {
+				timelib_free(buffer);
 				return TIMELIB_ERROR_CORRUPT_TRANSITIONS_DONT_INCREASE;
 			}
 		}
