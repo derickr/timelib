@@ -105,6 +105,14 @@ TEST_GROUP(timelib_diff)
 		test_parse(offset_from, false, offset_to, false, from, to);
 	}
 
+	void dump_data(void)
+	{
+		printf("%s", "\n");
+		timelib_dump_date(t_from, -1);
+		timelib_dump_date(t_to, -1);
+		timelib_dump_rel_time(diff);
+	}
+
 	TEST_TEARDOWN()
 	{
 		if (tzi) {
@@ -383,4 +391,40 @@ TEST(timelib_diff, php_gh9880b)
 	LONGS_EQUAL(51, diff->days);
 	LONGS_EQUAL( 1, diff->invert);
 	CHECKDIFF(0, 1, 21, 22, 41, 45, 0);
+}
+
+TEST(timelib_diff, test_time_fall_type3_redodt_type3_st_fwd)
+{
+	test_parse("America/New_York", "2010-11-07 01:12:33", "2010-11-07 03:16:55");
+	CHECKDIFF(0, 0, 0, 3, 4, 22, 0);
+}
+
+TEST(timelib_diff, test_time_fall_type3_redodt_type3_st_rev)
+{
+	test_parse("America/New_York", "2010-11-07 03:16:55", "2010-11-07 01:12:33");
+	CHECKDIFF(0, 0, 0, 3, 4, 22, 0);
+}
+
+TEST(timelib_diff, test_time_fall_type3_dtsec_type3_stsec)
+{
+	test_parse("America/New_York", "2010-11-07 01:59:59", "2010-11-07 01:00:00");
+	CHECKDIFF(0, 0, 0, 0, 59, 59, 0);
+}
+
+TEST(timelib_diff, test_time_fall_type2_dtsec_type2_stsec)
+{
+	test_parse("America/New_York", "2010-11-07 01:59:59 EDT", "2010-11-07 01:00:00 EST");
+	CHECKDIFF(0, 0, 0, 0, 0, 1, 0);
+}
+
+TEST(timelib_diff, test_time_fall_type3_stsec_type3_dtsec)
+{
+	test_parse("America/New_York", "2010-11-07 01:00:00", "2010-11-07 01:59:59");
+	CHECKDIFF(0, 0, 0, 0, 59, 59, 0);
+}
+
+TEST(timelib_diff, test_time_fall_type2_stsec_type2_dtsec)
+{
+	test_parse("America/New_York", "2010-11-07 01:00:00 EST", "2010-11-07 01:59:59 EDT");
+	CHECKDIFF(0, 0, 0, 0, 0, 1, 0);
 }
