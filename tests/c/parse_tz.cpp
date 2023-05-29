@@ -137,7 +137,7 @@ TEST(parse_tz, etc_gmt_2)
 	timelib_time_dtor(t);
 }
 
-TEST(parse_tz, corrupt_transitions_dont_increase)
+TEST(parse_tz, corrupt_transitions_dont_increase_01)
 {
 	const timelib_tzdb_index_entry index[1] = {
 		{ (char*) "dummy", 0 }
@@ -156,4 +156,18 @@ TEST(parse_tz, corrupt_transitions_dont_increase)
 	timelib_tzinfo *tzi = timelib_parse_tzfile("dummy", &corrupt_tzdb, &error);
 	CHECK(tzi == NULL);
 	CHECK(error == TIMELIB_ERROR_CORRUPT_TRANSITIONS_DONT_INCREASE);
+}
+
+TEST(parse_tz, corrupt_transitions_dont_increase_02)
+{
+	int             error_code;
+	timelib_tzinfo *tzi;
+	timelib_tzdb   *test_directory = timelib_zoneinfo("tests/c/files");
+
+	tzi = timelib_parse_tzfile((char*) "NonContinuous", test_directory, &error_code);
+
+	CHECK(tzi == NULL);
+	LONGS_EQUAL(TIMELIB_ERROR_CORRUPT_TRANSITIONS_DONT_INCREASE, error_code);
+
+	timelib_zoneinfo_dtor(test_directory);
 }
