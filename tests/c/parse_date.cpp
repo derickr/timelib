@@ -5836,3 +5836,125 @@ TEST(parse_date, ozfuzz_55330)
 	LONGS_EQUAL(errors->error_count, 1);
 	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_NUMBER_OUT_OF_RANGE);
 }
+
+#define NBSP "\xC2\xA0"
+#define NNBSP "\xE2\x80\xAF"
+
+TEST(parse_date, icu_nnbsp_timetiny12)
+{
+	test_parse("8" NNBSP "pm");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(20, t->h);
+	LONGS_EQUAL(0, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, icu_nnbsp_timeshort12_01)
+{
+	test_parse("8:43" NNBSP "pm");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(20, t->h);
+	LONGS_EQUAL(43, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, icu_nnbsp_timeshort12_02)
+{
+	test_parse("8:43" NNBSP NNBSP "pm");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(20, t->h);
+	LONGS_EQUAL(43, t->i);
+	LONGS_EQUAL(0, t->s);
+}
+
+TEST(parse_date, icu_nnbsp_timelong12)
+{
+	test_parse("8:43.43" NNBSP "pm");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(20, t->h);
+	LONGS_EQUAL(43, t->i);
+	LONGS_EQUAL(43, t->s);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_00)
+{
+	test_parse("T17:21:49" "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_01)
+{
+	test_parse("T17:21:49" NNBSP "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_02)
+{
+	test_parse("T17:21:49" NNBSP NNBSP "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_03)
+{
+	test_parse("T17:21:49" NBSP "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_04)
+{
+	test_parse("T17:21:49" NNBSP NBSP "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_05)
+{
+	test_parse("T17:21:49" NBSP NNBSP "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_iso8601normtz_06)
+{
+	test_parse("T17:21:49" NBSP NBSP "GMT+0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(17, t->h);
+	LONGS_EQUAL(21, t->i);
+	LONGS_EQUAL(49, t->s);
+	LONGS_EQUAL(9000, t->z);
+}
+
+TEST(parse_date, icu_nnbsp_clf_01)
+{
+	test_parse("10/Oct/2000:13:55:36" NNBSP "-0230");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(2000, t->y);
+	LONGS_EQUAL(10, t->m);
+	LONGS_EQUAL(10, t->d);
+	LONGS_EQUAL(13, t->h);
+	LONGS_EQUAL(55, t->i);
+	LONGS_EQUAL(36, t->s);
+	LONGS_EQUAL(-9000, t->z);
+}
