@@ -3308,3 +3308,16 @@ TEST(parse_date_from_format, bug_gh9700)
 	test_parse("2022-02-18T00:00:00+01:00[Europe/Berlin]", "Y-m-d\\TH:i:sP[e]");
 	STRCMP_EQUAL("Europe/Berlin", t->tz_info->name);
 }
+
+TEST(parse_date_from_format, bug_gh11854)
+{
+	test_parse("Wed Aug  2 08:37:50 2023", "D M d H:i:s Y");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(2023, t->y);
+	LONGS_EQUAL( 8, t->m);
+	LONGS_EQUAL( 2, t->d);
+	LONGS_EQUAL( 8, t->h);
+	LONGS_EQUAL(37, t->i);
+	LONGS_EQUAL(50, t->s);
+}
