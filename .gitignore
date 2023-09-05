@@ -35,6 +35,7 @@ tests/date_from_isodate
 tests/enumerate-timezones
 timelib.a
 timelib.o
+timelib.so
 timelib_config.h
 tm2unixtime.o
 unixtime2tm.o
