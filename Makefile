@@ -1,4 +1,5 @@
 FLAGS=-O0 -ggdb3 \
+	-fPIC \
 	-Wall -Werror -Wextra \
 	-Wempty-body \
 	-Wenum-compare \
@@ -24,22 +25,24 @@ FLAGS=-O0 -ggdb3 \
 	-fno-exceptions \
 	-fno-omit-frame-pointer \
 	-fno-optimize-sibling-calls \
-	-fsanitize=address \
-	-fsanitize=undefined \
 	-fstack-protector \
 	-pedantic \
 	-DHAVE_STDINT_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
 
-CFLAGS=-Wdeclaration-after-statement ${FLAGS}
+CFLAGS_BASE=-Wdeclaration-after-statement ${FLAGS}
+CFLAGS=-fsanitize=address -fsanitize=undefined ${CFLAGS_BASE}
 
-CPPFLAGS=${FLAGS}
+CPPFLAGS=-fsanitize=address -fsanitize=undefined ${FLAGS}
 
-LDFLAGS=-lm -fsanitize=undefined -l:libubsan.so
+LDFLAGS_BASE=-lm
+LDFLAGS=${LDFLAGS_BASE} -fsanitize=undefined -l:libubsan.so
 
 TEST_LDFLAGS=-lCppUTest
 
 CC=gcc
 CXX=g++
+
+FILES=parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o
 
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-iso-week tests/test-abbr-to-id \
@@ -58,13 +61,13 @@ C_TESTS=tests/c/timelib_get_current_offset_test.o tests/c/timelib_decimal_hour.o
 	tests/c/timelib_hmsf_to_decimal_hour.o tests/c/dow.o \
 	tests/c/timelib_get_offset_info_test.o tests/c/add.o tests/c/sub.o
 
-TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS}
+TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS} ctest
 
 EXAMPLE_BINARIES=docs/date-from-iso-parts docs/date-from-parts docs/date-from-string \
 	docs/date-to-parts docs/show-tzinfo
 
-all: parse_date.o tm2unixtime.o unixtime2tm.o dow.o astro.o interval.o \
-		${TEST_BINARIES} ${EXAMPLE_BINARIES} ctest
+all: parse_date.o tm2unixtime.o unixtime2tm.o dow.o astro.o interval.o timelib.a timelib.so \
+		${TEST_BINARIES} ${EXAMPLE_BINARIES}
 
 parse_date.c: timezonemap.h parse_date.re
 	re2c -d -b parse_date.re > parse_date.c
@@ -72,8 +75,11 @@ parse_date.c: timezonemap.h parse_date.re
 parse_iso_intervals.c: parse_iso_intervals.re
 	re2c -d -b parse_iso_intervals.re > parse_iso_intervals.c
 
-timelib.a: parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o
-	ar -rc timelib.a parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o
+timelib.a: ${FILES}
+	ar -rc timelib.a ${FILES}
+
+timelib.so: ${FILES}
+	$(CC) $(CFLAGS_BASE) -shared -o timelib.so ${FILES} $(LDFLAGS_BASE)
 
 tests/tester-diff: timelib.a tests/tester-diff.c
 	$(CC) $(CFLAGS) -o tests/tester-diff tests/tester-diff.c timelib.a $(LDFLAGS)
@@ -136,13 +142,13 @@ clean-all: clean
 	rm -f timezonemap.h
 
 clean:
-	rm -f parse_iso_intervals.c parse_date.c *.o tests/c/*.o timelib.a ${TEST_BINARIES}
+	rm -f parse_iso_intervals.c parse_date.c *.o tests/c/*.o timelib.a timelib.so ${TEST_BINARIES}
 
 #%.o: %.cpp timelib.a
 #	$(CXX) -c $(CPPFLAGS) $(LDFLAGS) $< -o $@
 
 ctest: tests/c/all_tests.cpp timelib.a ${C_TESTS}
-	$(CXX) $(CPPFLAGS) $(LDFLAGS) tests/c/all_tests.cpp ${C_TESTS} timelib.a $(TEST_LDFLAGS) -o ctest
+	$(CXX) $(CPPFLAGS) $(LDFLAGS) tests/c/all_tests.cpp ${C_TESTS} $(TEST_LDFLAGS) timelib.a -o ctest
 
 test: ctest
 	@./ctest -c
