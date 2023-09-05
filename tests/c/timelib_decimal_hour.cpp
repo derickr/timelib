@@ -154,3 +154,51 @@ TEST(decimal_hour, convertNegativeZeroHMSFToDecimal)
 
 	DOUBLES_EQUAL(0, d, 0.00001);
 }
+
+TEST(decimal_hour, convertPositiveDecimalToHMSOverflow15)
+{
+	double d = 9.333333333333333;
+	int hour, min, sec;
+
+	timelib_decimal_hour_to_hms(d, &hour, &min, &sec);
+
+	LONGS_EQUAL(59, sec);
+	LONGS_EQUAL(19, min);
+	LONGS_EQUAL( 9, hour);
+}
+
+TEST(decimal_hour, convertPositiveDecimalToHMSOverflow16)
+{
+	double d = 9.3333333333333333;
+	int hour, min, sec;
+
+	timelib_decimal_hour_to_hms(d, &hour, &min, &sec);
+
+	LONGS_EQUAL( 0, sec);
+	LONGS_EQUAL(20, min);
+	LONGS_EQUAL( 9, hour);
+}
+
+TEST(decimal_hour, convertNegativeDecimalToHMSOverflow15)
+{
+	double d = -9.333333333333333;
+	int hour, min, sec;
+
+	timelib_decimal_hour_to_hms(d, &hour, &min, &sec);
+
+	LONGS_EQUAL(59, sec);
+	LONGS_EQUAL(19, min);
+	LONGS_EQUAL(-9, hour);
+}
+
+TEST(decimal_hour, convertNegativeDecimalToHMSOverflow16)
+{
+	double d = -9.3333333333333333;
+	int hour, min, sec;
+
+	timelib_decimal_hour_to_hms(d, &hour, &min, &sec);
+
+	LONGS_EQUAL( 0, sec);
+	LONGS_EQUAL(20, min);
+	LONGS_EQUAL(-9, hour);
+}
