@@ -5958,3 +5958,9 @@ TEST(parse_date, icu_nnbsp_clf_01)
 	LONGS_EQUAL(36, t->s);
 	LONGS_EQUAL(-9000, t->z);
 }
+
+TEST(parse_date, cf1)
+{
+	test_parse("@9223372036854775807 9sec");
+	LONGS_EQUAL(1, errors->error_count);
+}
