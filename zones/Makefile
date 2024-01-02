@@ -75,32 +75,32 @@ release-php-clean:
 release-php-clone: release-php-clean
 	git clone git@github.com:/php/php-src /tmp/tz-tmp
 
-release-php-commit-81: timezonedb.tgz
-	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
-	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
-	cd /tmp/tz-tmp; git checkout PHP-8.1
-	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
-	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
-
-release-php-commit-82: timezonedb.tgz release-php-commit-81
+release-php-commit-82: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	cd /tmp/tz-tmp; git checkout PHP-8.2
-	cd /tmp/tz-tmp; git merge PHP-8.1 --strategy=ours -m "Empty merge"
 	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
 	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
 
-release-php-commit-master: timezonedb.tgz release-php-commit-82
+release-php-commit-83: timezonedb.tgz release-php-commit-82
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
-	cd /tmp/tz-tmp; git checkout master
+	cd /tmp/tz-tmp; git checkout PHP-8.3
 	cd /tmp/tz-tmp; git merge PHP-8.2 --strategy=ours -m "Empty merge"
 	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
 	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
 
-release-php-commit: release-php-clone release-php-commit-81 release-php-commit-82 release-php-commit-master
+release-php-commit-master: timezonedb.tgz release-php-commit-83
+	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
+	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git checkout master
+	cd /tmp/tz-tmp; git merge PHP-8.3 --strategy=ours -m "Empty merge"
+	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
+	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+
+release-php-commit: release-php-clone release-php-commit-82 release-php-commit-83 release-php-commit-master
 
 release-php-push: release-php-commit
-	cd /tmp/tz-tmp; git push origin PHP-8.1 PHP-8.2 master
+	cd /tmp/tz-tmp; git push origin PHP-8.2 PHP-8.3 master
 
 release-php: release-php-clean release-php-clone release-php-commit release-php-push
