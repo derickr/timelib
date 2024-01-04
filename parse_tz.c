@@ -544,7 +544,7 @@ void timelib_dump_tzinfo(timelib_tzinfo *tz)
 		timelib_free(trans_str);
 	}
 	for (i = 0; i < tz->bit64.leapcnt; i++) {
-		date_str = format_ut_time(tz->trans[i], tz);
+		date_str = format_ut_time(tz->leap_times[i].trans, tz);
 		printf (
 			"%s (%20ld) = %d\n",
 			date_str,
