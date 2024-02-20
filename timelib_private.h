@@ -45,9 +45,7 @@
 #include <sys/types.h>
 #endif
 
-#if defined(HAVE_STDINT_H)
-# include <stdint.h>
-#endif
+#include <stdint.h>
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
