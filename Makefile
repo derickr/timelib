@@ -28,7 +28,7 @@ FLAGS=-O0 -ggdb3 \
 	-fno-optimize-sibling-calls \
 	-fstack-protector \
 	-pedantic \
-	-DHAVE_STDINT_H -DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
+	-DHAVE_GETTIMEOFDAY -DHAVE_UNISTD_H -DHAVE_DIRENT_H -I.# -DDEBUG_PARSER
 
 CFLAGS_BASE=-Wdeclaration-after-statement ${FLAGS}
 CFLAGS=-fsanitize=address -fsanitize=undefined ${CFLAGS_BASE}
