@@ -142,10 +142,10 @@ typedef struct _tlinfo tlinfo;
 
 typedef struct _tlocinfo
 {
-	char country_code[3];
 	double latitude;
 	double longitude;
 	char *comments;
+	char country_code[3];
 } tlocinfo;
 
 #define TIMELIB_POSIX_TRANS_TYPE_JULIAN_NO_FEB29   1
