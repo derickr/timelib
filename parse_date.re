@@ -42,6 +42,14 @@
 # endif
 #endif
 
+#ifndef HAVE_BUILTIN_SADDLL_OVERFLOW
+# if defined(__has_builtin)
+#  if __has_builtin(__builtin_saddll_overflow)
+#    define HAVE_BUILTIN_SADDLL_OVERFLOW
+#  endif
+# endif
+#endif
+
 #define EOI      257
 #define TIME     258
 #define DATE     259
@@ -713,7 +721,7 @@ static const timelib_relunit* timelib_lookup_relunit(const char **ptr)
 
 static void add_with_overflow(Scanner *s, timelib_sll *e, timelib_sll amount, int multiplier)
 {
-#if defined(__has_builtin) && __has_builtin(__builtin_saddll_overflow)
+#if defined(HAVE_BUILTIN_SADDLL_OVERFLOW)
 	if (__builtin_saddll_overflow(*e, amount * multiplier, e)) {
 		add_error(s, TIMELIB_ERR_NUMBER_OUT_OF_RANGE, "Number out of range");
 	}
