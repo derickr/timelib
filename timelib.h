@@ -357,6 +357,8 @@ typedef struct _timelib_tzdb {
 #  define TIMELIB_USE_BUILTIN_STRNDUP 0
 #  define timelib_strndup strndup
 # endif
+#else
+# define TIMELIB_USE_BUILTIN_STRNDUP 0
 #endif
 
 #define TIMELIB_NONE             0x00
