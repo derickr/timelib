@@ -18,6 +18,7 @@ FLAGS=-O0 -ggdb3 \
 	-Wshadow \
 	-Wsign-compare \
 	-Wsizeof-array-argument \
+	-Wundef \
 	-Wunused-but-set-variable \
 	-Wvariadic-macros \
 	-Wwrite-strings \
