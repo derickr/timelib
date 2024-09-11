@@ -3639,6 +3639,138 @@ TEST(parse_date, relative_02)
 	LONGS_EQUAL(-2, t->relative.s);
 }
 
+TEST(parse_date, relative_03)
+{
+	test_parse("++2 sec");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(2, t->relative.s);
+}
+
+TEST(parse_date, relative_04)
+{
+	test_parse("+-2 secs");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(-2, t->relative.s);
+}
+
+TEST(parse_date, relative_05)
+{
+	test_parse("-+2 sec");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(-2, t->relative.s);
+}
+
+TEST(parse_date, relative_06)
+{
+	test_parse("--2 secs");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(2, t->relative.s);
+}
+
+TEST(parse_date, relative_07)
+{
+	test_parse("+++2 sec");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(2, t->relative.s);
+}
+
+TEST(parse_date, relative_08)
+{
+	test_parse("++-2 secs");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(-2, t->relative.s);
+}
+
+TEST(parse_date, relative_09)
+{
+	test_parse("+-+2 sec");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(-2, t->relative.s);
+}
+
+TEST(parse_date, relative_10)
+{
+	test_parse("+--2 secs");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(2, t->relative.s);
+}
+
+TEST(parse_date, relative_11)
+{
+	test_parse("-++2 sec");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(-2, t->relative.s);
+}
+
+TEST(parse_date, relative_12)
+{
+	test_parse("-+-2 secs");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(2, t->relative.s);
+}
+
+TEST(parse_date, relative_13)
+{
+	test_parse("--+2 sec");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(2, t->relative.s);
+}
+
+TEST(parse_date, relative_14)
+{
+	test_parse("---2 secs");
+	LONGS_EQUAL(0, t->relative.y);
+	LONGS_EQUAL(0, t->relative.m);
+	LONGS_EQUAL(0, t->relative.d);
+	LONGS_EQUAL(0, t->relative.h);
+	LONGS_EQUAL(0, t->relative.i);
+	LONGS_EQUAL(-2, t->relative.s);
+}
+
 TEST(parse_date, relative_15)
 {
 	test_parse("+2 sec ago");
