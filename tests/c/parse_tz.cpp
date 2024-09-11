@@ -89,7 +89,7 @@ TEST(parse_tz, cst6cdt)
 
 	CHECK(t->tz_info != NULL);
 	STRCMP_EQUAL(t->tz_info->name, "CST6CDT");
-	LONGS_EQUAL(4, t->tz_info->bit64.typecnt);
+	LONGS_EQUAL(6, t->tz_info->bit64.typecnt);
 	LONGS_EQUAL(1, t->tz_info->posix_info->type_index_dst_type);
 	LONGS_EQUAL(0, tll);
 
