@@ -41,6 +41,11 @@ int main(int argc, char *argv[])
 		db = timelib_zoneinfo(argv[1]);
 	}
 
+	if (!db) {
+		printf("FAIL: Can not open timezone database\n");
+		exit(-1);
+	}
+
 	entries = timelib_timezone_identifiers_list(db, &count);
 
 	for (i = 0; i < count; i++) {
