@@ -40,57 +40,7 @@
 #include <inttypes.h>
 
 #ifdef _WIN32
-# if _MSC_VER >= 1600
 # include <stdint.h>
-# endif
-# ifndef SIZEOF_INT
-#  define SIZEOF_INT 4
-# endif
-# ifndef SIZEOF_LONG
-#  define SIZEOF_LONG 4
-# endif
-# ifndef int32_t
-typedef __int32           int32_t;
-# endif
-# ifndef uint32_t
-typedef unsigned __int32  uint32_t;
-# endif
-# ifndef int64_t
-typedef __int64           int64_t;
-# endif
-# ifndef uint64_t
-typedef unsigned __int64  uint64_t;
-# endif
-# ifndef PRId32
-#  define PRId32       "I32d"
-# endif
-# ifndef PRIu32
-#  define PRIu32       "I32u"
-# endif
-# ifndef PRId64
-#  define PRId64       "I64d"
-# endif
-# ifndef PRIu64
-#  define PRIu64       "I64u"
-# endif
-# ifndef INT32_MAX
-#define INT32_MAX    _I32_MAX
-# endif
-# ifndef INT32_MIN
-#define INT32_MIN    ((int32_t)_I32_MIN)
-# endif
-# ifndef UINT32_MAX
-#define UINT32_MAX   _UI32_MAX
-# endif
-# ifndef INT64_MIN
-#define INT64_MIN    ((int64_t)_I64_MIN)
-# endif
-# ifndef INT64_MAX
-#define INT64_MAX    _I64_MAX
-# endif
-# ifndef UINT64_MAX
-#define UINT64_MAX   _UI64_MAX
-# endif
 #endif
 
 #if (defined(__x86_64__) || defined(__LP64__) || defined(_LP64) || defined(_WIN64)) && !defined(TIMELIB_FORCE_LONG32)
