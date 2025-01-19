@@ -201,7 +201,8 @@ int timelib_diff_days(timelib_time *one, timelib_time *two)
 			days--;
 		}
 	} else {
-		days = fabs(floor(one->sse - two->sse) / 86400);
+		double ddays = fabs(floor(one->sse - two->sse) / 86400);
+		days = ddays <= INT_MAX ? ddays : INT_MAX;
 	}
 
 	return days;
