@@ -201,6 +201,8 @@ int timelib_diff_days(timelib_time *one, timelib_time *two)
 			days--;
 		}
 	} else {
+		/* FIXME: This truncates the range of days to INT_MAX to avoid an
+		 * overflow later on. Ideally, all APIs have better error handling. */
 		double ddays = fabs(floor(one->sse - two->sse) / 86400);
 		days = ddays <= INT_MAX ? ddays : INT_MAX;
 	}
