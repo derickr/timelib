@@ -65,10 +65,14 @@ typedef uint32_t timelib_ulong;
 typedef uint64_t timelib_ull;
 typedef int64_t timelib_sll;
 # define TIMELIB_LL_CONST(n) n ## i64
+# define TIMELIB_SLL_MIN INT64_MIN
+# define TIMELIB_SLL_MAX INT64_MAX
 #else
 typedef unsigned long long timelib_ull;
 typedef signed long long timelib_sll;
 # define TIMELIB_LL_CONST(n) n ## ll
+# define TIMELIB_SLL_MIN LLONG_MIN
+# define TIMELIB_SLL_MAX LLONG_MAX
 #endif
 
 typedef struct _ttinfo ttinfo;

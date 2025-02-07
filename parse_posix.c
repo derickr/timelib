@@ -490,6 +490,14 @@ timelib_sll timelib_ts_at_start_of_year(timelib_sll year)
 	timelib_sll epoch_leap_years = count_leap_years(1970);
 	timelib_sll current_leap_years = count_leap_years(year);
 
+	/* FIXME: handle error instead of clamping result */
+	if (year < (TIMELIB_SLL_MIN / SECS_PER_DAY + epoch_leap_years - current_leap_years) / DAYS_PER_YEAR + 1970) {
+		return TIMELIB_SLL_MIN;
+	}
+	if (year > (TIMELIB_SLL_MAX / SECS_PER_DAY + epoch_leap_years - current_leap_years) / DAYS_PER_YEAR + 1970) {
+		return TIMELIB_SLL_MAX;
+	}
+
 	return SECS_PER_DAY * (
 		((year-1970) * DAYS_PER_YEAR)
 		+ current_leap_years
