@@ -136,3 +136,20 @@ TEST(parse_tz, etc_gmt_2)
 	timelib_tzinfo_dtor(t->tz_info);
 	timelib_time_dtor(t);
 }
+
+TEST(parse_tz, parentheses)
+{
+	timelib_time *t = timelib_time_ctor();
+	const char *tz_name = "((UTC)))";
+	int is_dst;
+	int tz_not_found;
+
+	timelib_parse_zone(&tz_name, &is_dst, t, &tz_not_found, timelib_builtin_db(), test_date_parse_tzfile);
+
+	CHECK(t->tz_info != NULL);
+	STRCMP_EQUAL(t->tz_info->name, "UTC");
+	BYTES_EQUAL(*tz_name, ')');
+
+	timelib_tzinfo_dtor(t->tz_info);
+	timelib_time_dtor(t);
+}
