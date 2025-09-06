@@ -207,6 +207,37 @@ int timelib_valid_date(timelib_sll y, timelib_sll m, timelib_sll d)
 	}
 	return 1;
 }
+
+/* Checks if the given date is a weekend (Saturday or Sunday) */
+int timelib_is_weekend(timelib_time *time)
+{
+	timelib_sll dow;
+	
+	/* Ensure time parts are up to date */
+	if (!time->have_date) {
+			return 0;
+	}
+	
+	dow = timelib_day_of_week(time->y, time->m, time->d);
+	/* 0 = Sunday, 6 = Saturday */
+	return (dow == 0 || dow == 6);
+}
+
+/* Checks if the given date is a weekday (Monday to Friday) */
+int timelib_is_weekday(timelib_time *time)
+{
+	timelib_sll dow;
+	
+	/* Ensure time parts are up to date */
+	if (!time->have_date) {
+			return 0;
+	}
+	
+	dow = timelib_day_of_week(time->y, time->m, time->d);
+	/* 0 = Sunday, 6 = Saturday */
+	return (dow != 0 && dow != 6);
+}
+
 #if 0
 int main(void)
 {
