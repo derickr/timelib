@@ -71,10 +71,10 @@ all: parse_date.o tm2unixtime.o unixtime2tm.o dow.o astro.o interval.o timelib.a
 		${TEST_BINARIES} ${EXAMPLE_BINARIES}
 
 parse_date.c: timezonemap.h parse_date.re
-	re2c -d -b parse_date.re > parse_date.c
+	re2c -d -b parse_date.re --output parse_date.c
 
 parse_iso_intervals.c: parse_iso_intervals.re
-	re2c -d -b parse_iso_intervals.re > parse_iso_intervals.c
+	re2c -d -b parse_iso_intervals.re --output parse_iso_intervals.c
 
 timelib.a: ${FILES}
 	ar -rc timelib.a ${FILES}
