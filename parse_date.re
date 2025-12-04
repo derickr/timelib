@@ -159,7 +159,14 @@ static const timelib_tz_lookup_table timelib_timezone_utc[] = {
 };
 
 #if defined(_POSIX_TZNAME_MAX)
-# define MAX_ABBR_LEN _POSIX_TZNAME_MAX
+   /* Solaris exposes _POSIX_TZNAME_MAX = 3 unless _XPG6 is defined.
+    * That is too small for real-world timezone abbreviations ("EDT", "CEST", ...).
+    */
+   #if defined(__sun__) && _POSIX_TZNAME_MAX < 6
+       #define MAX_ABBR_LEN 6
+   #else
+       #define MAX_ABBR_LEN _POSIX_TZNAME_MAX
+   #endif
 #elif defined(TZNAME_MAX)
 # define MAX_ABBR_LEN TZNAME_MAX
 #else
