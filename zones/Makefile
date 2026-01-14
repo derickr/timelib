@@ -72,7 +72,7 @@ release-php-clean:
 	-rm -rf /tmp/tz-tmp
 
 release-php-clone: release-php-clean
-	git clone git@github.com:/php/php-src /tmp/tz-tmp
+	git clone --depth 5 --no-single-branch git@github.com:/php/php-src /tmp/tz-tmp
 
 release-php-commit-83: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
