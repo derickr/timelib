@@ -89,7 +89,15 @@ release-php-commit-84: timezonedb.tgz release-php-commit-83
 	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
 	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
 
-release-php-commit-master: timezonedb.tgz release-php-commit-84
+release-php-commit-85: timezonedb.tgz release-php-commit-84
+	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
+	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git checkout PHP-8.5
+	cd /tmp/tz-tmp; git merge PHP-8.4 --strategy=ours -m "Empty merge"
+	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
+	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+
+release-php-commit-master: timezonedb.tgz release-php-commit-85
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	cd /tmp/tz-tmp; git checkout master
@@ -97,9 +105,9 @@ release-php-commit-master: timezonedb.tgz release-php-commit-84
 	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
 	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
 
-release-php-commit: release-php-clone release-php-commit-83 release-php-commit-84 release-php-commit-master
+release-php-commit: release-php-clone release-php-commit-83 release-php-commit-84 release-php-commit-85 release-php-commit-master
 
 release-php-push: release-php-commit
-	cd /tmp/tz-tmp; git push origin PHP-8.3 PHP-8.4 master
+	cd /tmp/tz-tmp; git push origin PHP-8.3 PHP-8.4 PHP-8.5 master
 
 release-php: release-php-clean release-php-clone release-php-commit release-php-push
