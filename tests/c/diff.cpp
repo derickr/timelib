@@ -428,3 +428,54 @@ TEST(timelib_diff, test_time_fall_type2_stsec_type2_dtsec)
 	test_parse("America/New_York", "2010-11-07 01:00:00 EST", "2010-11-07 01:59:59 EDT");
 	CHECKDIFF(0, 0, 0, 0, 0, 1, 0);
 }
+
+
+TEST(timelib_diff, php_gh13857a)
+{
+	test_parse("Asia/Tokyo", "UTC", "2024-04-01 00:49:22", "2024-03-31 23:48:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+TEST(timelib_diff, php_gh13857b)
+{
+	test_parse("Asia/Tokyo", "UTC", "2024-01-01 00:49:22", "2023-12-31 23:48:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+TEST(timelib_diff, php_gh13857c)
+{
+	test_parse("Asia/Tokyo", "UTC", "2023-12-01 00:49:22", "2023-11-30 23:48:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+TEST(timelib_diff, php_gh13857d)
+{
+	test_parse("Asia/Tokyo", "UTC", "2024-02-01 00:49:22", "2024-01-31 23:48:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+
+TEST(timelib_diff, php_gh13857e)
+{
+	test_parse("UTC", "Asia/Tokyo", "2024-03-31 23:48:22", "2024-04-01 00:49:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+TEST(timelib_diff, php_gh13857f)
+{
+	test_parse("UTC", "Asia/Tokyo", "2023-12-31 23:48:22", "2024-01-01 00:49:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+TEST(timelib_diff, php_gh13857g)
+{
+	test_parse("UTC", "Asia/Tokyo", "2023-11-30 23:48:22", "2023-12-01 00:49:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
+TEST(timelib_diff, php_gh13857h)
+{
+	test_parse("UTC", "Asia/Tokyo", "2024-01-31 23:48:22", "2024-02-01 00:49:22");
+	CHECKDIFF(0, 0, 0, 7, 59, 0, 0);
+}
+
