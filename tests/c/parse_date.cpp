@@ -6096,3 +6096,24 @@ TEST(parse_date, cf1)
 	test_parse("@9223372036854775807 9sec");
 	LONGS_EQUAL(1, errors->error_count);
 }
+
+TEST(parse_date, php_gh_19803_01)
+{
+	test_parse("");
+	LONGS_EQUAL(errors->error_count, 1);
+	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_EMPTY_STRING);
+}
+
+TEST(parse_date, php_gh_19803_02)
+{
+	test_parse("  ");
+	LONGS_EQUAL(errors->error_count, 1);
+	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_EMPTY_STRING);
+}
+
+TEST(parse_date, php_gh_19803_03)
+{
+	test_parse("  ");
+	LONGS_EQUAL(errors->error_count, 1);
+	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_EMPTY_STRING);
+}

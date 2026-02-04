@@ -2021,7 +2021,7 @@ timelib_time *timelib_strtotime(const char *s, size_t len, timelib_error_contain
 	in.errors->error_messages = NULL;
 
 	if (len > 0) {
-		while (isspace((unsigned char)*s) && s < e) {
+		while (isspace((unsigned char)*s) && s <= e) {
 			s++;
 		}
 		while (isspace((unsigned char)*e) && e > s) {
