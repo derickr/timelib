@@ -72,42 +72,19 @@ release-php-clean:
 	-rm -rf /tmp/tz-tmp
 
 release-php-clone: release-php-clean
-	git clone --depth 5 --no-single-branch git@github.com:/php/php-src /tmp/tz-tmp
+	git clone --depth 25 --no-single-branch git@github.com:/php/php-src /tmp/tz-tmp
 
-release-php-commit-83: timezonedb.tgz
-	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
-	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
-	cd /tmp/tz-tmp; git checkout PHP-8.3
-	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
-	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
-
-release-php-commit-84: timezonedb.tgz release-php-commit-83
+release-php-commit-master: timezonedb.tgz
 	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
 	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	cd /tmp/tz-tmp; git checkout PHP-8.4
-	cd /tmp/tz-tmp; git merge PHP-8.3 --strategy=ours -m "Empty merge"
 	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
 	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
-
-release-php-commit-85: timezonedb.tgz release-php-commit-84
-	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
-	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
 	cd /tmp/tz-tmp; git checkout PHP-8.5
-	cd /tmp/tz-tmp; git merge PHP-8.4 --strategy=ours -m "Empty merge"
-	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
-	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
-
-release-php-commit-master: timezonedb.tgz release-php-commit-85
-	$(eval VERSION := $(shell cat version-info.txt | tail -n 1))
-	$(eval TZVERSION := $(shell cat version-info.txt | head -n 1))
+	cd /tmp/tz-tmp; git merge PHP-8.4
 	cd /tmp/tz-tmp; git checkout master
-	cd /tmp/tz-tmp; git merge PHP-8.4 --strategy=ours -m "Empty merge"
-	cp timezonedb.h /tmp/tz-tmp/ext/date/lib
-	cd /tmp/tz-tmp; git commit -m "Updated to version $(VERSION) ($(TZVERSION))" ext/date/lib/timezonedb.h
+	cd /tmp/tz-tmp; git push --atomic origin PHP-8.4 PHP-8.5 master
 
-release-php-commit: release-php-clone release-php-commit-83 release-php-commit-84 release-php-commit-85 release-php-commit-master
+release-php-commit: release-php-clone release-php-commit-master
 
-release-php-push: release-php-commit
-	cd /tmp/tz-tmp; git push origin PHP-8.3 PHP-8.4 PHP-8.5 master
-
-release-php: release-php-clean release-php-clone release-php-commit release-php-push
+release-php: release-php-clean release-php-clone release-php-commit
