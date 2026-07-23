@@ -163,7 +163,26 @@ static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz, unsigned
 	}
 }
 
-static void read_32bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
+/* Each transition is tagged with a single-byte index (see
+ * skip_32bit_transitions()/skip_64bit_transitions() below) into the types
+ * array, so no valid TZif file can ever have more than 256 types: an index
+ * beyond that could never be encoded. This bound is exact, not a guess.
+ */
+#define TIMELIB_TZINFO_MAX_TYPECNT 256
+
+/* timecnt/charcnt aren't format-bounded the way typecnt is, so these are
+ * generous-but-real limits instead of exact ones. A scan of the full IANA
+ * tzdata distribution (both the 32-bit and larger 64-bit header counts,
+ * covering every historical rule change since each zone's start) found a
+ * worst case of 310 transitions (Asia/Hebron) and 40 abbreviation bytes
+ * (America/Anchorage) — comfortably inside these limits with room for
+ * decades of future rule changes, while still rejecting a header that
+ * claims a wildly implausible count as corrupt or malicious input before
+ * it's used for allocation and copying sizes. */
+#define TIMELIB_TZINFO_MAX_TIMECNT 10000
+#define TIMELIB_TZINFO_MAX_CHARCNT 2000
+
+static int read_32bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	uint32_t buffer[6];
 
@@ -176,6 +195,16 @@ static void read_32bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	tz->_bit32.charcnt    = timelib_conv_int_unsigned(buffer[5]);
 
 	*tzf += sizeof(buffer);
+
+	if (
+		tz->_bit32.timecnt > TIMELIB_TZINFO_MAX_TIMECNT ||
+		tz->_bit32.typecnt > TIMELIB_TZINFO_MAX_TYPECNT ||
+		tz->_bit32.charcnt > TIMELIB_TZINFO_MAX_CHARCNT
+	) {
+		return TIMELIB_ERROR_CORRUPT_HEADER_COUNTS;
+	}
+
+	return 0;
 }
 
 static int detect_slim_file(timelib_tzinfo *tz)
@@ -637,7 +666,7 @@ static int skip_64bit_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 	}
 }
 
-static void read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
+static int read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	uint32_t buffer[6];
 
@@ -649,6 +678,16 @@ static void read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	tz->bit64.typecnt    = timelib_conv_int_unsigned(buffer[4]);
 	tz->bit64.charcnt    = timelib_conv_int_unsigned(buffer[5]);
 	*tzf += sizeof(buffer);
+
+	if (
+		tz->bit64.timecnt > TIMELIB_TZINFO_MAX_TIMECNT ||
+		tz->bit64.typecnt > TIMELIB_TZINFO_MAX_TYPECNT ||
+		tz->bit64.charcnt > TIMELIB_TZINFO_MAX_CHARCNT
+	) {
+		return TIMELIB_ERROR_CORRUPT_HEADER_COUNTS;
+	}
+
+	return 0;
 }
 
 static timelib_tzinfo* timelib_tzinfo_ctor(const char *name)
@@ -665,7 +704,7 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 	const unsigned char *tzf;
 	timelib_tzinfo *tmp;
 	int version;
-	int transitions_result, types_result;
+	int header32_result, header64_result, transitions_result, types_result;
 	unsigned int type = TIMELIB_TZINFO_ZONEINFO; /* TIMELIB_TZINFO_PHP or TIMELIB_TZINFO_ZONEINFO */
 
 	*error_code = TIMELIB_ERROR_NO_ERROR;
@@ -681,7 +720,11 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 		}
 //printf("- timezone: %s, version: %0d\n", timezone, version);
 
-		read_32bit_header(&tzf, tmp);
+		if ((header32_result = read_32bit_header(&tzf, tmp)) != 0) {
+			*error_code = header32_result;
+			timelib_tzinfo_dtor(tmp);
+			return NULL;
+		}
 		skip_32bit_transitions(&tzf, tmp);
 		skip_32bit_types(&tzf, tmp);
 
@@ -691,7 +734,11 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 			timelib_tzinfo_dtor(tmp);
 			return NULL;
 		}
-		read_64bit_header(&tzf, tmp);
+		if ((header64_result = read_64bit_header(&tzf, tmp)) != 0) {
+			*error_code = header64_result;
+			timelib_tzinfo_dtor(tmp);
+			return NULL;
+		}
 		if ((transitions_result = read_64bit_transitions(&tzf, tmp)) != 0) {
 			/* Corrupt file as transitions do not increase */
 			*error_code = transitions_result;

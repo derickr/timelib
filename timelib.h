@@ -330,6 +330,7 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_SLIM_FILE                           0x07 /* Warns if the file is SLIM, but we can't read it */
 #define TIMELIB_ERROR_CORRUPT_POSIX_STRING                0x08
 #define TIMELIB_ERROR_EMPTY_POSIX_STRING                  0x09 /* Warns if the POSIX string is empty, but still produces results */
+#define TIMELIB_ERROR_CORRUPT_HEADER_COUNTS               0x0A
 
 #ifdef __cplusplus
 extern "C" {
