@@ -163,11 +163,24 @@ static int read_preamble(const unsigned char **tzf, timelib_tzinfo *tz, unsigned
 	}
 }
 
-/* No real-world TZif file has anywhere near this many transitions/types/
- * abbreviation bytes; a header claiming otherwise is corrupt or malicious
- * input, and must be rejected before its counts are used for allocation
- * and copying sizes. */
-#define TIMELIB_TZINFO_MAX_COUNT 1000000
+/* Each transition is tagged with a single-byte index (see
+ * skip_32bit_transitions()/skip_64bit_transitions() below) into the types
+ * array, so no valid TZif file can ever have more than 256 types: an index
+ * beyond that could never be encoded. This bound is exact, not a guess.
+ */
+#define TIMELIB_TZINFO_MAX_TYPECNT 256
+
+/* timecnt/charcnt aren't format-bounded the way typecnt is, so these are
+ * generous-but-real limits instead of exact ones. A scan of the full IANA
+ * tzdata distribution (both the 32-bit and larger 64-bit header counts,
+ * covering every historical rule change since each zone's start) found a
+ * worst case of 310 transitions (Asia/Hebron) and 40 abbreviation bytes
+ * (America/Anchorage) — comfortably inside these limits with room for
+ * decades of future rule changes, while still rejecting a header that
+ * claims a wildly implausible count as corrupt or malicious input before
+ * it's used for allocation and copying sizes. */
+#define TIMELIB_TZINFO_MAX_TIMECNT 10000
+#define TIMELIB_TZINFO_MAX_CHARCNT 2000
 
 static int read_32bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 {
@@ -184,9 +197,9 @@ static int read_32bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	*tzf += sizeof(buffer);
 
 	if (
-		tz->_bit32.timecnt > TIMELIB_TZINFO_MAX_COUNT ||
-		tz->_bit32.typecnt > TIMELIB_TZINFO_MAX_COUNT ||
-		tz->_bit32.charcnt > TIMELIB_TZINFO_MAX_COUNT
+		tz->_bit32.timecnt > TIMELIB_TZINFO_MAX_TIMECNT ||
+		tz->_bit32.typecnt > TIMELIB_TZINFO_MAX_TYPECNT ||
+		tz->_bit32.charcnt > TIMELIB_TZINFO_MAX_CHARCNT
 	) {
 		return TIMELIB_ERROR_CORRUPT_HEADER_COUNTS;
 	}
@@ -667,9 +680,9 @@ static int read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	*tzf += sizeof(buffer);
 
 	if (
-		tz->bit64.timecnt > TIMELIB_TZINFO_MAX_COUNT ||
-		tz->bit64.typecnt > TIMELIB_TZINFO_MAX_COUNT ||
-		tz->bit64.charcnt > TIMELIB_TZINFO_MAX_COUNT
+		tz->bit64.timecnt > TIMELIB_TZINFO_MAX_TIMECNT ||
+		tz->bit64.typecnt > TIMELIB_TZINFO_MAX_TYPECNT ||
+		tz->bit64.charcnt > TIMELIB_TZINFO_MAX_CHARCNT
 	) {
 		return TIMELIB_ERROR_CORRUPT_HEADER_COUNTS;
 	}
