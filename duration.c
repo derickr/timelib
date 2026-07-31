@@ -77,15 +77,14 @@ int timelib_duration_add_static(
 
 	/* ++ / -- */
 	if (original->negative == additional->negative) {
-		new_duration->seconds = original->seconds + additional->seconds;
-		new_duration->nanoseconds = original->nanoseconds + additional->nanoseconds;
-		if (new_duration->nanoseconds >= NSECS_PER_SEC) {
-			new_duration->seconds++;
-			new_duration->nanoseconds -= NSECS_PER_SEC;
+		timelib_ull seconds = original->seconds + additional->seconds;
+		uint32_t nanoseconds = original->nanoseconds + additional->nanoseconds;
+		if (nanoseconds >= NSECS_PER_SEC) {
+			seconds++;
+			nanoseconds -= NSECS_PER_SEC;
 		}
-		new_duration->negative = original->negative;
 
-		return TIMELIB_ERROR_NO_ERROR;
+		return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, original->negative);
 	}
 
 	/* +- / -+ */
@@ -100,37 +99,22 @@ int timelib_duration_add_static(
 
 			return TIMELIB_ERROR_NO_ERROR;
 
-		case 1: {
-			timelib_sll tmp_nanoseconds;
-
-			new_duration->negative = additional->negative;
-			new_duration->seconds = additional->seconds - original->seconds;
-			tmp_nanoseconds = additional->nanoseconds - original->nanoseconds;
-			if (tmp_nanoseconds < 0) {
-				new_duration->seconds--;
-				new_duration->nanoseconds = tmp_nanoseconds + NSECS_PER_SEC;
-			} else {
-				new_duration->nanoseconds = tmp_nanoseconds;
-			}
-
-			return TIMELIB_ERROR_NO_ERROR;
-		}
-
 		case -1: {
-			timelib_sll tmp_nanoseconds;
+			timelib_ull seconds;
+			timelib_sll nanoseconds;
 
-			new_duration->negative = original->negative;
-			new_duration->seconds = original->seconds - additional->seconds;
-			tmp_nanoseconds = original->nanoseconds - additional->nanoseconds;
-			if (tmp_nanoseconds < 0) {
-				new_duration->seconds++;
-				new_duration->nanoseconds = tmp_nanoseconds + NSECS_PER_SEC;
-			} else {
-				new_duration->nanoseconds = tmp_nanoseconds;
+			seconds = additional->seconds - original->seconds;
+			nanoseconds = (timelib_sll)additional->nanoseconds - (timelib_sll)original->nanoseconds;
+			if (nanoseconds < 0) {
+				seconds--;
+				nanoseconds += NSECS_PER_SEC;
 			}
 
-			return TIMELIB_ERROR_NO_ERROR;
+			return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, additional->negative);
 		}
+
+		case 1:
+			return timelib_duration_add_static(new_duration, additional, original);
 	}
 
 	/* Should not be reachable due to semantics of timelib_duration_abs_compare() */
