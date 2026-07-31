@@ -6,12 +6,13 @@
 
 TEST_GROUP(duration)
 {
-	timelib_duration *d, *d_mod;
+	timelib_duration *d, *d2, *d_mod;
 	int error_code;
 
 	TEST_SETUP()
 	{
 		d = NULL;
+		d2 = NULL;
 		d_mod = NULL;
 	}
 
@@ -19,6 +20,9 @@ TEST_GROUP(duration)
 	{
 		if (d) {
 			timelib_duration_dtor(d);
+		}
+		if (d2) {
+			timelib_duration_dtor(d2);
 		}
 		if (d_mod) {
 			timelib_duration_dtor(d_mod);
@@ -63,7 +67,183 @@ TEST(duration, construct_with_out_of_range_nanoseconds)
 	POINTERS_EQUAL(NULL, d);
 }
 
-/** TODO: ADD **/
+TEST(duration, add_0ns_to_0ns)
+{
+	d = timelib_duration_ctor(0, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(0, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_1ns_to_0ns)
+{
+	d = timelib_duration_ctor(0, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_0ns_to_1ns)
+{
+	d = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_1ns_to_999999999ns)
+{
+	d = timelib_duration_ctor(0, 999999999, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(1, d_mod->seconds);
+	LONGS_EQUAL(0, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_minus1ns_to_1ns)
+{
+	d = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(0, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_minus1ns_to_0ns)
+{
+	d = timelib_duration_ctor(0, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(true, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_minus2ns_to_1ns)
+{
+	d = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 2, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(true, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_2ns_to_minus1ns)
+{
+	d = timelib_duration_ctor(0, 1, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 2, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_1s_to_minus999999999ns)
+{
+	d = timelib_duration_ctor(0, 999999999, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(1, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_minus1s_to_999999999ns)
+{
+	d = timelib_duration_ctor(0, 999999999, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(1, 0, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(true, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_1ns_to_9223372035s999999999ns)
+{
+	d = timelib_duration_ctor(9223372035, 999999999, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
+	POINTERS_EQUAL(NULL, d_mod);
+}
+
+TEST(duration, add_999999999ns_to_999999999ns)
+{
+	d = timelib_duration_ctor(0, 999999999, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 999999999, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d, d2, &error_code);
+	LONGS_EQUAL(1, d_mod->seconds);
+	LONGS_EQUAL(999999998, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
 
 /** TODO: SUB **/
 
