@@ -43,7 +43,7 @@ TEST_LDFLAGS=-lCppUTest
 CC=gcc
 CXX=g++
 
-FILES=parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o
+FILES=parse_iso_intervals.o parse_date.o unixtime2tm.o tm2unixtime.o dow.o parse_tz.o parse_zoneinfo.o timelib.o astro.o interval.o parse_posix.o duration.o
 
 MANUAL_TESTS=tests/tester-parse-interval \
 	tests/tester-iso-week tests/test-abbr-to-id \
@@ -60,7 +60,8 @@ C_TESTS=tests/c/timelib_get_current_offset_test.o tests/c/timelib_decimal_hour.o
 	tests/c/parse_date.o tests/c/php-rfc.o tests/c/diff.o tests/c/interval.o \
 	tests/c/timezones_same.o tests/c/diff_days.o \
 	tests/c/timelib_hmsf_to_decimal_hour.o tests/c/dow.o \
-	tests/c/timelib_get_offset_info_test.o tests/c/add.o tests/c/sub.o
+	tests/c/timelib_get_offset_info_test.o tests/c/add.o tests/c/sub.o \
+	tests/c/duration.o
 
 TEST_BINARIES=${MANUAL_TESTS} ${AUTO_TESTS} ctest
 

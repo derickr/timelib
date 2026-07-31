@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2024 Derick Rethans
+ * Copyright (c) 2015-2026 Derick Rethans
  * Copyright (c) 2018,2021 MongoDB, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -210,6 +210,12 @@ typedef struct _timelib_abbr_info {
 	int          dst;
 } timelib_abbr_info;
 
+typedef struct _timelib_duration {
+	timelib_ull  seconds;
+	uint32_t     nanoseconds;
+	bool         negative;
+} timelib_duration;
+
 #define TIMELIB_WARN_MASK                      0x1ff
 #define TIMELIB_ERR_MASK                       0x2ff
 
@@ -330,6 +336,10 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_SLIM_FILE                           0x07 /* Warns if the file is SLIM, but we can't read it */
 #define TIMELIB_ERROR_CORRUPT_POSIX_STRING                0x08
 #define TIMELIB_ERROR_EMPTY_POSIX_STRING                  0x09 /* Warns if the POSIX string is empty, but still produces results */
+#define TIMELIB_ERROR_SECONDS_OUT_OF_RANGE                0x0A /* Durations only allow 0..9223372035 */
+#define TIMELIB_ERROR_NANOSECONDS_OUT_OF_RANGE            0x0B /* Durations only allow 0..999999999 */
+#define TIMELIB_ERROR_DIVISION_BY_ZERO                    0x0C
+#define TIMELIB_ERROR_OVERFLOW                            0x0D
 
 #ifdef __cplusplus
 extern "C" {
@@ -1032,6 +1042,88 @@ timelib_posix_str* timelib_parse_posix_str(const char *posix);
  */
 void timelib_get_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, timelib_posix_transitions *transitions);
 
+/* from duration.c */
+
+/* Returns a newly allocated timelib_duration struct upon success, or NULL
+ * upon failure (such as out of range for seconds/nanoseconds) with *error set
+ * to a newly allocated error_message container (which you'll have to free).
+ * */
+timelib_duration *timelib_duration_ctor(
+	timelib_ull  seconds,
+	uint32_t     nanoseconds,
+	bool         negate,
+	int         *error_code
+);
+
+/* Returns a newly allocated timelib_duration struct upon success, or NULL
+ * upon failure with *error set to a newly allocated error_message container
+ * (which you'll have to free). */
+timelib_duration *timelib_duration_create_from_iso8601string(
+	const char            *string,
+	timelib_error_message *error
+);
+
+/* Frees up memory allocated for the duration struct. You must not use it or
+ * its elements after calling this function. */
+void timelib_duration_dtor(timelib_duration *duration);
+
+/* Adds two durations together, and returns a newly allocated one, or NULL, if
+ * there is an error (such as out of range) and a newly allocated
+ * timelib_error_message (which you must free). */
+timelib_duration *timelib_duration_add(
+	const timelib_duration *original,
+	const timelib_duration *additional,
+	int                    *error_code
+);
+
+/* Subtracts the second duration from the first one, and returns a newly
+ * allocated one, or NULL, if there is an error (such as out of range) and a
+ * newly allocated timelib_error_message (which you must free). It will also
+ * set the "negate" flag, if needed. */
+timelib_duration *timelib_duration_sub (
+	const timelib_duration *original,
+	const timelib_duration *minus,
+	int                    *error_code
+);
+
+/* Multiplies the duration with a certain integer factor. It returns a newly
+ * allocated duration, or NULL, if there is an error (such as out of range)
+ * and a newly allocated timelib_error_message (which you must free). */
+timelib_duration *timelib_duration_mul (
+	const timelib_duration *original,
+	uint64_t                factor,
+	int                    *error_code
+);
+
+/* Divides the duration with a certain integer factor. It returns a newly
+ * allocated duration, or NULL, if there is an error (such as out of range, or
+ * divide-by-0) and a newly allocated timelib_error_message (which you must
+ * free). The resulting duration is rounded *down* to nanosecond precision. */
+timelib_duration *timelib_duration_div (
+	const timelib_duration *original,
+	uint64_t                divisor,
+	int                    *error_code
+);
+
+/* Switches the 'negate' flag unless the duration represents 0 time */
+timelib_duration *timelib_duration_negate(
+	const timelib_duration *original,
+	int                    *error_code
+);
+
+/* Returns -1 if one is smaller than two, 0 if they're equal, and 1 if one is
+ * larger than two. IGNORING the negate flags */
+int timelib_duration_abs_compare(
+	const timelib_duration *one,
+	const timelib_duration *two
+);
+
+/* Returns -1 if one is smaller than two, 0 if they're equal, and 1 if one is
+ * larger than two. */
+int timelib_duration_compare(
+	const timelib_duration *one,
+	const timelib_duration *two
+);
 
 #ifdef __cplusplus
 } /* extern "C" */
