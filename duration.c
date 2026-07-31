@@ -154,73 +154,50 @@ timelib_duration *timelib_duration_add(
 	return tmp;
 }
 
-/**
- * From: https://stackoverflow.com/questions/1815367/catch-and-compute-overflow-during-multiplication-of-two-large-integers
- */
-static uint64_t hi(uint64_t x) {
-    return x >> 32;
-}
-
-static uint64_t lo(uint64_t x) {
-    return ((1ULL << 32) - 1) & x;
-}
-
-static void multiply(uint64_t a, uint64_t b, uint64_t *result, uint64_t *carry)
-{
-    // actually uint32_t would do, but the casting is annoying
-    uint64_t s0, s1, s2, s3;
-
-    uint64_t x = lo(a) * lo(b);
-    s0 = lo(x);
-
-    x = hi(a) * lo(b) + hi(x);
-    s1 = lo(x);
-    s2 = hi(x);
-
-    x = s1 + lo(a) * hi(b);
-    s1 = lo(x);
-
-    x = s2 + hi(a) * hi(b) + hi(x);
-    s2 = lo(x);
-    s3 = hi(x);
-
-    *result = s1 << 32 | s0;
-    *carry = s3 << 32 | s2;
-}
-
 int timelib_duration_mul_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
 	uint64_t                factor
 ) {
-	uint64_t ns_result, ns_carry, s_result, s_carry, extra_seconds;
+	uint64_t seconds, extra_seconds, nanoseconds;
 
-	multiply(original->nanoseconds, factor, &ns_result, &ns_carry);
-	if (ns_carry > 0) {
-		/* Handle carry situation of nanoseconds */
-		return TIMELIB_ERROR_OVERFLOW;
-	}
-
-	multiply(original->seconds, factor, &s_result, &s_carry);
-	if (s_carry > 0) {
-		return TIMELIB_ERROR_OVERFLOW;
-	}
-
-	extra_seconds = ns_result / NSECS_PER_SEC;
-	ns_result = ns_result % NSECS_PER_SEC;
-
-	if (UINT64_MAX - extra_seconds < s_result) {
-		return TIMELIB_ERROR_OVERFLOW;
-	}
-
-	new_duration->nanoseconds = ns_result;
-	new_duration->seconds = s_result + extra_seconds;
-
-	if (new_duration->seconds == 0 && new_duration->nanoseconds == 0) {
+	if (factor == 0) {
+		new_duration->seconds = 0;
+		new_duration->nanoseconds = 0;
 		new_duration->negative = false;
-	} else {
-		new_duration->negative = original->negative;
+
+		return TIMELIB_ERROR_NO_ERROR;
 	}
+
+	if (original->seconds > UINT64_MAX / factor) {
+		return TIMELIB_ERROR_OVERFLOW;
+	}
+
+	seconds = original->seconds * factor;
+
+	/* Calculate the number of whole seconds in the nanoseconds product.
+	 *
+	 * extra_seconds is guaranteed to be smaller than factor, because
+	 * original->nanoseconds is smaller than NSECS_PER_SEC. */
+	extra_seconds = original->nanoseconds * (factor / NSECS_PER_SEC);
+
+	/* This cannot overflow either, because NSECS_PER_SEC * NSECS_PER_SEC fits uint64_t.
+	 *
+	 * (nanoseconds * factor) % NSECS_PER_SEC is mathematically equivalent
+	 * to (nanoseconds * (factor % NSECS_PER_SEC)) % NSECS_PER_SEC. */
+	nanoseconds = original->nanoseconds * (factor % NSECS_PER_SEC);
+	extra_seconds += nanoseconds / NSECS_PER_SEC;
+	nanoseconds %= NSECS_PER_SEC;
+
+	if (UINT64_MAX - extra_seconds < seconds) {
+		return TIMELIB_ERROR_OVERFLOW;
+	}
+
+	seconds += extra_seconds;
+
+	new_duration->nanoseconds = nanoseconds;
+	new_duration->seconds = seconds;
+	new_duration->negative = original->negative;
 
 	return TIMELIB_ERROR_NO_ERROR;
 }

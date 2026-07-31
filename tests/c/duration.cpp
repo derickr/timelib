@@ -157,7 +157,10 @@ TEST(duration, multiply_2_nanoseconds_by_uintmax)
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 
 	d_mod = timelib_duration_mul(d, UINT64_MAX, &error_code);
-	LONGS_EQUAL(TIMELIB_ERROR_OVERFLOW, error_code);
+	LONGS_EQUAL(36893488147, d_mod->seconds);
+	LONGS_EQUAL(419103230, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 }
 
 TEST(duration, multiply_uint32max_minus_1_seconds_by_uint32max)
