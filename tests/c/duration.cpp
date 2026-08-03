@@ -616,8 +616,17 @@ TEST(duration, multiply_1_nanosecond_by_uintmax)
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 
 	d_mod = timelib_duration_mul(d1, UINT64_MAX, &error_code);
-	LONGS_EQUAL(18446744073, d_mod->seconds);
-	LONGS_EQUAL(709551615, d_mod->nanoseconds);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
+}
+
+TEST(duration, multiply_1_nanosecond_by_max_duration)
+{
+	d1 = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_mul(d1, 9223372035999999999, &error_code);
+	LONGS_EQUAL(9223372035, d_mod->seconds);
+	LONGS_EQUAL(999999999, d_mod->nanoseconds);
 	LONGS_EQUAL(false, d_mod->negative);
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 }
@@ -628,8 +637,17 @@ TEST(duration, multiply_2_nanoseconds_by_uintmax)
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 
 	d_mod = timelib_duration_mul(d1, UINT64_MAX, &error_code);
-	LONGS_EQUAL(36893488147, d_mod->seconds);
-	LONGS_EQUAL(419103230, d_mod->nanoseconds);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
+}
+
+TEST(duration, multiply_2_nanoseconds_by_half_max_duration)
+{
+	d1 = timelib_duration_ctor(0, 2, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_mul(d1, 4611686017999999999, &error_code);
+	LONGS_EQUAL(9223372035, d_mod->seconds);
+	LONGS_EQUAL(999999998, d_mod->nanoseconds);
 	LONGS_EQUAL(false, d_mod->negative);
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 }
@@ -640,10 +658,7 @@ TEST(duration, multiply_uint32max_minus_1_seconds_by_uint32max)
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 
 	d_mod = timelib_duration_mul(d1, 4294967296, &error_code);
-	UNSIGNED_LONGS_EQUAL(18446744069414584320, d_mod->seconds);
-	LONGS_EQUAL(0, d_mod->nanoseconds);
-	LONGS_EQUAL(false, d_mod->negative);
-	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
 }
 
 TEST(duration, multiply_uint32max_seconds_by_uint32max)
