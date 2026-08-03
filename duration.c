@@ -159,6 +159,76 @@ timelib_duration *timelib_duration_add(
 	return tmp;
 }
 
+
+int timelib_duration_sub_static(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	const timelib_duration *minus
+) {
+	/* +- */
+	if (!original->negative && minus->negative) {
+		return timelib_duration_add_abs_internal(new_duration, original, minus);
+	}
+
+	/* -+ */
+	if (original->negative && !minus->negative) {
+		int result = timelib_duration_add_abs_internal(new_duration, original, minus);
+
+		if (result != TIMELIB_ERROR_NO_ERROR) {
+			return result;
+		}
+
+		new_duration->negative = true;
+
+		return TIMELIB_ERROR_NO_ERROR;
+	}
+
+	/* ++ / -- */
+	if (original->negative == minus->negative) {
+		int c = timelib_duration_abs_compare(original, minus);
+
+		switch (c)
+		{
+			case 0:
+				return timelib_duration_null_abs_internal(new_duration);
+
+			case -1: {
+				timelib_duration tmp_duration;
+
+				int result = timelib_duration_sub_abs_internal(&tmp_duration, minus, original);
+				if (result != TIMELIB_ERROR_NO_ERROR) {
+					return result;
+				}
+
+				return timelib_duration_negate_static(new_duration, &tmp_duration);
+			}
+
+			case 1:
+				return timelib_duration_sub_abs_internal(new_duration, original, minus);
+		}
+	}
+
+	/* Should not be reachable due to semantics of comparisons above */
+	return TIMELIB_ERROR_NO_ERROR;
+}
+
+timelib_duration *timelib_duration_sub(
+	const timelib_duration *original,
+	const timelib_duration *minus,
+	int                    *error_code
+) {
+	timelib_duration *tmp = calloc(1, sizeof(timelib_duration));
+
+	*error_code = timelib_duration_sub_static(tmp, original, minus);
+
+	if (*error_code != TIMELIB_ERROR_NO_ERROR) {
+		free(tmp);
+		return NULL;
+	}
+
+	return tmp;
+}
+
 int timelib_duration_mul_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
