@@ -88,17 +88,17 @@ static int timelib_duration_add_abs_internal(
 static int timelib_duration_sub_abs_internal(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
-	const timelib_duration *additional
+	const timelib_duration *minus
 ) {
-	timelib_ull seconds = additional->seconds - original->seconds;
-	timelib_sll nanoseconds = (timelib_sll)additional->nanoseconds - (timelib_sll)original->nanoseconds;
+	timelib_ull seconds = original->seconds - minus->seconds;
+	timelib_sll nanoseconds = (timelib_sll)original->nanoseconds - (timelib_sll)minus->nanoseconds;
 
 	if (nanoseconds < 0) {
 		seconds--;
 		nanoseconds += NSECS_PER_SEC;
 	}
 
-	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, additional->negative);
+	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, original->negative);
 }
 
 static int timelib_duration_null_abs_internal(timelib_duration *new_duration)
@@ -132,7 +132,7 @@ int timelib_duration_add_static(
 			return timelib_duration_null_abs_internal(new_duration);
 
 		case -1:
-			return timelib_duration_sub_abs_internal(new_duration, original, additional);
+			return timelib_duration_sub_abs_internal(new_duration, additional, original);
 
 		case 1:
 			return timelib_duration_add_abs_internal(new_duration, additional, original);
