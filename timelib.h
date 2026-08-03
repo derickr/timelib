@@ -1076,6 +1076,12 @@ timelib_duration *timelib_duration_add(
 	int                    *error_code
 );
 
+int timelib_duration_add_static(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	const timelib_duration *additional
+);
+
 /* Subtracts the second duration from the first one, and returns a newly
  * allocated one, or NULL, if there is an error (such as out of range) and a
  * newly allocated timelib_error_message (which you must free). It will also
@@ -1086,6 +1092,12 @@ timelib_duration *timelib_duration_sub (
 	int                    *error_code
 );
 
+int timelib_duration_sub_static(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	const timelib_duration *minus
+);
+
 /* Multiplies the duration with a certain integer factor. It returns a newly
  * allocated duration, or NULL, if there is an error (such as out of range)
  * and a newly allocated timelib_error_message (which you must free). */
@@ -1093,6 +1105,12 @@ timelib_duration *timelib_duration_mul (
 	const timelib_duration *original,
 	uint64_t                factor,
 	int                    *error_code
+);
+
+int timelib_duration_mul_static(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	uint64_t                factor
 );
 
 /* Divides the duration with a certain integer factor. It returns a newly
@@ -1105,11 +1123,23 @@ timelib_duration *timelib_duration_div (
 	int                    *error_code
 );
 
+int timelib_duration_div_static(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	uint64_t                divisor
+);
+
 /* Switches the 'negate' flag unless the duration represents 0 time */
 timelib_duration *timelib_duration_negate(
 	const timelib_duration *original,
 	int                    *error_code
 );
+
+int timelib_duration_negate_static(
+	timelib_duration       *new_duration,
+	const timelib_duration *original
+);
+
 
 /* Returns -1 if one is smaller than two, 0 if they're equal, and 1 if one is
  * larger than two. IGNORING the negate flags */
