@@ -68,7 +68,7 @@ void timelib_duration_dtor(timelib_duration *duration)
 	free(duration);
 }
 
-static int timelib_duration_add_internal(
+static int timelib_duration_add_abs_internal(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
 	const timelib_duration *additional
@@ -85,7 +85,7 @@ static int timelib_duration_add_internal(
 }
 
 
-static int timelib_duration_sub_internal(
+static int timelib_duration_sub_abs_internal(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
 	const timelib_duration *additional
@@ -101,7 +101,7 @@ static int timelib_duration_sub_internal(
 	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, additional->negative);
 }
 
-static int timelib_duration_null_internal(timelib_duration *new_duration)
+static int timelib_duration_null_abs_internal(timelib_duration *new_duration)
 {
 	new_duration->negative = false;
 	new_duration->seconds = 0;
@@ -120,7 +120,7 @@ int timelib_duration_add_static(
 
 	/* ++ / -- */
 	if (original->negative == additional->negative) {
-		return timelib_duration_add_internal(new_duration, original, additional);
+		return timelib_duration_add_abs_internal(new_duration, original, additional);
 	}
 
 	/* +- / -+ */
@@ -129,13 +129,13 @@ int timelib_duration_add_static(
 	switch (c)
 	{
 		case 0:
-			return timelib_duration_null_internal(new_duration);
+			return timelib_duration_null_abs_internal(new_duration);
 
 		case -1:
-			return timelib_duration_sub_internal(new_duration, original, additional);
+			return timelib_duration_sub_abs_internal(new_duration, original, additional);
 
 		case 1:
-			return timelib_duration_add_internal(new_duration, additional, original);
+			return timelib_duration_add_abs_internal(new_duration, additional, original);
 	}
 
 	/* Should not be reachable due to semantics of timelib_duration_abs_compare() */
