@@ -165,47 +165,36 @@ int timelib_duration_sub_static(
 	const timelib_duration *original,
 	const timelib_duration *minus
 ) {
-	/* +- */
-	if (!original->negative && minus->negative) {
+	int c = 0;
+
+	/* +- / -+ */
+	if (original->negative != minus->negative) {
 		return timelib_duration_add_abs_internal(new_duration, original, minus);
 	}
 
-	/* -+ */
-	if (original->negative && !minus->negative) {
-		int result = timelib_duration_add_abs_internal(new_duration, original, minus);
-
-		if (result != TIMELIB_ERROR_NO_ERROR) {
-			return result;
-		}
-
-		new_duration->negative = true;
-
-		return TIMELIB_ERROR_NO_ERROR;
-	}
-
 	/* ++ / -- */
-	if (original->negative == minus->negative) {
-		int c = timelib_duration_abs_compare(original, minus);
+	c = timelib_duration_abs_compare(original, minus);
 
-		switch (c)
-		{
-			case 0:
-				return timelib_duration_null_abs_internal(new_duration);
+	switch (c)
+	{
+		case -1: {
+			/* minus has the larger value */
+			timelib_duration tmp_duration;
 
-			case -1: {
-				timelib_duration tmp_duration;
-
-				int result = timelib_duration_sub_abs_internal(&tmp_duration, minus, original);
-				if (result != TIMELIB_ERROR_NO_ERROR) {
-					return result;
-				}
-
-				return timelib_duration_negate_static(new_duration, &tmp_duration);
+			int result = timelib_duration_sub_abs_internal(&tmp_duration, minus, original);
+			if (result != TIMELIB_ERROR_NO_ERROR) {
+				return result;
 			}
 
-			case 1:
-				return timelib_duration_sub_abs_internal(new_duration, original, minus);
+			return timelib_duration_negate_static(new_duration, &tmp_duration);
 		}
+
+		case 0:
+			return timelib_duration_null_abs_internal(new_duration);
+
+		case 1:
+			/* original has the larger value */
+			return timelib_duration_sub_abs_internal(new_duration, original, minus);
 	}
 
 	/* Should not be reachable due to semantics of comparisons above */
