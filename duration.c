@@ -40,7 +40,12 @@ int timelib_duration_ctor_static(
 
 	duration->seconds = seconds;
 	duration->nanoseconds = nanoseconds;
-	duration->negative = negative;
+
+	if (seconds != 0 || nanoseconds != 0) {
+		duration->negative = negative;
+	} else {
+		duration->negative = false;
+	}
 
 	return TIMELIB_ERROR_NO_ERROR;
 }
@@ -299,21 +304,18 @@ int timelib_duration_div_static(
 	const timelib_duration *original,
 	uint64_t                divisor
 ) {
+	timelib_ull seconds;
+	uint32_t nanoseconds;
+
 	if (divisor < 1) {
 		return TIMELIB_ERROR_DIVISION_BY_ZERO;
 	}
 
-	new_duration->seconds = original->seconds / divisor;
-	new_duration->nanoseconds = original->nanoseconds + ((original->seconds % divisor) * NSECS_PER_SEC);
-	new_duration->nanoseconds = new_duration->nanoseconds / divisor;
+	seconds = original->seconds / divisor;
+	nanoseconds = original->nanoseconds + ((original->seconds % divisor) * NSECS_PER_SEC);
+	nanoseconds /= divisor;
 
-	if (new_duration->seconds == 0 && new_duration->nanoseconds == 0) {
-		new_duration->negative = false;
-	} else {
-		new_duration->negative = original->negative;
-	}
-
-	return TIMELIB_ERROR_NO_ERROR;
+	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, original->negative);
 }
 
 timelib_duration *timelib_duration_div(
@@ -335,16 +337,7 @@ timelib_duration *timelib_duration_div(
 
 int timelib_duration_negate_static(timelib_duration *new_duration, const timelib_duration *original)
 {
-	new_duration->seconds = original->seconds;
-	new_duration->nanoseconds = original->nanoseconds;
-
-	if (original->seconds == 0 && original->nanoseconds == 0) {
-		new_duration->negative = false;
-	} else {
-		new_duration->negative = !original->negative;
-	}
-
-	return TIMELIB_ERROR_NO_ERROR;
+	return timelib_duration_ctor_static(new_duration, original->seconds, original->nanoseconds, !original->negative);
 }
 
 timelib_duration *timelib_duration_negate(const timelib_duration *original, int *error_code)
