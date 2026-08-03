@@ -187,6 +187,36 @@ TEST(duration, add_2ns_to_minus1ns)
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 }
 
+TEST(duration, add_minus1ns_to_2ns)
+{
+	d1 = timelib_duration_ctor(0, 2, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d1, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
+TEST(duration, add_1ns_to_minus2ns)
+{
+	d1 = timelib_duration_ctor(0, 2, true, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d2 = timelib_duration_ctor(0, 1, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_add(d1, d2, &error_code);
+	LONGS_EQUAL(0, d_mod->seconds);
+	LONGS_EQUAL(1, d_mod->nanoseconds);
+	LONGS_EQUAL(true, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
 TEST(duration, add_1s_to_minus999999999ns)
 {
 	d1 = timelib_duration_ctor(0, 999999999, true, &error_code);

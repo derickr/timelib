@@ -128,14 +128,16 @@ int timelib_duration_add_static(
 
 	switch (c)
 	{
+		case -1:
+			/* additional has the larger value */
+			return timelib_duration_sub_abs_internal(new_duration, additional, original);
+
 		case 0:
 			return timelib_duration_null_abs_internal(new_duration);
 
-		case -1:
-			return timelib_duration_sub_abs_internal(new_duration, additional, original);
-
 		case 1:
-			return timelib_duration_add_abs_internal(new_duration, additional, original);
+			/* original has the larger value */
+			return timelib_duration_sub_abs_internal(new_duration, original, additional);
 	}
 
 	/* Should not be reachable due to semantics of timelib_duration_abs_compare() */
