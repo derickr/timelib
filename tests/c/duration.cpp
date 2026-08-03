@@ -60,6 +60,15 @@ TEST(duration, construct_with_negative_nanoseconds)
 	POINTERS_EQUAL(NULL, d1);
 }
 
+TEST(duration, construct_zero_with_negate)
+{
+	d1 = timelib_duration_ctor(0, 0, true, &error_code);
+	LONGS_EQUAL(0, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+	LONGS_EQUAL(false, d1->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
 TEST(duration, construct_with_out_of_range_nanoseconds)
 {
 	d1 = timelib_duration_ctor(0, 1000000000, false, &error_code);
