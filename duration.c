@@ -237,11 +237,7 @@ int timelib_duration_mul_static(
 	uint64_t seconds, extra_seconds, nanoseconds;
 
 	if (factor == 0) {
-		new_duration->seconds = 0;
-		new_duration->nanoseconds = 0;
-		new_duration->negative = false;
-
-		return TIMELIB_ERROR_NO_ERROR;
+		return timelib_duration_null_abs_internal(new_duration);
 	}
 
 	if (original->seconds > UINT64_MAX / factor) {
