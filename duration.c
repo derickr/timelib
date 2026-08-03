@@ -270,11 +270,7 @@ int timelib_duration_mul_static(
 
 	seconds += extra_seconds;
 
-	new_duration->nanoseconds = nanoseconds;
-	new_duration->seconds = seconds;
-	new_duration->negative = original->negative;
-
-	return TIMELIB_ERROR_NO_ERROR;
+	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, original->negative);
 }
 
 timelib_duration *timelib_duration_mul(
