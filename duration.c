@@ -68,6 +68,49 @@ void timelib_duration_dtor(timelib_duration *duration)
 	free(duration);
 }
 
+static int timelib_duration_add_internal(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	const timelib_duration *additional
+) {
+	timelib_ull seconds = original->seconds + additional->seconds;
+	uint32_t nanoseconds = original->nanoseconds + additional->nanoseconds;
+
+	if (nanoseconds >= NSECS_PER_SEC) {
+		seconds++;
+		nanoseconds -= NSECS_PER_SEC;
+	}
+
+	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, original->negative);
+}
+
+
+static int timelib_duration_sub_internal(
+	timelib_duration       *new_duration,
+	const timelib_duration *original,
+	const timelib_duration *additional
+) {
+	timelib_ull seconds = additional->seconds - original->seconds;
+	timelib_sll nanoseconds = (timelib_sll)additional->nanoseconds - (timelib_sll)original->nanoseconds;
+
+	if (nanoseconds < 0) {
+		seconds--;
+		nanoseconds += NSECS_PER_SEC;
+	}
+
+	return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, additional->negative);
+}
+
+static int timelib_duration_null_internal(timelib_duration *new_duration)
+{
+	new_duration->negative = false;
+	new_duration->seconds = 0;
+	new_duration->nanoseconds = 0;
+
+	return TIMELIB_ERROR_NO_ERROR;
+}
+
+
 int timelib_duration_add_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
@@ -77,14 +120,7 @@ int timelib_duration_add_static(
 
 	/* ++ / -- */
 	if (original->negative == additional->negative) {
-		timelib_ull seconds = original->seconds + additional->seconds;
-		uint32_t nanoseconds = original->nanoseconds + additional->nanoseconds;
-		if (nanoseconds >= NSECS_PER_SEC) {
-			seconds++;
-			nanoseconds -= NSECS_PER_SEC;
-		}
-
-		return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, original->negative);
+		return timelib_duration_add_internal(new_duration, original, additional);
 	}
 
 	/* +- / -+ */
@@ -93,28 +129,13 @@ int timelib_duration_add_static(
 	switch (c)
 	{
 		case 0:
-			new_duration->negative = false;
-			new_duration->seconds = 0;
-			new_duration->nanoseconds = 0;
+			return timelib_duration_null_internal(new_duration);
 
-			return TIMELIB_ERROR_NO_ERROR;
-
-		case -1: {
-			timelib_ull seconds;
-			timelib_sll nanoseconds;
-
-			seconds = additional->seconds - original->seconds;
-			nanoseconds = (timelib_sll)additional->nanoseconds - (timelib_sll)original->nanoseconds;
-			if (nanoseconds < 0) {
-				seconds--;
-				nanoseconds += NSECS_PER_SEC;
-			}
-
-			return timelib_duration_ctor_static(new_duration, seconds, nanoseconds, additional->negative);
-		}
+		case -1:
+			return timelib_duration_sub_internal(new_duration, original, additional);
 
 		case 1:
-			return timelib_duration_add_static(new_duration, additional, original);
+			return timelib_duration_add_internal(new_duration, additional, original);
 	}
 
 	/* Should not be reachable due to semantics of timelib_duration_abs_compare() */
