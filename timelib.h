@@ -1042,17 +1042,31 @@ timelib_posix_str* timelib_parse_posix_str(const char *posix);
  */
 void timelib_get_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, timelib_posix_transitions *transitions);
 
+
 /* from duration.c */
 
 /* Returns a newly allocated timelib_duration struct upon success, or NULL
- * upon failure (such as out of range for seconds/nanoseconds) with *error set
- * to a newly allocated error_message container (which you'll have to free).
- * */
+ * upon failure (such as out of range for seconds/nanoseconds) with
+ * *error_code set to a value from the TIMELIB_ERROR_* set.
+ */
 timelib_duration *timelib_duration_ctor(
 	timelib_ull  seconds,
 	uint32_t     nanoseconds,
-	bool         negate,
+	bool         negative,
 	int         *error_code
+);
+
+/* Updates 'duration' with the values of 'seconds', 'nanoseconds', and
+ * 'negative', after checking 'seconds' and 'nanoseconds' for their range. If
+ * either of them is out of range, it returns an error code from the
+ * TIMELIB_ERROR_* set. It also only sets 'negative' to true if 'seconds' and
+ * 'nanoseconds' aren't both NULL.
+ */
+int timelib_duration_ctor_static(
+	timelib_duration *duration,
+	timelib_ull       seconds,
+	uint32_t          nanoseconds,
+	bool              negative
 );
 
 /* Returns a newly allocated timelib_duration struct upon success, or NULL
@@ -1067,15 +1081,18 @@ timelib_duration *timelib_duration_create_from_iso8601string(
  * its elements after calling this function. */
 void timelib_duration_dtor(timelib_duration *duration);
 
-/* Adds two durations together, and returns a newly allocated one, or NULL, if
- * there is an error (such as out of range) and a newly allocated
- * timelib_error_message (which you must free). */
+/* Adds two durations together, and returns a newly allocated one, or NULL
+ * upon failure (such as out of range) with *error_code set to a value from
+ * the TIMELIB_ERROR_* set. */
 timelib_duration *timelib_duration_add(
 	const timelib_duration *original,
 	const timelib_duration *additional,
 	int                    *error_code
 );
 
+/* Adds two durations together, and updates the 'new_duration' argument with
+ * the calculated values. It returns an error code (from the TIMELIB_ERROR_*
+ * set), or TIMELIB_ERROR_NO_ERROR, if there was no error. */
 int timelib_duration_add_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
@@ -1083,15 +1100,18 @@ int timelib_duration_add_static(
 );
 
 /* Subtracts the second duration from the first one, and returns a newly
- * allocated one, or NULL, if there is an error (such as out of range) and a
- * newly allocated timelib_error_message (which you must free). It will also
- * set the "negate" flag, if needed. */
+ * allocated one, or NULL upon failure (such as out of range) with *error_code
+ * set to a value from the TIMELIB_ERROR_* set. */
 timelib_duration *timelib_duration_sub (
 	const timelib_duration *original,
 	const timelib_duration *minus,
 	int                    *error_code
 );
 
+/* Subtracts the second duration from the first one, and updates the
+ * 'new_duration' argument with the calculated values. It returns an error
+ * code (from the TIMELIB_ERROR_* set), or TIMELIB_ERROR_NO_ERROR, if there
+ * was no error. */
 int timelib_duration_sub_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
@@ -1099,50 +1119,61 @@ int timelib_duration_sub_static(
 );
 
 /* Multiplies the duration with a certain integer factor. It returns a newly
- * allocated duration, or NULL, if there is an error (such as out of range)
- * and a newly allocated timelib_error_message (which you must free). */
+ * allocated duration, or NULL, upon failure (such as out of range) with
+ * *error_code set to a value from the TIMELIB_ERROR_* set. */
 timelib_duration *timelib_duration_mul (
 	const timelib_duration *original,
 	uint64_t                factor,
 	int                    *error_code
 );
 
+/* Multiplies the duration with a certain integer factor, and updates the
+ * 'new_duration' argument with the calculated values. It returns an error
+ * code (from the TIMELIB_ERROR_* set), or TIMELIB_ERROR_NO_ERROR, if there
+ * was no error. */
 int timelib_duration_mul_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
 	uint64_t                factor
 );
 
-/* Divides the duration with a certain integer factor. It returns a newly
- * allocated duration, or NULL, if there is an error (such as out of range, or
- * divide-by-0) and a newly allocated timelib_error_message (which you must
- * free). The resulting duration is rounded *down* to nanosecond precision. */
+/* Divides the duration with a certain integer divisor. It returns a newly
+ * allocated duration, or NULL upon failure (such as div-by-0) with
+ * *error_code set to a value from the TIMELIB_ERROR_* set. */
 timelib_duration *timelib_duration_div (
 	const timelib_duration *original,
 	uint64_t                divisor,
 	int                    *error_code
 );
 
+/* Divides the duration with a certain integer divisor, and updates the
+ * 'new_duration' argument with the calculated values. It returns an error
+ * code (from the TIMELIB_ERROR_* set), or TIMELIB_ERROR_NO_ERROR, if there
+ * was no error. */
 int timelib_duration_div_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original,
 	uint64_t                divisor
 );
 
-/* Switches the 'negate' flag unless the duration represents 0 time */
+/* Switches the 'negate' flag of 'original' in a newly allocated duration, or
+ * NULL upon failure with *error_code set to a value from the TIMELIB_ERROR_*
+ * set */
 timelib_duration *timelib_duration_negate(
 	const timelib_duration *original,
 	int                    *error_code
 );
 
+/* Switches the 'negate' flag of 'original', and updates the 'new_duration'
+ * argument with the calculated value. It returns an error code (from the
+ * TIMELIB_ERROR_* set), or TIMELIB_ERROR_NO_ERROR, if there was no error. */
 int timelib_duration_negate_static(
 	timelib_duration       *new_duration,
 	const timelib_duration *original
 );
 
-
 /* Returns -1 if one is smaller than two, 0 if they're equal, and 1 if one is
- * larger than two. IGNORING the negate flags */
+ * larger than two — IGNORING the negate flags */
 int timelib_duration_abs_compare(
 	const timelib_duration *one,
 	const timelib_duration *two
