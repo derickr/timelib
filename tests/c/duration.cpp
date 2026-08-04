@@ -1029,3 +1029,144 @@ TEST(duration, compare_negative_and_positive_3)
 
 	LONGS_EQUAL(-1, timelib_duration_compare(d1, d_mod));
 }
+
+TEST(duration, from_iso8601_seconds)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT5S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(5, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_minutes_and_seconds)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT7M5S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(425, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_hours_minutes_and_seconds)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT10H7M5S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(36425, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_hours_and_seconds)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT10H5S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(36005, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_hours_and_minutes)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT2H30M", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(9000, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_empty_string)
+{
+	d1 = timelib_duration_create_from_iso8601string("", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_ISO8601_DURATION_PARSE_FAILURE, error_code);
+}
+
+TEST(duration, from_iso8601_just_p)
+{
+	d1 = timelib_duration_create_from_iso8601string("P", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_ISO8601_DURATION_PARSE_FAILURE, error_code);
+}
+
+TEST(duration, from_iso8601_no_information)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_ISO8601_DURATION_PARSE_FAILURE, error_code);
+}
+
+TEST(duration, from_iso8601_only_begin_time)
+{
+	d1 = timelib_duration_create_from_iso8601string("2026-08-04T12:41:00Z", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_MISSING_PERIOD, error_code);
+}
+
+TEST(duration, from_iso8601_begin_time_with_period)
+{
+	d1 = timelib_duration_create_from_iso8601string("2026-08-04T12:41:00Z/PT18H", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_ONLY_PERIOD_ALLOWED, error_code);
+}
+
+TEST(duration, from_iso8601_period_with_end_time)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT72H/2026-08-04T12:30:00Z", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_ONLY_PERIOD_ALLOWED, error_code);
+}
+
+TEST(duration, from_iso8601_period_with_recurrences)
+{
+	d1 = timelib_duration_create_from_iso8601string("R4/PT72H", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_ONLY_PERIOD_ALLOWED, error_code);
+}
+TEST(duration, from_iso8601_period_with_days)
+{
+	d1 = timelib_duration_create_from_iso8601string("P3D", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_DAYS_FOUND, error_code);
+}
+
+TEST(duration, from_iso8601_period_with_months)
+{
+	d1 = timelib_duration_create_from_iso8601string("P3M", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_DAYS_FOUND, error_code);
+}
+
+TEST(duration, from_iso8601_period_with_years)
+{
+	d1 = timelib_duration_create_from_iso8601string("P3Y", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_DURATION_DAYS_FOUND, error_code);
+}
+
+TEST(duration, from_iso8601_max_range)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT9223372035S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(9223372035, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_max_range_with_minutes)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT153722867M15S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(9223372035, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_max_range_with_hours_and_minutes)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT2562047H47M15S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	LONGS_EQUAL(9223372035, d1->seconds);
+	LONGS_EQUAL(0, d1->nanoseconds);
+}
+
+TEST(duration, from_iso8601_out_of_range)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT9223372036S", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
+}
+
+TEST(duration, from_iso8601_out_of_range_with_minutes)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT153722868M", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
+}
+
+TEST(duration, from_iso8601_out_of_range_with_hours_and_minutes)
+{
+	d1 = timelib_duration_create_from_iso8601string("PT2562048H", &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_SECONDS_OUT_OF_RANGE, error_code);
+}

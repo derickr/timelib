@@ -35,7 +35,7 @@
 
 #define TIMELIB_LLABS(y) (y < 0 ? (y * -1) : y)
 
-const char *timelib_error_messages[14] = {
+const char *timelib_error_messages[18] = {
 	"No error",
 	"Cannot allocate buffer for parsing",
 	"Corrupt tzfile: The transitions in the file don't always increase",
@@ -50,6 +50,10 @@ const char *timelib_error_messages[14] = {
 	"Nanoseconds value out of range",
 	"Division by zero",
 	"Integer Overflow",
+	"The ISO8601 duration string may only contain the period (P) aspect",
+	"The ISO8601 duration string is missing the perido (P) aspect",
+	"The ISO8601 duration string may only contain the time (T) aspect",
+	"The ISO8601 duration string could not be parsed",
 };
 
 const char *timelib_get_error_message(int error_code)

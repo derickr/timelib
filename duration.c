@@ -68,6 +68,62 @@ timelib_duration *timelib_duration_ctor(
 	return tmp;
 }
 
+timelib_duration *timelib_duration_create_from_iso8601string(
+	const char *string,
+	int        *error_code
+) {
+	timelib_time            *b = NULL, *e = NULL;
+	timelib_rel_time        *p = NULL;
+	int                      r = -1;
+	timelib_error_container *errors;
+	timelib_duration        *new_duration = NULL;
+
+	timelib_strtointerval(string, strlen(string), &b, &e, &p, &r, &errors);
+
+	if (errors->error_count > 0 || errors->warning_count > 0) {
+		*error_code = TIMELIB_ERROR_ISO8601_DURATION_PARSE_FAILURE;
+		goto free_elements;
+	}
+
+	if (!p) {
+		*error_code = TIMELIB_ERROR_DURATION_MISSING_PERIOD;
+		goto free_elements;
+	}
+
+	if (b != NULL || e != NULL || r != -1) {
+		*error_code = TIMELIB_ERROR_DURATION_ONLY_PERIOD_ALLOWED;
+		goto free_elements;
+	}
+
+	if (p->y > 0 || p->m >0 || p->d > 0) {
+		*error_code = TIMELIB_ERROR_DURATION_DAYS_FOUND;
+		goto free_elements;
+	}
+
+	new_duration = calloc(1, sizeof(timelib_duration));
+
+	*error_code = timelib_duration_ctor_static(new_duration, p->h * 3600 + p->i * 60 + p->s, 0, false);
+
+	if (*error_code != TIMELIB_ERROR_NO_ERROR) {
+		free(new_duration);
+		new_duration = NULL;
+	}
+
+free_elements:
+	if (b) {
+		timelib_time_dtor(b);
+	}
+	if (e) {
+		timelib_time_dtor(e);
+	}
+	if (p) {
+		timelib_rel_time_dtor(p);
+	}
+	timelib_error_container_dtor(errors);
+
+	return new_duration;
+}
+
 void timelib_duration_dtor(timelib_duration *duration)
 {
 	free(duration);

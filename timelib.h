@@ -340,6 +340,10 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_NANOSECONDS_OUT_OF_RANGE            0x0B /* Durations only allow 0..999999999 */
 #define TIMELIB_ERROR_DIVISION_BY_ZERO                    0x0C
 #define TIMELIB_ERROR_OVERFLOW                            0x0D
+#define TIMELIB_ERROR_DURATION_ONLY_PERIOD_ALLOWED        0x0E
+#define TIMELIB_ERROR_DURATION_MISSING_PERIOD             0x0F
+#define TIMELIB_ERROR_DURATION_DAYS_FOUND                 0x10
+#define TIMELIB_ERROR_ISO8601_DURATION_PARSE_FAILURE      0x11
 
 #ifdef __cplusplus
 extern "C" {
@@ -1073,8 +1077,8 @@ int timelib_duration_ctor_static(
  * upon failure with *error set to a newly allocated error_message container
  * (which you'll have to free). */
 timelib_duration *timelib_duration_create_from_iso8601string(
-	const char            *string,
-	timelib_error_message *error
+	const char *string,
+	int        *error_code
 );
 
 /* Frees up memory allocated for the duration struct. You must not use it or
