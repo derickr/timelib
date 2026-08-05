@@ -10,6 +10,7 @@ docs/date-from-parts
 docs/date-from-string
 docs/date-to-parts
 dow.o
+duration.o
 interval.o
 parse_date.c
 parse_date.o
