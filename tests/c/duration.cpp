@@ -752,6 +752,18 @@ TEST(duration, negative_divide_by_7)
 	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
 }
 
+TEST(duration, divide_15s_by_10)
+{
+	d1 = timelib_duration_ctor(15, 0, false, &error_code);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+
+	d_mod = timelib_duration_div(d1, 10, &error_code);
+	LONGS_EQUAL(1, d_mod->seconds);
+	LONGS_EQUAL(500000000, d_mod->nanoseconds);
+	LONGS_EQUAL(false, d_mod->negative);
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+}
+
 TEST(duration, negate_positive)
 {
 	d1 = timelib_duration_ctor(19, 78, false, &error_code);
