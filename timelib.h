@@ -211,7 +211,7 @@ typedef struct _timelib_abbr_info {
 } timelib_abbr_info;
 
 typedef struct _timelib_duration {
-	timelib_ull  seconds;
+	uint64_t     seconds;
 	uint32_t     nanoseconds;
 	bool         negative;
 } timelib_duration;
@@ -1054,7 +1054,7 @@ void timelib_get_transitions_for_year(timelib_tzinfo *tz, timelib_sll year, time
  * *error_code set to a value from the TIMELIB_ERROR_* set.
  */
 timelib_duration *timelib_duration_ctor(
-	timelib_ull  seconds,
+	uint64_t     seconds,
 	uint32_t     nanoseconds,
 	bool         negative,
 	int         *error_code
@@ -1068,7 +1068,7 @@ timelib_duration *timelib_duration_ctor(
  */
 int timelib_duration_ctor_static(
 	timelib_duration *duration,
-	timelib_ull       seconds,
+	uint64_t          seconds,
 	uint32_t          nanoseconds,
 	bool              negative
 );
