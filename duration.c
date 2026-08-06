@@ -344,7 +344,7 @@ int timelib_duration_div_static(
 	uint64_t                divisor
 ) {
 	uint64_t seconds;
-	uint32_t nanoseconds;
+	uint64_t nanoseconds;
 
 	if (divisor < 1) {
 		return TIMELIB_ERROR_DIVISION_BY_ZERO;
