@@ -83,6 +83,7 @@ release-php-commit-master: timezonedb.tgz
 	cd /tmp/tz-tmp; git checkout PHP-8.5
 	cd /tmp/tz-tmp; git merge PHP-8.4
 	cd /tmp/tz-tmp; git checkout master
+	cd /tmp/tz-tmp; git merge PHP-8.5
 	cd /tmp/tz-tmp; git push --atomic origin PHP-8.4 PHP-8.5 master
 
 release-php-commit: release-php-clone release-php-commit-master
