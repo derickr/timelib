@@ -3322,27 +3322,14 @@ TEST(parse_date_from_format, bug_gh11854)
 	LONGS_EQUAL(50, t->s);
 }
 
-/* Returns a cached tzinfo, so that the zone dropped by "!" is not leaked */
-static timelib_tzinfo *reset_cached_tz_get(const char *name, const timelib_tzdb *db, int *error_code)
-{
-	static timelib_tzinfo *cache[2];
-	static char           *names[2];
-	int                    i;
+/* Records the tzinfo handed to the parser, so that the teardown can free the
+ * one a "!" dropped: the parsed time no longer points at it. */
+static timelib_tzinfo *reset_last_tz = NULL;
 
-	for (i = 0; i < 2; i++) {
-		if (names[i] && strcmp(names[i], name) == 0) {
-			*error_code = TIMELIB_ERROR_NO_ERROR;
-			return cache[i];
-		}
-	}
-	for (i = 0; i < 2; i++) {
-		if (!names[i]) {
-			cache[i] = timelib_parse_tzfile(name, db, error_code);
-			names[i] = strdup(name);
-			return cache[i];
-		}
-	}
-	return timelib_parse_tzfile(name, db, error_code);
+static timelib_tzinfo *reset_recording_tz_get(const char *name, const timelib_tzdb *db, int *error_code)
+{
+	reset_last_tz = timelib_parse_tzfile(name, db, error_code);
+	return reset_last_tz;
 }
 
 TEST_GROUP(parse_date_from_format_reset)
@@ -3356,6 +3343,7 @@ TEST_GROUP(parse_date_from_format_reset)
 		t = NULL;
 		fallback = NULL;
 		errors = NULL;
+		reset_last_tz = NULL;
 	}
 
 	void parse(const char *input, const char *format)
@@ -3367,7 +3355,7 @@ TEST_GROUP(parse_date_from_format_reset)
 											   strlen(inputCopy),
 											   &errors,
 											   timelib_builtin_db(),
-											   reset_cached_tz_get,
+											   reset_recording_tz_get,
 											   &default_format_config);
 		free(formatCopy);
 		free(inputCopy);
@@ -3427,6 +3415,10 @@ TEST_GROUP(parse_date_from_format_reset)
 				timelib_tzinfo_dtor(fallback->tz_info);
 			}
 			timelib_time_dtor(fallback);
+		}
+		/* Dropped by "!", or never attached to 't' */
+		if (reset_last_tz && (!t || reset_last_tz != t->tz_info)) {
+			timelib_tzinfo_dtor(reset_last_tz);
 		}
 		if (t) {
 			if (t->tz_info) {
@@ -3515,6 +3507,15 @@ TEST(parse_date_from_format_reset, abbreviationThenAbbreviationFallback)
 	check_zone_is_fallback();
 }
 
+TEST(parse_date_from_format_reset, abbreviationThenOffsetFallback)
+{
+	parse("BST 2024-10-27 01:30", "T !Y-m-d H:i");
+	set_fallback_offset(3600);
+	fill_holes();
+	LONGS_EQUAL(TIMELIB_ZONETYPE_OFFSET, t->zone_type);
+	check_zone_is_fallback();
+}
+
 TEST(parse_date_from_format_reset, abbreviationThenIdentifierFallback)
 {
 	parse("BST 2024-10-27 01:30", "T !Y-m-d H:i");
@@ -3530,6 +3531,15 @@ TEST(parse_date_from_format_reset, offsetThenAbbreviationFallback)
 	set_fallback_abbr("EST", -5 * 3600, 0);
 	fill_holes();
 	LONGS_EQUAL(TIMELIB_ZONETYPE_ABBR, t->zone_type);
+	check_zone_is_fallback();
+}
+
+TEST(parse_date_from_format_reset, offsetThenIdentifierFallback)
+{
+	parse("+05:00 2024-10-27 01:30", "P !Y-m-d H:i");
+	set_fallback_id("America/New_York");
+	fill_holes();
+	LONGS_EQUAL(TIMELIB_ZONETYPE_ID, t->zone_type);
 	check_zone_is_fallback();
 }
 
