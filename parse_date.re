@@ -2107,7 +2107,16 @@ static void timelib_time_reset_fields(timelib_time *time)
 	time->d = 1;
 	time->h = time->i = time->s = 0;
 	time->us = 0;
+
+	/* Reset the time zone to the same state as before parsing started, so
+	 * that timelib_fill_holes() takes all of it from the fallback zone. */
+	time->z = TIMELIB_UNSET;
+	time->dst = TIMELIB_UNSET;
 	time->tz_info = NULL;
+	TIMELIB_TIME_FREE(time->tz_abbr);
+	time->zone_type = 0;
+	time->is_localtime = 0;
+	time->have_zone = 0;
 }
 
 static void timelib_time_reset_unset_fields(timelib_time *time)
