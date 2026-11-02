@@ -57,3 +57,10 @@ TEST(parse_intervals, combiningWeeksAndDays)
 	LONGS_EQUAL(12, p->d);
 	LONGS_EQUAL(2, p->h);
 }
+
+TEST(parse_intervals, errors)
+{
+	test_parse("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(17, errors->error_count);
+}
