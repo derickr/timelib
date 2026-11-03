@@ -2010,6 +2010,18 @@ timelib_time *timelib_strtotime(const char *s, size_t len, timelib_error_contain
 	in.errors->error_count = 0;
 	in.errors->error_messages = NULL;
 
+	if (memchr(s, '\0', len) != NULL) {
+		in.time = timelib_time_ctor();
+		add_error(&in, TIMELIB_ERR_UNEXPECTED_CHARACTER, "Unexpected character");
+		if (errors) {
+        	*errors = in.errors;
+		} else {
+			timelib_error_container_dtor(in.errors);
+		}
+
+		return in.time;
+	}
+
 	if (len > 0) {
 		while (isspace((unsigned char)*s) && s <= e) {
 			s++;
