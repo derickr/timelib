@@ -3321,3 +3321,10 @@ TEST(parse_date_from_format, bug_gh11854)
 	LONGS_EQUAL(37, t->i);
 	LONGS_EQUAL(50, t->s);
 }
+
+TEST(parse_date_from_format, max_errors_test)
+{
+	test_parse("1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17", "D D D D D D D D D D D D D D D D D D D");
+	LONGS_EQUAL(17, errors->error_count);
+	LONGS_EQUAL(0, errors->warning_count);
+}

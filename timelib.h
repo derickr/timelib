@@ -223,6 +223,7 @@ typedef struct _timelib_duration {
 #define TIMELIB_WARN_INVALID_TIME              0x102
 #define TIMELIB_WARN_INVALID_DATE              0x103
 #define TIMELIB_WARN_TRAILING_DATA             0x11a
+#define TIMELIB_WARN_TOO_MANY_WARNINGS         0x1ff
 
 #define TIMELIB_ERR_DOUBLE_TZ                  0x201
 #define TIMELIB_ERR_TZID_NOT_FOUND             0x202
@@ -262,6 +263,7 @@ typedef struct _timelib_duration {
 #define TIMELIB_ERR_FORMAT_LITERAL_MISMATCH    0x224
 #define TIMELIB_ERR_MIX_ISO_WITH_NATURAL       0x225
 #define TIMELIB_ERR_NUMBER_OUT_OF_RANGE        0x226
+#define TIMELIB_ERR_TOO_MANY_ERRORS            0x2ff
 
 #define TIMELIB_ZONETYPE_NONE   0
 #define TIMELIB_ZONETYPE_OFFSET 1

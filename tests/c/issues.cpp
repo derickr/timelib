@@ -750,7 +750,7 @@ TEST(issues, issue0094)
 
 	timelib_time   *t     = timelib_strtotime(str, sizeof(str), &error, timelib_builtin_db(), timelib_parse_tzfile);
 
-	LONGS_EQUAL(43690, error->error_count);
+	LONGS_EQUAL(17, error->error_count);
 
 	timelib_time_dtor(t);
 	timelib_error_container_dtor(error);
