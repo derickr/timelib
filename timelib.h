@@ -593,6 +593,8 @@ void timelib_strtointerval(const char *s, size_t len,
  * calculate the right timestamp.
  */
 void timelib_update_ts(timelib_time* time, timelib_tzinfo* tzi);
+/* When resolving an overlap, keep the current offset if it is still valid. */
+void timelib_update_ts_first(timelib_time* time, timelib_tzinfo* tzi);
 
 /**
  * Returns the number of days from the y/m/d fields of 'time' since the Unix
