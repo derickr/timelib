@@ -192,6 +192,54 @@ TEST(parse_date_from_format, tzOffsetHours)
 	LONGS_EQUAL(2 * 60 * 60, t->z);
 }
 
+TEST(parse_date_from_format, tzOffsetHoursMaxComponents)
+{
+	test_parse("2018/01/26 +99:59", "Y/m/d P");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(99 * 3600 + 59 * 60, t->z);
+
+	test_parse("2018/01/26 -995959", "Y/m/d O");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(-(99 * 3600 + 59 * 60 + 59), t->z);
+}
+
+TEST(parse_date_from_format, tzOffsetOutOfRangeWarns)
+{
+	const char *inputs[] = { "+05:99", "-0560", "+5:60", "+99:99", "+999999", "+05:00:60" };
+
+	for (size_t i = 0; i < sizeof(inputs) / sizeof(inputs[0]); i++) {
+		char str[32];
+
+		snprintf(str, sizeof(str), "2018/01/26 %s", inputs[i]);
+		test_parse(str, "Y/m/d P");
+		LONGS_EQUAL(0, errors->error_count);
+		LONGS_EQUAL(1, errors->warning_count);
+		LONGS_EQUAL(TIMELIB_WARN_INVALID_TZ_OFFSET, errors->warning_messages[0].error_code);
+		LONGS_EQUAL(11, errors->warning_messages[0].position);
+		LONGS_EQUAL(1, t->have_zone);
+	}
+
+	test_parse("2018/01/26 +05:99", "Y/m/d P");
+	LONGS_EQUAL(5 * 3600 + 99 * 60, t->z);
+}
+
+TEST(parse_date_from_format, tzOffsetMinutesOutOfRangeWarns)
+{
+	test_parse("2018/01/26 +5999", "Y/m/d Z");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(5999 * 60, t->z);
+
+	test_parse("2018/01/26 -6000", "Y/m/d Z");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(1, errors->warning_count);
+	LONGS_EQUAL(TIMELIB_WARN_INVALID_TZ_OFFSET, errors->warning_messages[0].error_code);
+	LONGS_EQUAL(-6000 * 60, t->z);
+
+	test_parse("2018/01/26 +71582788", "Y/m/d Z");
+	LONGS_EQUAL(1, errors->warning_count);
+	LONGS_EQUAL(TIMELIB_WARN_INVALID_TZ_OFFSET, errors->warning_messages[0].error_code);
+}
+
 TEST(parse_date_from_format, tzUtc)
 {
 	test_parse("2018/01/26 13:20:00Z", "Y/m/d H:i:sp");

@@ -5138,6 +5138,32 @@ TEST(parse_date, tzcorrection_18)
 	LONGS_EQUAL(-14965, t->z);
 }
 
+TEST(parse_date, tzcorrection_max_components)
+{
+	test_parse("2018-01-26 10:00 +24:59:59");
+	LONGS_EQUAL(0, errors->warning_count);
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(24 * 3600 + 59 * 60 + 59, t->z);
+}
+
+TEST(parse_date, tzcorrection_leap_second_warns)
+{
+	const char *inputs[] = { "+050060", "-050060", "+05:00:60", "GMT-05:00:60" };
+
+	for (size_t i = 0; i < sizeof(inputs) / sizeof(inputs[0]); i++) {
+		test_parse(inputs[i]);
+		LONGS_EQUAL(0, errors->error_count);
+		LONGS_EQUAL(1, errors->warning_count);
+		LONGS_EQUAL(TIMELIB_WARN_INVALID_TZ_OFFSET, errors->warning_messages[0].error_code);
+		LONGS_EQUAL(0, errors->warning_messages[0].position);
+	}
+
+	test_parse("2018-01-26 10:00 -05:00:60");
+	LONGS_EQUAL(0, errors->error_count);
+	LONGS_EQUAL(1, errors->warning_count);
+	LONGS_EQUAL(-(5 * 3600 + 60), t->z);
+}
+
 TEST(parse_date, tz_identifier_00)
 {
 	test_parse("01:00:03.12345 Europe/Amsterdam");
