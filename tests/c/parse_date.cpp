@@ -6117,3 +6117,13 @@ TEST(parse_date, php_gh_19803_03)
 	LONGS_EQUAL(errors->error_count, 1);
 	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_EMPTY_STRING);
 }
+
+TEST(parse_date, whitespace_only_no_nul)
+{
+	char *input = (char *) malloc(2);
+	memcpy(input, "  ", 2);
+	t = timelib_strtotime(input, 2, &errors, timelib_builtin_db(), timelib_parse_tzfile);
+	free(input);
+	LONGS_EQUAL(errors->error_count, 1);
+	LONGS_EQUAL(errors->error_messages[0].error_code, TIMELIB_ERR_EMPTY_STRING);
+}
