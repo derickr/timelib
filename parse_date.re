@@ -850,7 +850,7 @@ static timelib_long timelib_lookup_abbr(const char **ptr, int *dst, char **tz_ab
 #define sHOUR(a) (int)(a * 3600)
 #define sMIN(a) (int)(a * 60)
 
-static timelib_long timelib_parse_tz_cor(const char **ptr, int *tz_not_found, int *out_of_range)
+static timelib_long timelib_parse_tz_cor(const char **ptr, int *tz_not_found, bool *out_of_range)
 {
 	const char *begin = *ptr, *end;
 	timelib_long  tmp, hours = 0, minutes = 0, seconds = 0;
@@ -912,17 +912,17 @@ static timelib_long timelib_parse_tz_cor(const char **ptr, int *tz_not_found, in
 
 	*tz_not_found = 0;
 	if (minutes > 59 || seconds > 59) {
-		*out_of_range = 1;
+		*out_of_range = true;
 	}
 	return sHOUR(hours) + sMIN(minutes) + seconds;
 }
 
-static timelib_long timelib_parse_tz_minutes(const char **ptr, timelib_time *t, int *out_of_range)
+static timelib_long timelib_parse_tz_minutes(const char **ptr, timelib_time *t, bool *out_of_range)
 {
 	timelib_long retval = TIMELIB_UNSET, minutes;
 	const char *begin = *ptr;
 
-	*out_of_range = 0;
+	*out_of_range = false;
 
 	/* First character must be +/- */
 	if (**ptr != '+' && **ptr != '-') {
@@ -937,7 +937,7 @@ static timelib_long timelib_parse_tz_minutes(const char **ptr, timelib_time *t, 
 	/* Checked before sMIN(), which truncates to int */
 	minutes = strtol(begin + 1, NULL, 10);
 	if (minutes >= 100 * 60) {
-		*out_of_range = 1;
+		*out_of_range = true;
 	}
 
 	t->is_localtime = 1;
@@ -952,14 +952,14 @@ static timelib_long timelib_parse_tz_minutes(const char **ptr, timelib_time *t, 
 	return retval;
 }
 
-static timelib_long parse_zone(const char **ptr, int *dst, timelib_time *t, int *tz_not_found, int *offset_out_of_range, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
+static timelib_long parse_zone(const char **ptr, int *dst, timelib_time *t, int *tz_not_found, bool *offset_out_of_range, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
 {
 	timelib_tzinfo *res;
 	timelib_long            retval = 0;
 	size_t paren_count = 0;
 
 	*tz_not_found = 0;
-	*offset_out_of_range = 0;
+	*offset_out_of_range = false;
 
 	while (**ptr == ' ' || **ptr == '\t' || **ptr == '(') {
 		paren_count += **ptr == '(';
@@ -1020,14 +1020,15 @@ static timelib_long parse_zone(const char **ptr, int *dst, timelib_time *t, int 
 
 timelib_long timelib_parse_zone(const char **ptr, int *dst, timelib_time *t, int *tz_not_found, const timelib_tzdb *tzdb, timelib_tz_get_wrapper tz_wrapper)
 {
-	int offset_out_of_range;
+	bool offset_out_of_range;
 
 	return parse_zone(ptr, dst, t, tz_not_found, &offset_out_of_range, tzdb, tz_wrapper);
 }
 
 static timelib_long scanner_parse_zone(Scanner *s, const char **ptr, timelib_tz_get_wrapper tz_get_wrapper)
 {
-	int tz_not_found, offset_out_of_range;
+	int tz_not_found;
+	bool offset_out_of_range;
 	timelib_long z = parse_zone(ptr, &s->time->dst, s->time, &tz_not_found, &offset_out_of_range, s->tzdb, tz_get_wrapper);
 
 	if (tz_not_found) {
@@ -2575,7 +2576,8 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				break;
 			case TIMELIB_FORMAT_TIMEZONE_OFFSET: /* timezone */
 				{
-					int tz_not_found, offset_out_of_range;
+					int tz_not_found;
+					bool offset_out_of_range;
 
 					s->time->z = parse_zone(&ptr, &s->time->dst, s->time, &tz_not_found, &offset_out_of_range, s->tzdb, tz_get_wrapper);
 					if (tz_not_found) {
@@ -2591,7 +2593,7 @@ timelib_time *timelib_parse_from_format_with_map(const char *format, const char 
 				break;
 			case TIMELIB_FORMAT_TIMEZONE_OFFSET_MINUTES: /* timezone format +/-mmm */
 				{
-					int offset_out_of_range;
+					bool offset_out_of_range;
 
 					s->time->z = timelib_parse_tz_minutes(&ptr, s->time, &offset_out_of_range);
 					if (s->time->z == TIMELIB_UNSET) {
