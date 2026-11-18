@@ -919,7 +919,8 @@ static timelib_long timelib_parse_tz_cor(const char **ptr, int *tz_not_found, bo
 
 static timelib_long timelib_parse_tz_minutes(const char **ptr, timelib_time *t, bool *out_of_range)
 {
-	timelib_long retval = TIMELIB_UNSET, minutes;
+	timelib_long retval = TIMELIB_UNSET;
+	timelib_long minutes;
 	const char *begin = *ptr;
 
 	*out_of_range = false;
