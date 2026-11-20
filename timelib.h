@@ -222,6 +222,7 @@ typedef struct _timelib_duration {
 #define TIMELIB_WARN_DOUBLE_TZ                 0x101
 #define TIMELIB_WARN_INVALID_TIME              0x102
 #define TIMELIB_WARN_INVALID_DATE              0x103
+#define TIMELIB_WARN_INVALID_TZ_OFFSET         0x104
 #define TIMELIB_WARN_TRAILING_DATA             0x11a
 #define TIMELIB_WARN_TOO_MANY_WARNINGS         0x1ff
 
