@@ -834,3 +834,35 @@ TEST(posix, integration_02)
 	timelib_tzinfo_dtor(tzi);
 	timelib_zoneinfo_dtor(test_directory);
 }
+
+TEST(posix, integration_03)
+{
+	int                  error_code;
+	timelib_tzinfo      *tzi;
+	timelib_time_offset *to;
+	timelib_tzdb        *test_directory = timelib_zoneinfo("tests/c/files");
+
+	/* Only has an LMT type, so the EST and EDT types of the POSIX string both
+	 * need to be added */
+	tzi = timelib_parse_tzfile((char*) "New_York_No_Footer_Types", test_directory, &error_code);
+
+	LONGS_EQUAL(TIMELIB_ERROR_NO_ERROR, error_code);
+	CHECK(tzi != NULL);
+
+	/* 2024-01-15 12:00:00 UTC */
+	to = timelib_get_time_zone_info(1705320000, tzi);
+	LONGS_EQUAL(-18000, to->offset);
+	LONGS_EQUAL(0, to->is_dst);
+	STRCMP_EQUAL("EST", to->abbr);
+	timelib_time_offset_dtor(to);
+
+	/* 2024-07-15 12:00:00 UTC */
+	to = timelib_get_time_zone_info(1721044800, tzi);
+	LONGS_EQUAL(-14400, to->offset);
+	LONGS_EQUAL(1, to->is_dst);
+	STRCMP_EQUAL("EDT", to->abbr);
+	timelib_time_offset_dtor(to);
+
+	timelib_tzinfo_dtor(tzi);
+	timelib_zoneinfo_dtor(test_directory);
+}
