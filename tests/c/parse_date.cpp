@@ -7,7 +7,6 @@
 TEST_GROUP(parse_date)
 {
 	timelib_time *t;
-	int           i;
 	timelib_error_container *errors;
 
 	void test_parse(const char *input)
