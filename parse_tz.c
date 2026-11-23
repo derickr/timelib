@@ -426,7 +426,6 @@ static int integrate_posix_string(timelib_tzinfo *tz)
 	tz->posix_info->type_index_std_type = find_ttinfo_index(tz, tz->posix_info->std_offset, 0, tz->posix_info->std);
 	if (tz->posix_info->type_index_std_type == TIMELIB_UNSET) {
 		tz->posix_info->type_index_std_type = add_new_ttinfo_index(tz, tz->posix_info->std_offset, 0, tz->posix_info->std);
-		return 1;
 	}
 
 	/* If there is no DST set for this zone, return */
@@ -437,7 +436,6 @@ static int integrate_posix_string(timelib_tzinfo *tz)
 	tz->posix_info->type_index_dst_type = find_ttinfo_index(tz, tz->posix_info->dst_offset, 1, tz->posix_info->dst);
 	if (tz->posix_info->type_index_dst_type == TIMELIB_UNSET) {
 		tz->posix_info->type_index_dst_type = add_new_ttinfo_index(tz, tz->posix_info->dst_offset, 1, tz->posix_info->dst);
-		return 1;
 	}
 
 	return 1;
