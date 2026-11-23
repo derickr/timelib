@@ -70,7 +70,6 @@ static const timelib_format_config format_config_prefix = {
 TEST_GROUP(parse_date_from_format)
 {
 	timelib_time *t;
-	int           i;
 	timelib_error_container *errors;
 
 
