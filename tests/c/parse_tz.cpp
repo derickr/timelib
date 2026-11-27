@@ -172,6 +172,53 @@ TEST(parse_tz, corrupt_transitions_dont_increase_02)
 	timelib_zoneinfo_dtor(test_directory);
 }
 
+TEST(parse_tz, corrupt_ttisstdcnt_out_of_range)
+{
+	const timelib_tzdb_index_entry index[1] = {
+		{ (char*) "dummy", 0 }
+	};
+	/* 64-bit header declares ttisstdcnt=5 while typecnt=1, which would index
+	 * past tz->type (typecnt + 2 entries) in read_64bit_types. */
+	const unsigned char data[] = {
+		'P', 'H', 'P', '2', 0, 'X', 'X', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		'T', 'Z', 'i', 'f', '2',
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+		0, 0, 0, 0, 0, 0, 0, 0
+	};
+	const timelib_tzdb corrupt_tzdb = { "1", 1, index, data };
+
+	int error;
+	timelib_tzinfo *tzi = timelib_parse_tzfile("dummy", &corrupt_tzdb, &error);
+	CHECK(tzi == NULL);
+	LONGS_EQUAL(TIMELIB_ERROR_CORRUPT_COUNTS, error);
+}
+
+TEST(parse_tz, corrupt_abbr_idx_out_of_range)
+{
+	const timelib_tzdb_index_entry index[1] = {
+		{ (char*) "dummy", 0 }
+	};
+	/* The single ttinfo references abbreviation index 5 while charcnt=1, which
+	 * would read past tz->timezone_abbr. */
+	const unsigned char data[] = {
+		'P', 'H', 'P', '2', 0, 'X', 'X', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		'T', 'Z', 'i', 'f', '2',
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+		0, 0, 0, 0, 0, 5,
+		0
+	};
+	const timelib_tzdb corrupt_tzdb = { "1", 1, index, data };
+
+	int error;
+	timelib_tzinfo *tzi = timelib_parse_tzfile("dummy", &corrupt_tzdb, &error);
+	CHECK(tzi == NULL);
+	LONGS_EQUAL(TIMELIB_ERROR_CORRUPT_COUNTS, error);
+}
+
 TEST(parse_tz, parentheses)
 {
 	timelib_time *t = timelib_time_ctor();
