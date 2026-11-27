@@ -267,6 +267,10 @@ static int read_64bit_types(const unsigned char **tzf, timelib_tzinfo *tz)
 		tz->type[i].offset += (int32_t) (((uint32_t) buffer[j]) << 24) + (buffer[j + 1] << 16) + (buffer[j + 2] << 8) + tz->type[i].offset + buffer[j + 3];
 		tz->type[i].isdst = buffer[j + 4];
 		tz->type[i].abbr_idx = buffer[j + 5];
+		if (tz->type[i].abbr_idx >= tz->bit64.charcnt) {
+			timelib_free(buffer);
+			return TIMELIB_ERROR_CORRUPT_COUNTS;
+		}
 	}
 	timelib_free(buffer);
 
@@ -651,6 +655,21 @@ static void read_64bit_header(const unsigned char **tzf, timelib_tzinfo *tz)
 	*tzf += sizeof(buffer);
 }
 
+/* The TZif format requires isstd/isut counts to be either zero or equal to
+ * typecnt. They index into tz->type, so an out-of-range value is a heap
+ * overflow. */
+static int validate_64bit_header(timelib_tzinfo *tz)
+{
+	if (tz->bit64.ttisstdcnt != 0 && tz->bit64.ttisstdcnt != tz->bit64.typecnt) {
+		return TIMELIB_ERROR_CORRUPT_COUNTS;
+	}
+	if (tz->bit64.ttisgmtcnt != 0 && tz->bit64.ttisgmtcnt != tz->bit64.typecnt) {
+		return TIMELIB_ERROR_CORRUPT_COUNTS;
+	}
+
+	return 0;
+}
+
 static timelib_tzinfo* timelib_tzinfo_ctor(const char *name)
 {
 	timelib_tzinfo *t;
@@ -692,6 +711,11 @@ timelib_tzinfo *timelib_parse_tzfile(const char *timezone, const timelib_tzdb *t
 			return NULL;
 		}
 		read_64bit_header(&tzf, tmp);
+		if ((types_result = validate_64bit_header(tmp)) != 0) {
+			*error_code = types_result;
+			timelib_tzinfo_dtor(tmp);
+			return NULL;
+		}
 		if ((transitions_result = read_64bit_transitions(&tzf, tmp)) != 0) {
 			/* Corrupt file as transitions do not increase */
 			*error_code = transitions_result;

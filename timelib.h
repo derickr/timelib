@@ -347,6 +347,7 @@ typedef struct _timelib_tzdb {
 #define TIMELIB_ERROR_DURATION_MISSING_PERIOD             0x0F
 #define TIMELIB_ERROR_DURATION_DAYS_FOUND                 0x10
 #define TIMELIB_ERROR_ISO8601_DURATION_PARSE_FAILURE      0x11
+#define TIMELIB_ERROR_CORRUPT_COUNTS                      0x12 /* Header counts violate the TZif format invariants */
 
 #ifdef __cplusplus
 extern "C" {
