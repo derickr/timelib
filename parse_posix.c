@@ -135,7 +135,7 @@ static int read_sign(char **ptr)
 static timelib_sll read_number(char **ptr)
 {
 	const char *begin = *ptr;
-	int acc = 0;
+	timelib_sll acc = 0;
 
 	// skip leading 0's
 	while (**ptr == '0') {
@@ -143,8 +143,11 @@ static timelib_sll read_number(char **ptr)
 	}
 
 	while (**ptr >= '0' && **ptr <= '9') {
-		acc = acc * 10;
-		acc += (**ptr) - '0';
+		if (acc > (INT64_MAX - 9) / 10) {
+			acc = INT64_MAX;
+		} else {
+			acc = acc * 10 + ((**ptr) - '0');
+		}
 		(*ptr)++;
 	}
 
@@ -160,9 +163,10 @@ static timelib_sll read_offset(char **ptr)
 {
 	const char *begin;
 	int bias = read_sign(ptr);
-	int hours = 0;
-	int minutes = 0;
-	int seconds = 0;
+	timelib_sll hours = 0;
+	timelib_sll minutes = 0;
+	timelib_sll seconds = 0;
+	timelib_sll offset;
 
 	begin = *ptr;
 
@@ -194,9 +198,23 @@ static timelib_sll read_offset(char **ptr)
 		return TIMELIB_UNSET;
 	}
 
+	// Combine while saturating, so a crafted out-of-range component can't
+	// overflow the signed arithmetic (undefined behavior).
+	if (hours > INT64_MAX / 3600) {
+		offset = INT64_MAX;
+	} else {
+		offset = hours * 3600;
+		if (minutes > (INT64_MAX - offset) / 60) {
+			offset = INT64_MAX;
+		} else {
+			offset += minutes * 60;
+			offset = (seconds > INT64_MAX - offset) ? INT64_MAX : offset + seconds;
+		}
+	}
+
 	// multiplication with -1, because the offset in the identifier is the
 	// 'wrong' way around as for example EST5 is UTC-5 (and not +5)
-	return -1 * bias * (hours * 3600 + minutes * 60 + seconds);
+	return -1 * bias * offset;
 }
 
 
