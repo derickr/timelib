@@ -41,6 +41,16 @@ PARSE_TEST_STD(numeric_abbr_sec_06, "<4:56:02>+0:19:32",   "4:56:02",   -1172)
 PARSE_TEST_STD(numeric_abbr_sec_07, "<-4:56:02>00:19:32",  "-4:56:02",  -1172)
 PARSE_TEST_STD(numeric_abbr_sec_08, "<-4:56:02>0:19:32",   "-4:56:02",  -1172)
 
+TEST(posix, std_offset_number_overflow)
+{
+	// A huge offset number must saturate, not overflow the signed arithmetic.
+	timelib_posix_str *s = timelib_parse_posix_str("ABC999999999999999999999");
+	CHECK(s != NULL);
+	STRCMP_EQUAL("ABC", s->std);
+	CHECK(s->std_offset == -(timelib_sll) INT64_MAX);
+	timelib_posix_str_dtor(s);
+}
+
 PARSE_TEST_STD(str_abbr_hour_1, "UT0",      "UT",         0)
 PARSE_TEST_STD(str_abbr_hour_2, "EST5",     "EST",   -18000)
 PARSE_TEST_STD(str_abbr_hour_3, "ADSET-11", "ADSET", +39600)
